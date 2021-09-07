@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/comitem_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/comitem_profile"
+        android:layout_width="93dp"
+        android:layout_height="95dp"
+        android:layout_marginTop="60dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.104"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:srcCompat="@tools:sample/avatars" />
+
+    <TextView
+        android:id="@+id/comitem_nick"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="nickname"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/comitem_heart"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.079"
+        app:layout_constraintStart_toEndOf="@+id/comitem_profile"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.647" />
+
+    <ImageView
+        android:id="@+id/comitem_photo"
+        android:layout_width="330dp"
+        android:layout_height="366dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.533"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/comitem_heart"
+        app:srcCompat="@drawable/ic_launcher_background" />
+
+    <ImageButton
+        android:id="@+id/comitem_heart"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="124dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toStartOf="@+id/comitem_check"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@android:drawable/btn_star" />
+
+    <ImageButton
+        android:id="@+id/comitem_check"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="124dp"
+        android:layout_marginEnd="24dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@android:drawable/checkbox_on_background" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

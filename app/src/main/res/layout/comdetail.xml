@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/comdetail_constLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/comdetail_profile"
+        android:layout_width="93dp"
+        android:layout_height="95dp"
+        android:layout_marginTop="60dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.104"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:srcCompat="@tools:sample/avatars" />
+
+    <TextView
+        android:id="@+id/comdetail_nick"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="nickname"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/comdetail_heart"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.079"
+        app:layout_constraintStart_toEndOf="@+id/comdetail_profile"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.647" />
+
+    <ImageView
+        android:id="@+id/comdetail_photo"
+        android:layout_width="330dp"
+        android:layout_height="366dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.533"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/comdetail_heart"
+        app:srcCompat="@drawable/ic_launcher_background" />
+
+
+
+    <ImageButton
+        android:id="@+id/comdetail_heart"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="124dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toStartOf="@+id/comdetail_check"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@android:drawable/btn_star" />
+
+
+    <ImageButton
+        android:id="@+id/comdetail_check"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="124dp"
+        android:layout_marginEnd="24dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@android:drawable/ic_menu_add" />
+
+    <TextView
+        android:id="@+id/comdetail_text1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="승인하시겠습니까?"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.17"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/comdetail_photo" />
+
+    <Button
+        android:id="@+id/comdetail_accept"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="승인"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/comdetail_deny"
+        app:layout_constraintHorizontal_bias="0.566"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/comdetail_text1"
+        app:layout_constraintVertical_bias="0.353" />
+
+    <Button
+        android:id="@+id/comdetail_deny"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:layout_marginEnd="88dp"
+        android:layout_marginBottom="52dp"
+        android:text="거절"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/comdetail_text1"
+        app:layout_constraintVertical_bias="0.0" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
