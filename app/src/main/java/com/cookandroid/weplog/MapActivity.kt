@@ -10,11 +10,15 @@ import kotlinx.android.synthetic.main.activity_map.*
 class MapActivity: AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_map)
+        //setContentView(R.layout.activity_map)
 
-        map_start.setOnClickListener{
-            Toast.makeText(this@MapActivity, "Start 버튼 클릭", Toast.LENGTH_SHORT).show()
-        }
+
+
+
+
+//        map_start.setOnClickListener{
+//            Toast.makeText(this@MapActivity, "Start 버튼 클릭", Toast.LENGTH_SHORT).show()
+//        }
 
     }
 
