@@ -111,7 +111,7 @@ class StepsTrackerService : Service() {
     var mStepDetectorListener : StepDetectorListener ?= null
 
     private fun createNotificationChannel(){ // 백그라운드 서비스라는 걸 알려주는 알림창
-       val notificationChannel = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        val notificationChannel = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel(
                 CHANNEL_ID,
                 "The Step Detector notification",
