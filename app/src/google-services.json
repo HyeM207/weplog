@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "804853471593",
+    "project_id": "weplog-63b77",
+    "storage_bucket": "weplog-63b77.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:804853471593:android:fda6e02f44a2f49ad745f8",
+        "android_client_info": {
+          "package_name": "com.cookandroid.weplog"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "804853471593-vruv3i2eeu2t0n3je5i2np56uh5oevgg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPPPvQ__DSY7zPcdbsaWlSDyCTRkQjD4Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "804853471593-vruv3i2eeu2t0n3je5i2np56uh5oevgg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

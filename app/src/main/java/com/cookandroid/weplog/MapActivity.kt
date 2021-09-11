@@ -16,6 +16,8 @@ class MapActivity: AppCompatActivity() {
 
 
 
+
+
 //        map_start.setOnClickListener{
 //            Toast.makeText(this@MapActivity, "Start 버튼 클릭", Toast.LENGTH_SHORT).show()
 //        }
