@@ -77,6 +77,10 @@ class RecordActivity : AppCompatActivity() {
             var intent = Intent(this, RecordDetailActivity::class.java)
             startActivity(intent)
         }
+        rec_btn!!.setOnClickListener {
+            var intent = Intent(this, RecordChoiceActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     fun calculateDataMatrix(){
