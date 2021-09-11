@@ -3,7 +3,7 @@ package com.cookandroid.weplog
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast;
-import kotlinx.android.synthetic.main.activity_map.*
+//import kotlinx.android.synthetic.main.activity_map.*
 
 
 
