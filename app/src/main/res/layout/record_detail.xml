@@ -77,8 +77,8 @@
         <com.github.mikephil.charting.charts.BarChart
             android:id="@+id/rec_graph_detail"
             android:layout_width="match_parent"
-            android:layout_marginRight="8dp"
-            android:layout_marginLeft="8dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginLeft="16dp"
             android:layout_height="200dp"
             android:layout_gravity="center"/>
 
@@ -92,8 +92,8 @@
         <com.github.mikephil.charting.charts.BarChart
             android:id="@+id/rec_graph_detail2"
             android:layout_width="match_parent"
-            android:layout_marginRight="8dp"
-            android:layout_marginLeft="8dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginLeft="16dp"
             android:layout_height="200dp"
             android:layout_gravity="center"/>
 
