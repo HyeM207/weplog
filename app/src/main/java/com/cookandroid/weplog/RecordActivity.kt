@@ -15,8 +15,10 @@ import android.os.Bundle
 import android.os.IBinder
 import android.os.SystemClock
 import android.util.Log
+import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
 import androidx.core.app.NotificationCompat
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.components.XAxis
@@ -49,13 +51,17 @@ class RecordActivity : AppCompatActivity() {
 
     private var barchart: BarChart ?= null
     private var kcal : TextView ?= null
+    private var chart_cardview : CardView ?= null
+    private var rec_btn : Button ?= null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.record)
 
+        rec_btn = findViewById(R.id.rec_yrmn)
         barchart = findViewById(R.id.rec_graph)
         kcal = findViewById(R.id.rec_kcal)
+        chart_cardview = findViewById(R.id.rec_graph_cardview)
 
         var mStepsAnalysisIntent = Intent(this, StepsTrackerService::class.java)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -66,6 +72,11 @@ class RecordActivity : AppCompatActivity() {
         }
 
         calculateDataMatrix()
+
+        chart_cardview!!.setOnClickListener{
+            var intent = Intent(this, RecordDetailActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     fun calculateDataMatrix(){
