@@ -25,11 +25,17 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginLeft="20dp">
 
-            <com.github.mikephil.charting.charts.BarChart
+            <com.dinuscxj.progressbar.CircleProgressBar
                 android:id="@+id/rec_graph"
-                android:layout_width="200dp"
-                android:layout_height="200dp"
-                android:layout_gravity="center" />
+                android:layout_width="160dp"
+                android:layout_height="160dp"
+                android:layout_gravity="center"
+                app:progress_style="solid_line"
+                app:progress_stroke_width="10dp"
+                app:progress_stroke_cap="round"
+                app:progress_start_color="#FA8072"
+                app:progress_end_color="#FF7F50" />
+
 
         </androidx.cardview.widget.CardView>
 
