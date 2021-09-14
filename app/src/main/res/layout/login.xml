@@ -6,7 +6,7 @@
     android:layout_height="match_parent">
 
     <Button
-        android:id="@+id/login_btn1"
+        android:id="@+id/login_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
@@ -17,7 +17,7 @@
         app:layout_constraintTop_toBottomOf="@+id/login_pw" />
 
     <Button
-        android:id="@+id/login_btn2"
+        android:id="@+id/login_signUpBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="회원가입"
@@ -25,8 +25,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/login_btn1"
-        app:layout_constraintVertical_bias="0.145" />
+        app:layout_constraintTop_toBottomOf="@+id/login_btn"
+        app:layout_constraintVertical_bias="0.042" />
 
     <ImageView
         android:id="@+id/login_logo"
@@ -60,4 +60,15 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/login_email" />
+
+    <com.google.android.gms.common.SignInButton
+        android:id="@+id/login_googleBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/login_signUpBtn"
+        app:layout_constraintVertical_bias="0.061"></com.google.android.gms.common.SignInButton>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
