@@ -27,6 +27,7 @@ import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
+import com.google.firebase.database.DatabaseReference
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
@@ -37,6 +38,9 @@ import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
 import kotlin.reflect.KParameter
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
+
 
 
 const val WALKING = 0
@@ -49,6 +53,7 @@ const val RUNNINGPEAK = 30
 
 class RecordActivity : AppCompatActivity() {
 
+    private lateinit var database: DatabaseReference
     private var barchart: BarChart ?= null
     private var kcal : TextView ?= null
     private var chart_cardview : CardView ?= null
@@ -113,6 +118,7 @@ class StepsTrackerService : Service() {
     var mAccelerometerSensor : Sensor?= null
     var mAccelerometerListener : AccelerometerListener ?= null
     var mStepDetectorListener : StepDetectorListener ?= null
+    private lateinit var database: DatabaseReference
 
     private fun createNotificationChannel(){ // 백그라운드 서비스라는 걸 알려주는 알림창
         val notificationChannel = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -135,6 +141,8 @@ class StepsTrackerService : Service() {
     override fun onCreate() {
         super.onCreate()
         println("onCreate_Service")
+
+        database = Firebase.database.reference
 
         //db 연결 코드 넣기
 
@@ -335,11 +343,12 @@ class StepsTrackerService : Service() {
                     Calendar.DAY_OF_MONTH
                 )).toString()
             var size = mHighestPeakList.size
+            database.child("Pedometer").child("date").setValue(todayDate)
             println(size)
             for (i in 0..(size - 1)) {
                 if (mHighestPeakList.get(i).isTruePeak) {
                     if (mHighestPeakList.get(i).value!! > RUNNINGPEAK) {
-
+                        database.child("Pedometer").child("date").child(todayDate).child("type").setValue("running")
                         println("running" + mHighestPeakList.get(i).value!!.toString())
                     } else {
                         if (mHighestPeakList.get(i).value!! > JOGGINGPEAK) {
