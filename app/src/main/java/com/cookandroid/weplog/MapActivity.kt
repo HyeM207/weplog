@@ -19,7 +19,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.github.mikephil.charting.charts.Chart.LOG_TAG
-import kotlinx.android.synthetic.main.activity_map.*
+import kotlinx.android.synthetic.main.map.*
+import kotlinx.android.synthetic.main.map.*
 import net.daum.mf.map.api.MapPOIItem
 import net.daum.mf.map.api.MapPoint
 import net.daum.mf.map.api.MapReverseGeoCoder
@@ -42,7 +43,7 @@ class MapActivity: AppCompatActivity(), MapView.CurrentLocationEventListener, Ma
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_map)
+        setContentView(R.layout.map)
         map_view.setCurrentLocationEventListener(this)
 
 

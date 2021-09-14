@@ -19,7 +19,10 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.login.*
 
 
@@ -30,6 +33,7 @@ class Login : AppCompatActivity() {
     lateinit var login_btn: Button
     lateinit var login_email: EditText
     lateinit var login_pw: EditText
+    private lateinit var database: DatabaseReference
 
     //private lateinit var login_googleBtn : GoogleSignInClient
 
@@ -44,8 +48,8 @@ class Login : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.login)
 
-
-        val database: FirebaseDatabase = FirebaseDatabase.getInstance()
+        database = Firebase.database.reference
+        //val database: FirebaseDatabase = FirebaseDatabase.getInstance()
         auth = FirebaseAuth.getInstance()
 
         login_signUpBtn = findViewById(R.id.login_signUpBtn)
@@ -57,7 +61,7 @@ class Login : AppCompatActivity() {
         val user = FirebaseAuth.getInstance().currentUser
         if (user != null) {
             Toast.makeText(this, "[Login] currentUser가 null이 아님", Toast.LENGTH_SHORT).show()
-            var intent = Intent(this, MainActivity::class.java)
+            var intent = Intent(this, NavigationActivity::class.java)
             startActivity(intent)
             finish()
         }
@@ -79,7 +83,7 @@ class Login : AppCompatActivity() {
 
         //login_googleBtn = findViewById(R.id.login_googleBtn)
         login_googleBtn.setOnClickListener {
-            signIn()
+            GooglesignIn()
             Toast.makeText(this, "[Login] Google 버튼 누름", Toast.LENGTH_SHORT).show()
         }
 
@@ -97,22 +101,11 @@ class Login : AppCompatActivity() {
 
 
     override fun onStart() {
+        // 활동은 초기화 할 때 사용자가 현재 로그인되어 있는지 확인함
         super.onStart()
-            /*
-        val account = GoogleSignIn.getLastSignedInAccount(this)
-        if(account!==null){ // 이미 로그인 되어있을시 바로 메인 액티비티로 이동
-            var intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
-        }
 
-             */
         val currentUser = auth?.currentUser
-        if (currentUser != null){
-            var intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
-        }
-
-
+        updateUI(currentUser)
     }
 
 
@@ -131,7 +124,7 @@ class Login : AppCompatActivity() {
                             Toast.makeText(this, "로그인 완료", Toast.LENGTH_SHORT).show()
                             if (auth!!.currentUser != null) {
                                 Toast.makeText(this, "로그인 찐 완료", Toast.LENGTH_SHORT).show()
-                                var intent = Intent(this, MainActivity::class.java)
+                                var intent = Intent(this, NavigationActivity::class.java)
                                 startActivity(intent)
                                 finish()
                             }
@@ -151,7 +144,7 @@ class Login : AppCompatActivity() {
 
 
     // 구글 로그인
-    private fun signIn() {
+    private fun GooglesignIn() {
         Toast.makeText(this, "[Login] signIn 함수 실행", Toast.LENGTH_SHORT).show()
         val signInIntent : Intent = googleSignInClient!!.signInIntent
         startForResult.launch(signInIntent)
@@ -163,8 +156,7 @@ class Login : AppCompatActivity() {
 
                 if (result.resultCode == RESULT_OK) {
                     val intent: Intent = result.data!!
-                    val task: Task<GoogleSignInAccount> =
-                            GoogleSignIn.getSignedInAccountFromIntent(intent)
+                    val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(intent)
                     try {
                         val account = task.getResult(ApiException::class.java)
                         if (account != null) {
@@ -183,7 +175,8 @@ class Login : AppCompatActivity() {
             }
 
 
-
+    //사용자가 정상적으로 로그인하면 GoogleSignInAccount 객체에서 ID 토큰을 가져와서
+    // Firebase 사용자 인증 정보로 교환하고 해당 정보를 사용해 Firebase에 인증합니다.
      private fun firebaseAuthWithGoogle(idToken: String) {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         auth?.signInWithCredential(credential)
@@ -192,6 +185,27 @@ class Login : AppCompatActivity() {
                         // Sign in success, update UI with the signed-in user's information
                         Log.d("Login", "signInWithCredential:success")
                         Toast.makeText(this, "[Login] signInWithCredential:success", Toast.LENGTH_SHORT).show()
+
+                        val CurrentUser = FirebaseAuth.getInstance().currentUser
+                        var User = User()
+                        CurrentUser?.let {
+                            for (profile in it.providerData) {
+                                User.uid = CurrentUser?.uid
+                                User.email = CurrentUser?.email
+                               // google 연동이라 password는 따로 저장하지 않음
+                                User.nickname = CurrentUser?.displayName
+                                User.phone = CurrentUser?.phoneNumber
+                            }
+                            var UserValues = User.toMap()
+
+
+                            val uid = CurrentUser?.uid
+
+                            if (uid != null) {
+                                database.child("users").child(uid).setValue(UserValues)
+                            }
+
+                        }
                         val user = auth!!.currentUser
                         updateUI(user)
                     } else {
@@ -205,9 +219,9 @@ class Login : AppCompatActivity() {
 
     private fun updateUI(user: FirebaseUser?) { //update ui code here
         if (user != null) {
-            val intent = Intent(this, MainActivity::class.java)
+            val intent = Intent(this, NavigationActivity::class.java)
             startActivity(intent)
-            //finish()
+            finish()
         }
     }
 }
