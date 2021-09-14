@@ -63,10 +63,19 @@ class RecordActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.record)
 
+        var mCalendar = Calendar.getInstance()
+        var currentMonth = (mCalendar.get(Calendar.MONTH) + 1).toString()
+//        var todayDate =
+//            (mCalendar.get(Calendar.YEAR)).toString() + "/" + (mCalendar.get(Calendar.MONTH) + 1).toString() + "/" + (mCalendar.get(
+//                Calendar.DAY_OF_MONTH
+//            )).toString()
+
         rec_btn = findViewById(R.id.rec_yrmn)
         barchart = findViewById(R.id.rec_graph)
         kcal = findViewById(R.id.rec_kcal)
         chart_cardview = findViewById(R.id.rec_graph_cardview)
+
+        rec_btn!!.text = currentMonth + "월"
 
         var mStepsAnalysisIntent = Intent(this, StepsTrackerService::class.java)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -337,24 +346,43 @@ class StepsTrackerService : Service() {
 
         fun findStepTypeAndStoreInDB() { // db에 넣는 부분
             println("findStepTypeAndStoreInDB")
+            var count : Int = 0
             var mCalendar = Calendar.getInstance()
             var todayDate =
                 (mCalendar.get(Calendar.YEAR)).toString() + "/" + (mCalendar.get(Calendar.MONTH) + 1).toString() + "/" + (mCalendar.get(
                     Calendar.DAY_OF_MONTH
                 )).toString()
             var size = mHighestPeakList.size
-            database.child("Pedometer").child("date").setValue(todayDate)
+            database.child("Pedometer").child("date").child(todayDate).get().addOnSuccessListener {
+                Log.i("firebase", "Got value ${it.value}")
+                println("Got value ${it.value}")
+            }.addOnFailureListener{
+                database.child("Pedometer").child("date").setValue(todayDate)
+                count = 0
+            }
+            //database.child("Pedometer").child("date").setValue(todayDate)
             println(size)
             for (i in 0..(size - 1)) {
                 if (mHighestPeakList.get(i).isTruePeak) {
                     if (mHighestPeakList.get(i).value!! > RUNNINGPEAK) {
-                        database.child("Pedometer").child("date").child(todayDate).child("type").setValue("running")
+                        count = count + 1
+                        database.child("Pedometer").child("date").child(todayDate).child(count.toString()).child("type").setValue(RUNNING)
+                        database.child("Pedometer").child("date").child(todayDate).child(count.toString()).child("peak").setValue(mHighestPeakList.get(i).value!!.toInt())
+                        database.child("Pedometer").child("date").child(todayDate).child(count.toString()).child("time").setValue(mHighestPeakList.get(i).time!!)
                         println("running" + mHighestPeakList.get(i).value!!.toString())
                     } else {
                         if (mHighestPeakList.get(i).value!! > JOGGINGPEAK) {
+                            count = count + 1
+                            database.child("Pedometer").child("date").child(todayDate).child(count.toString()).child("type").setValue(JOGGING)
+                            database.child("Pedometer").child("date").child(todayDate).child(count.toString()).child("peak").setValue(mHighestPeakList.get(i).value!!.toInt())
+                            database.child("Pedometer").child("date").child(todayDate).child(count.toString()).child("time").setValue(mHighestPeakList.get(i).time!!)
                             //mStepsTrackerDBHelper!!.createStepsEntry(mHighestPeakList.get(i).time!!, JOGGING, mHighestPeakList.get(i).value!!.toInt())
                             println("jogging" + mHighestPeakList.get(i).value!!.toString())
                         } else {
+                            count = count + 1
+                            database.child("Pedometer").child("date").child(todayDate).child(count.toString()).child("type").setValue(WALKING)
+                            database.child("Pedometer").child("date").child(todayDate).child(count.toString()).child("peak").setValue(mHighestPeakList.get(i).value!!.toInt())
+                            database.child("Pedometer").child("date").child(todayDate).child(count.toString()).child("time").setValue(mHighestPeakList.get(i).time!!)
                             //mStepsTrackerDBHelper!!.createStepsEntry(mHighestPeakList.get(i).time!!, WALKING, mHighestPeakList.get(i).value!!.toInt())
                             println("walking" + mHighestPeakList.get(i).value!!.toString())
                         }
