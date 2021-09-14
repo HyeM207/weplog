@@ -15,8 +15,7 @@
         android:theme="@style/Theme.Weplog"
         android:usesCleartextTraffic="true">
         <activity android:name=".SignUp"></activity>
-        <activity android:name=".MapActivity">
-        android:theme="@style/Theme.Weplog">
+        <activity android:name=".MapActivity"></activity>
         <activity android:name=".MainActivity"></activity>
         <activity android:name=".Login">
             <intent-filter>
