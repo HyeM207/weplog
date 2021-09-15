@@ -32,7 +32,11 @@ class QRcodeScanner : AppCompatActivity() {
             } else {
                 //var toast = Toast(this)
                // toast.initQrcodeToast(result.contents)
+                var intent = Intent(this, NavigationActivity::class.java)
+                startActivity(intent)
                 Toast.makeText(this, result.contents.toString(), Toast.LENGTH_SHORT).show()
+
+
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data)
