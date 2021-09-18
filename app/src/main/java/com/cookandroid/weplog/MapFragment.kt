@@ -130,6 +130,7 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
                 map_btnstop.visibility = View.INVISIBLE
                 map_btnend.visibility = View.INVISIBLE
             }
+        }
 
         createLocationRequest()
 
@@ -303,10 +304,7 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
                 startActivity(intent)
             })
             builder.setNegativeButton("아니오", DialogInterface.OnClickListener { dialog, which ->
-                editor.putString("isStarted", "Yes")
-                editor.commit() // 필수
             })
-
 
             alertDialog = builder.create()
 
@@ -368,19 +366,6 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
 
 
     }
-
-    //현재 위치 추적
-    private fun startTracking(){
-        map_view.currentLocationTrackingMode = MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
-        map_btnstart.visibility = View.INVISIBLE
-        map_btnstop.visibility = View.VISIBLE
-        map_btnend.visibility = View.VISIBLE
-        map_btnstop.isClickable=true
-        map_btnend.isClickable=true
-//        drawLine()
-
-    }
-
 
 
     //권한 확인 함수
@@ -608,7 +593,19 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
 
     }
 
-
+    companion object {
+        //현재 위치 추적
+        private fun startTracking(mapFragment: MapFragment){
+            mapFragment.map_view.currentLocationTrackingMode = MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
+            mapFragment.map_btnstart.visibility = View.INVISIBLE
+            mapFragment.map_btnstop.visibility = View.VISIBLE
+            mapFragment.map_btnend.visibility = View.VISIBLE
+            mapFragment.map_btnstop.isClickable=true
+            mapFragment.map_btnend.isClickable=true
+    //        drawLine()
+    
+        }
+    }
 
 
 }
