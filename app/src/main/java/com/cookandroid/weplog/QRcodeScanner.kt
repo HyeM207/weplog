@@ -8,6 +8,10 @@ import com.google.zxing.integration.android.IntentIntegrator
 import com.google.zxing.integration.android.IntentResult
 
 class QRcodeScanner : AppCompatActivity() {
+
+    private val MapFragment by lazy { MapFragment() }
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.qrcode_scanner)
@@ -36,6 +40,12 @@ class QRcodeScanner : AppCompatActivity() {
                 startActivity(intent)
                 Toast.makeText(this, result.contents.toString(), Toast.LENGTH_SHORT).show()
 
+//                supportFragmentManager
+//                        .beginTransaction()
+//                        .replace(R.id.frameLayoutContainer, MapFragment)
+//                        .commit()
+
+                // !! 페이지 이동을 이전 페이지로 넘어가도록 해야함!!!
 
             }
         } else {

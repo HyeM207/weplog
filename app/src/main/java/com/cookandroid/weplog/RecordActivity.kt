@@ -21,23 +21,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.core.app.NotificationCompat
 import com.github.mikephil.charting.charts.BarChart
-import com.github.mikephil.charting.components.XAxis
-import com.github.mikephil.charting.components.YAxis
-import com.github.mikephil.charting.data.BarData
-import com.github.mikephil.charting.data.BarDataSet
-import com.github.mikephil.charting.data.BarEntry
-import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.google.firebase.database.DatabaseReference
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
 import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
-import kotlin.reflect.KParameter
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 
@@ -53,11 +43,11 @@ const val RUNNINGPEAK = 30
 
 class RecordActivity : AppCompatActivity() {
 
-    private lateinit var database: DatabaseReference
     private var barchart: BarChart ?= null
     private var kcal : TextView ?= null
     private var chart_cardview : CardView ?= null
     private var rec_btn : Button ?= null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -343,6 +333,8 @@ class StepsTrackerService : Service() {
             }
             println("removeClosePeakCount : " + count.toString())
         }
+        //var stepInfo = step_info(RUNNING, mHighestPeakList.get(i).value!!.toInt(), mHighestPeakList.get(i).time!!)
+        //database.child("Pedometer").child("date").child(todayDate).push().setValue(stepInfo)
 
         fun findStepTypeAndStoreInDB() { // db에 넣는 부분
             println("findStepTypeAndStoreInDB")
@@ -403,4 +395,17 @@ class StepsTrackerService : Service() {
         }
     }
 }
+
+
+data class step_info (
+    val type : Int ?= null,
+    val peak : Int ?= null,
+    val time : Long ?= null
+)
+//
+//    fun step_info(type: Int, peak: Int, time: Long){
+//        this.type = type
+//        this.peak = peak
+//        this.time = time
+//    }
 

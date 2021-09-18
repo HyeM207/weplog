@@ -6,12 +6,14 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import android.graphics.Color
-import android.location.*
+import android.location.Address
+import android.location.Geocoder
+import android.location.LocationManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
+import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,13 +23,17 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
-import com.github.mikephil.charting.charts.Chart.LOG_TAG
-import com.google.android.gms.location.LocationRequest
+import androidx.core.content.ContextCompat.getSystemService
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentTransaction
+import com.github.mikephil.charting.charts.Chart
 import kotlinx.android.synthetic.main.map.*
 import net.daum.mf.map.api.*
 import java.util.*
-
+import android.graphics.Color
+import android.location.*
+import com.github.mikephil.charting.charts.Chart.LOG_TAG
+import com.google.android.gms.location.LocationRequest
 
 class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.MapViewEventListener{
 
@@ -100,20 +106,24 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
 //        editor.remove("isStoped")
 //        editor.commit()
 
-        //Toast.makeText(activity, prefs.getString("isStarted","").toString(), Toast.LENGTH_SHORT).show()
+        Toast.makeText(activity, prefs.getString("isStarted","").toString(), Toast.LENGTH_SHORT).show()
+
+
+
 
         if (prefs.getString("isStarted","").equals("") ){
             //Toast.makeText(activity,"null", Toast.LENGTH_SHORT).show()
             editor.putString("isStarted", "No")
             editor.putString("isStoped", "No")
             editor.commit() // 필수
-        } else if (prefs.getString("isStarted","").equals("Yes")  ){
-                //Toast.makeText(activity,"else if 1", Toast.LENGTH_SHORT).show()
+        } else {
+            if (prefs.getString("isStarted", "").equals("Yes")) {
+                //Toast.makeText(activity, "else if 1", Toast.LENGTH_SHORT).show()
                 map_btnstart.visibility = View.INVISIBLE
                 map_btnstop.visibility = View.VISIBLE
                 map_btnend.visibility = View.VISIBLE
             }
-            else if (prefs.getString("isStarted","").equals("No") ) {
+            if (prefs.getString("isStarted", "").equals("No")) {
                 //Toast.makeText(activity, "else if 2", Toast.LENGTH_SHORT).show()
 
                 map_btnstart.visibility = View.VISIBLE
@@ -123,24 +133,19 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
 
         createLocationRequest()
 
+        map_btnstart.setOnClickListener {
+            Toast.makeText(activity, "start click listener", Toast.LENGTH_SHORT).show()
+            editor.putString("isStarted", "Yes")
+            editor.commit()
 
-//        map_btnstart.setOnClickListener {
-////            alertDialog()
-//            if (checkLocationService()) {
-//                // GPS가 켜져있을 경우
-//                Toast.makeText(activity, "start 버튼 클릭", Toast.LENGTH_SHORT).show()
-//
-//                permissionCheck()
-////                drawLine()
-//
-//            } else {
-//                // GPS가 꺼져있을 경우
-//                Toast.makeText(activity, "GPS를 켜주세요", Toast.LENGTH_SHORT).show()
-//
-//            }
-//
-//
-//        }
+            map_btnstart.visibility = View.INVISIBLE
+            map_btnstop.visibility = View.VISIBLE
+            map_btnend.visibility = View.VISIBLE
+
+            Toast.makeText(activity, prefs.getString("isStarted","").toString(), Toast.LENGTH_SHORT).show()
+            startAlertDialog()
+        }
+
 
         map_btnend.setOnClickListener {
             editor.putString("isStarted", "No")
@@ -155,8 +160,9 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
             editor.putString("isStoped", "No")
             editor.commit()
 
-            var intent = Intent(activity, Authentication::class.java)
-            startActivity(intent)
+            //var intent = Intent(activity, Authentication::class.java)
+            //startActivity(intent)
+            endAlertDialog()
         }
 
         map_btnstop.setOnClickListener {
@@ -184,8 +190,14 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
 
 
 
-        map_btnstart.setOnClickListener{
-            startLocationService()
+        map_btnGps.setOnClickListener{
+            if (checkLocationService()) {
+                // GPS가 켜져있을 경우
+                permissionCheck()
+            } else {
+                // GPS가 꺼져있을 경우
+                Toast.makeText(activity, "GPS를 켜주세요", Toast.LENGTH_SHORT).show()
+            }
         }
 
 
@@ -237,7 +249,7 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
 
 
 
-    fun alertDialog(){
+    fun startAlertDialog(){
 
         val prefs : SharedPreferences = requireActivity().getSharedPreferences(PREF, Context.MODE_PRIVATE)
         val editor : SharedPreferences.Editor = prefs.edit()
@@ -257,8 +269,38 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
             builder.setPositiveButton("네", DialogInterface.OnClickListener { dialog, which ->
                 val intent = Intent(activity, QRcodeScanner::class.java)
                 startActivity(intent)
-                editor.putString("isStarted", "Yes")
-                editor.commit() // 필수
+            })
+            builder.setNegativeButton("아니오", DialogInterface.OnClickListener { dialog, which ->
+            })
+
+            alertDialog = builder.create()
+
+            try {
+                alertDialog.show()
+            }
+            catch (e : Exception){
+                e.printStackTrace()
+            }
+        }
+        catch(e : Exception){
+            e.printStackTrace()
+        }
+    }
+
+
+
+    fun endAlertDialog(){
+        try{
+
+            builder = AlertDialog.Builder(requireContext())
+            builder.setTitle("[END]")
+            //builder.setIcon(R.drawable.tk_app_icon) //팝업창 아이콘 지정
+            builder.setMessage("커뮤니티에 인증하시겠습니까?")
+            builder.setCancelable(false) //외부 레이아웃 클릭시도 팝업창이 사라지지않게 설정
+
+            builder.setPositiveButton("네", DialogInterface.OnClickListener { dialog, which ->
+                var intent = Intent(activity, Authentication::class.java)
+                startActivity(intent)
             })
             builder.setNegativeButton("아니오", DialogInterface.OnClickListener { dialog, which ->
                 editor.putString("isStarted", "Yes")
@@ -279,6 +321,8 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
             e.printStackTrace()
         }
     }
+
+
     private fun changeWalkState(){
         if(!walkState){
             Toast.makeText(activity, "걸음 시작", Toast.LENGTH_SHORT).show()
@@ -403,7 +447,10 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
     }
 
+    private fun startTracking(){
+        map_view.currentLocationTrackingMode = MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
 
+    }
 
     //주소 좌표를 한글 주소로 반환
     private fun getCompleteAddressString(context: Context?, LATITUDE: Double, LONGITUDE: Double): String {
