@@ -16,10 +16,7 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.235" />
-
-
-
+        app:layout_constraintVertical_bias="0.0" />
 
     <TextView
         android:id="@+id/map_time"
@@ -62,7 +59,7 @@
         android:layout_width="0dp"
         android:layout_height="48dp"
         android:layout_marginStart="50dp"
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="50dp"
         android:text="start"
         app:layout_constraintEnd_toEndOf="parent"
@@ -76,7 +73,7 @@
         android:layout_width="110dp"
         android:layout_height="44dp"
         android:layout_marginStart="80dp"
-        android:layout_marginTop="28dp"
+        android:layout_marginTop="8dp"
         android:text="STOP"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -88,13 +85,13 @@
         android:id="@+id/map_btnend"
         android:layout_width="110dp"
         android:layout_height="44dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="68dp"
         android:text="END"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.932"
+        app:layout_constraintHorizontal_bias="0.93"
         app:layout_constraintStart_toEndOf="@+id/map_btnstop"
         app:layout_constraintTop_toBottomOf="@+id/map_km"
         app:layout_constraintVertical_bias="0.0" />

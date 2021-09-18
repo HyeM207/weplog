@@ -19,6 +19,7 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ktx.database
@@ -37,7 +38,7 @@ class Login : AppCompatActivity() {
 
     //private lateinit var login_googleBtn : GoogleSignInClient
 
-    private var auth: FirebaseAuth? = null
+    private lateinit var auth: FirebaseAuth
 
     // 구글 로그인
     var googleSignInClient: GoogleSignInClient? = null
@@ -50,7 +51,7 @@ class Login : AppCompatActivity() {
 
         database = Firebase.database.reference
         //val database: FirebaseDatabase = FirebaseDatabase.getInstance()
-        auth = FirebaseAuth.getInstance()
+        auth = Firebase.auth
 
         login_signUpBtn = findViewById(R.id.login_signUpBtn)
         login_btn = findViewById(R.id.login_btn)
@@ -147,23 +148,19 @@ class Login : AppCompatActivity() {
     private fun GooglesignIn() {
         Toast.makeText(this, "[Login] signIn 함수 실행", Toast.LENGTH_SHORT).show()
         val signInIntent : Intent = googleSignInClient!!.signInIntent
-        startForResult.launch(signInIntent)
+        startActivityForResult(signInIntent, RC_SIGN_IN)
     }
 
 
-    private val startForResult =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+                if (requestCode == RC_SIGN_IN) {
 
-                if (result.resultCode == RESULT_OK) {
-                    val intent: Intent = result.data!!
-                    val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(intent)
+                    val task = GoogleSignIn.getSignedInAccountFromIntent(data)
                     try {
                         val account = task.getResult(ApiException::class.java)
-                        if (account != null) {
-                            Log.d(ContentValues.TAG, "firebaseAuthWithGoogle:" + account.id)
-                            Toast.makeText(this, "[Login] firebaseAuthWithGoogle", Toast.LENGTH_SHORT).show()
-                            firebaseAuthWithGoogle(account.idToken!!)
-                        }
+                        Toast.makeText(this, "[Login] firebaseAuthWithGoogle"+ account.id, Toast.LENGTH_SHORT).show()
+                        firebaseAuthWithGoogle(account.idToken!!)
                     }catch (e : ApiException){
                         Log.w(ContentValues.TAG, "Google sign in failed", e)
                         Toast.makeText(this, "[Login] Google sign in failed", Toast.LENGTH_SHORT).show()
@@ -182,11 +179,13 @@ class Login : AppCompatActivity() {
         auth?.signInWithCredential(credential)
                 ?.addOnCompleteListener(this) { task ->
                     if (task.isSuccessful) {
-                        // Sign in success, update UI with the signed-in user's information
+                        // 아이디 비밀번호 맞을 때
                         Log.d("Login", "signInWithCredential:success")
                         Toast.makeText(this, "[Login] signInWithCredential:success", Toast.LENGTH_SHORT).show()
 
-                        val CurrentUser = FirebaseAuth.getInstance().currentUser
+                        val CurrentUser = Firebase.auth.currentUser
+
+
                         var User = User()
                         CurrentUser?.let {
                             for (profile in it.providerData) {
@@ -209,9 +208,10 @@ class Login : AppCompatActivity() {
                         val user = auth!!.currentUser
                         updateUI(user)
                     } else {
+                        // 아이디 비밀번호 틀렸을 때
                         // If sign in fails, display a message to the user.
                         Log.w("Login", "signInWithCredential:failure", task.exception)
-                        Toast.makeText(this, "[Login] signInWithCredential:failure", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, task.exception?.message, Toast.LENGTH_SHORT).show()
                         updateUI(null)
                     }
                 }

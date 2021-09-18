@@ -21,7 +21,7 @@
         android:id="@+id/auth_layoutStep1"
         android:layout_width="348dp"
         android:layout_height="148dp"
-        android:layout_marginTop="88dp"
+        android:layout_marginTop="96dp"
         android:background="#00BCD4"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.492"
@@ -40,38 +40,17 @@
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <Button
-        android:id="@+id/auth_btnStep1Ok"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="80dp"
-        android:layout_marginTop="28dp"
-        android:text="인증하기"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/auth_layoutStep1" />
-
-    <Button
-        android:id="@+id/auth_btnStep1No"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="28dp"
-        android:text="괜찮습니다"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.412"
-        app:layout_constraintStart_toEndOf="@+id/auth_btnStep1Ok"
-        app:layout_constraintTop_toBottomOf="@+id/auth_layoutStep1" />
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/auth_layoutStep2"
         android:layout_width="346dp"
         android:layout_height="171dp"
-        android:layout_marginTop="36dp"
         android:background="#00BCD4"
-        android:visibility="invisible"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.492"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/auth_btnStep1Ok">
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
             android:id="@+id/textView2"
@@ -85,33 +64,19 @@
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <Button
-        android:id="@+id/auth_btnStep2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="28dp"
-        android:text="사진찍기"
-        android:visibility="invisible"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/auth_layoutStep2" />
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/auth_layoutUpload"
         android:layout_width="281dp"
         android:layout_height="68dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginBottom="172dp"
         android:background="#FFC107"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/auth_btnStep2"
-        app:layout_constraintVertical_bias="0.162">
+        app:layout_constraintStart_toStartOf="parent">
 
         <TextView
-            android:id="@+id/auth_btnUpload"
+            android:id="@+id/textView3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
