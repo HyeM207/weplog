@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
+
+    <net.daum.mf.map.api.MapView
         android:id="@+id/map_view"
         android:layout_width="411dp"
         android:layout_height="464dp"
@@ -15,7 +16,7 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.235"></LinearLayout>
+        app:layout_constraintVertical_bias="0.0" />
 
     <TextView
         android:id="@+id/map_time"
@@ -41,22 +42,58 @@
         app:layout_constraintStart_toEndOf="@+id/map_time"
         app:layout_constraintTop_toBottomOf="@+id/map_view" />
 
-    <!-- <Button
-        android:id="@+id/map_start"
+    <Button
+        android:id="@+id/map_btnGps"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="24dp"
+        android:text="위치 권한 요청"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/map_btnstart" />
+
+    <Button
+        android:id="@+id/map_btnstart"
         android:layout_width="0dp"
         android:layout_height="48dp"
         android:layout_marginStart="50dp"
-        android:layout_marginTop="28dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="50dp"
         android:text="start"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHeight_percent="0.07"
-        app:layout_constraintLeft_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/map_time"
-        app:layout_constraintVertical_bias="0.0"
         app:layout_constraintWidth_percent="0.4" />
 
--->
+    <Button
+        android:id="@+id/map_btnstop"
+        android:layout_width="110dp"
+        android:layout_height="44dp"
+        android:layout_marginStart="80dp"
+        android:layout_marginTop="8dp"
+        android:text="STOP"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/map_time"
+        app:layout_constraintVertical_bias="0.012" />
+
+    <Button
+        android:id="@+id/map_btnend"
+        android:layout_width="110dp"
+        android:layout_height="44dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="68dp"
+        android:text="END"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.93"
+        app:layout_constraintStart_toEndOf="@+id/map_btnstop"
+        app:layout_constraintTop_toBottomOf="@+id/map_km"
+        app:layout_constraintVertical_bias="0.0" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -31,7 +31,7 @@
         app:layout_constraintTop_toBottomOf="@+id/signup_email" />
 
     <EditText
-        android:id="@+id/signup_name"
+        android:id="@+id/signup_nickname"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="152dp"
@@ -52,7 +52,7 @@
         android:inputType="phone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/signup_name" />
+        app:layout_constraintTop_toBottomOf="@+id/signup_nickname" />
 
     <Button
         android:id="@+id/signup_signBtn"
