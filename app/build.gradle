@@ -67,6 +67,9 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation files('libs/libDaumMapAndroid.jar')
 
+    //for gps tracking
+    implementation 'com.google.android.gms:play-services-location:18.0.0'
+
 
     // QR code (SDK version 24이상일 때  사용가능)
     implementation 'com.journeyapps:zxing-android-embedded:4.1.0'

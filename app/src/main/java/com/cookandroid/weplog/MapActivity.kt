@@ -49,6 +49,7 @@ class MapActivity: AppCompatActivity(), MapView.CurrentLocationEventListener, Ma
 
 
 
+
 //        val mapView = MapView(this)
 
         map_btnGps.setOnClickListener{

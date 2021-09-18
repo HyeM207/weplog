@@ -6,14 +6,12 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import android.location.Address
-import android.location.Geocoder
-import android.location.LocationManager
+import android.graphics.Color
+import android.location.*
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,16 +21,13 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.getSystemService
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentTransaction
-import com.github.mikephil.charting.charts.Chart
+import androidx.fragment.app.Fragment
+import com.github.mikephil.charting.charts.Chart.LOG_TAG
+import com.google.android.gms.location.LocationRequest
 import kotlinx.android.synthetic.main.map.*
-import net.daum.mf.map.api.MapPOIItem
-import net.daum.mf.map.api.MapPoint
-import net.daum.mf.map.api.MapReverseGeoCoder
-import net.daum.mf.map.api.MapView
+import net.daum.mf.map.api.*
 import java.util.*
+
 
 class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.MapViewEventListener{
 
@@ -57,6 +52,18 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
     lateinit var map_btnstop : Button
     lateinit var map_btnend : Button
     lateinit var map_btnGps : Button
+    lateinit var map_view:MapView
+
+//    lateinit var polyline:MapPolyline
+    lateinit var currentPoint:MapPoint
+    lateinit var startLatLng:MapPoint
+    lateinit var endLatLng:MapPoint
+    lateinit var mLocationRequest: LocationRequest
+    var polyline:MapPolyline= MapPolyline()
+    lateinit var gpsListener: GPSListener
+    lateinit var manager:LocationManager
+
+
 
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
@@ -64,6 +71,17 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
     ): View? {
 
         var view = inflater.inflate(R.layout.map, container, false)
+        map_view=view.findViewById(R.id.map_view)
+//        permissionCheck()
+        map_view.setMapViewEventListener(this)
+//        map_view.setCurrentLocationEventListener(this)
+
+
+        map_view.currentLocationTrackingMode = MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
+        gpsListener=GPSListener()
+        manager= activity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+
+
         //map_view.setCurrentLocationEventListener(activity.this)
 
         val prefs : SharedPreferences = requireActivity().getSharedPreferences(PREF, Context.MODE_PRIVATE)
@@ -74,13 +92,15 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
         map_btnend = view.findViewById(R.id.map_btnend)
         map_btnGps = view.findViewById(R.id.map_btnGps)
 
+        map_btnstop.isClickable=false
+        map_btnend.isClickable=false
+
 //        editor.remove("isStarted")
 //        editor.commit()
 //        editor.remove("isStoped")
 //        editor.commit()
 
         //Toast.makeText(activity, prefs.getString("isStarted","").toString(), Toast.LENGTH_SHORT).show()
-
 
         if (prefs.getString("isStarted","").equals("") ){
             //Toast.makeText(activity,"null", Toast.LENGTH_SHORT).show()
@@ -101,14 +121,26 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
                 map_btnend.visibility = View.INVISIBLE
             }
 
+        createLocationRequest()
 
-        map_btnstart.setOnClickListener {
-            alertDialog()
-            map_btnstart.visibility = View.INVISIBLE
-            map_btnstop.visibility = View.VISIBLE
-            map_btnend.visibility = View.VISIBLE
 
-        }
+//        map_btnstart.setOnClickListener {
+////            alertDialog()
+//            if (checkLocationService()) {
+//                // GPS가 켜져있을 경우
+//                Toast.makeText(activity, "start 버튼 클릭", Toast.LENGTH_SHORT).show()
+//
+//                permissionCheck()
+////                drawLine()
+//
+//            } else {
+//                // GPS가 꺼져있을 경우
+//                Toast.makeText(activity, "GPS를 켜주세요", Toast.LENGTH_SHORT).show()
+//
+//            }
+//
+//
+//        }
 
         map_btnend.setOnClickListener {
             editor.putString("isStarted", "No")
@@ -152,20 +184,10 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
 
 
 
-        map_btnGps.setOnClickListener{
-            if (checkLocationService()) {
-                // GPS가 켜져있을 경우
-                permissionCheck()
-            } else {
-                // GPS가 꺼져있을 경우
-                Toast.makeText(activity, "GPS를 켜주세요", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        //start 버튼 누르면 경로그리기 시작
         map_btnstart.setOnClickListener{
-
+            startLocationService()
         }
+
 
 
 
@@ -173,6 +195,45 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
 
     }
 
+    fun startLocationService(){
+        try {
+            var location: Location? =null
+            var minTime:Long=0
+            var minDistance:Float= 0F
+
+            if(manager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+                location=manager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+
+                if(location!=null){
+                    var latitude:Double=location.latitude
+                    var longitude:Double=location.longitude
+                    var message:String="최근 위치1 -> Latitude : $latitude\n Longitude : $longitude"
+                    map_time.text=message
+                    showCurrentLocation(latitude, longitude)
+                    Log.i("MyLocTest", "최근 위치1 호출")
+                }
+                //위치 요청하기
+                manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, minDistance, gpsListener)
+                Toast.makeText(activity, "내 위치1 확인 요청함", Toast.LENGTH_SHORT).show()
+                Log.i("MyLocTest", "requestLocationUpdates() 내 위치1에서 호출시작 ~~ ")
+            }else if(manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)){
+                location=manager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+                if(location!=null){
+                    var latitude:Double=location.latitude
+                    var longitude:Double=location.longitude
+                    var message:String="최근 위치2 -> Latitude : $latitude\n Longitude : $longitude"
+                    map_time.text=message
+                    showCurrentLocation(latitude, longitude)
+                    Log.i("MyLocTest", "requestLocationUpdates() 내 위치2에서 호출시작 ~~ ")
+                }
+
+            }
+
+
+        }catch (e:SecurityException){
+            e.printStackTrace()
+        }
+    }
 
 
 
@@ -222,13 +283,63 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
         if(!walkState){
             Toast.makeText(activity, "걸음 시작", Toast.LENGTH_SHORT).show()
             walkState=true
-
+            //현재 위치를 시작점으로 설정
+            startLatLng= MapPoint.mapPointWithGeoCoord(mapPointGeo.latitude, mapPointGeo.longitude)
+//            startLatLng=MapCoordLatLng(mapPointGeo.latitude, mapPointGeo.longitude)
+        }else{
+            Toast.makeText(activity, "걸음 종료", Toast.LENGTH_SHORT).show();
+            walkState = false;
         }
+
+
+    }
+
+    //gps 갱신
+    fun createLocationRequest(){
+        mLocationRequest=LocationRequest.create().apply {
+            interval=2000 //업데이트 간격(밀리초) => 2
+            fastestInterval=1000 //가장 빠른 업데이트 간격 단위(밀리초)초 => 1
+            priority=LocationRequest.PRIORITY_HIGH_ACCURACY
+            maxWaitTime=2000 //위치 갱신 요청 최대 대기 시간 (밀리초)
+        }
+
     }
 
 
 
+    //경로 그리기
+    fun drawLine(){
+//        lateinit var polyline:MapPolyline
+        polyline.lineColor= Color.argb(255,148,234,255)
+        polyline.addPoint(startLatLng)
+        polyline.addPoint(endLatLng)
+//        polyline.addPoint(currentPoint)
+//        polyline.addPoint(MapPoint.mapPointWithGeoCoord(35.899699, 128.544156))
+//        polyline.addPoint(MapPoint.mapPointWithGeoCoord(35.899220,128.544197))
+        map_view.addPolyline(polyline)
 
+        var mapcenter=MapPointBounds(polyline.mapPoints)
+        var padding=100
+        map_view.moveCamera(CameraUpdateFactory.newMapPointBounds(mapcenter, padding))
+
+
+    }
+
+    //현재 위치 추적
+    private fun startTracking(){
+        map_view.currentLocationTrackingMode = MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
+        map_btnstart.visibility = View.INVISIBLE
+        map_btnstop.visibility = View.VISIBLE
+        map_btnend.visibility = View.VISIBLE
+        map_btnstop.isClickable=true
+        map_btnend.isClickable=true
+//        drawLine()
+
+    }
+
+
+
+    //권한 확인 함수
     private fun permissionCheck() {
         val preference = activity?.getPreferences(AppCompatActivity.MODE_PRIVATE)
         val isFirstCheck = preference?.getBoolean("isFirstPermissionCheck", true)
@@ -292,11 +403,9 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
     }
 
-    private fun startTracking(){
-        map_view.currentLocationTrackingMode = MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
 
-    }
 
+    //주소 좌표를 한글 주소로 반환
     private fun getCompleteAddressString(context: Context?, LATITUDE: Double, LONGITUDE: Double): String {
         var strAdd = ""
         val geocoder = Geocoder(context, Locale.getDefault())
@@ -324,21 +433,31 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
     }
 
     override fun onCurrentLocationUpdate(mapView: MapView?, currentLocation: MapPoint, accuracyInMeters: Float) {
+
         mapPointGeo = currentLocation.mapPointGeoCoord
+        Log.i(LOG_TAG, String.format("MapView onCurrentLocationUpdate (%f,%f) accuracy (%f)", mapPointGeo.latitude, mapPointGeo.longitude, accuracyInMeters));
+//        startLatLng=MapCoordLatLng(mapPointGeo.latitude, mapPointGeo.longitude)
+
+        if(walkState){
+            endLatLng=MapPoint.mapPointWithGeoCoord(mapPointGeo.latitude, mapPointGeo.longitude)
+            drawLine()
+            startLatLng= MapPoint.mapPointWithGeoCoord(mapPointGeo.latitude, mapPointGeo.longitude)
+        }
+
 
         address = getCompleteAddressString(requireActivity(), mapPointGeo.latitude, mapPointGeo.longitude)
-        map_km.text = address
+//        map_km.text = address
         map_time.text=mapPointGeo.latitude.toString()
 //        mtextView3.setText(address)
-        Log.i(
-                Chart.LOG_TAG,
-                java.lang.String.format(
-                        "MapView onCurrentLocationUpdate (%f,%f) accuracy (%f)",
-                        mapPointGeo.latitude,
-                        mapPointGeo.longitude,
-                        accuracyInMeters
-                )
-        )
+//        Log.i(
+//                Chart.LOG_TAG,
+//                String.format(
+//                        "MapView onCurrentLocationUpdate (%f,%f) accuracy (%f)",
+//                        mapPointGeo.latitude,
+//                        mapPointGeo.longitude,
+//                        accuracyInMeters
+//                )
+//        )
     }
 
 
@@ -385,6 +504,61 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
 
     private fun onFinishReverseGeoCoding(result: String) {
 //        Toast.makeText(LocationDemoActivity.this, "Reverse Geo-coding : " + result, Toast.LENGTH_SHORT).show();
+    }
+
+    inner class GPSListener:LocationListener{
+
+        override fun onLocationChanged(location: Location) {
+            var latitude:Double=location.latitude
+            var longitude:Double=location.longitude
+            var message:String="내 위치는 Latitude : $latitude\n Longitude : $longitude"
+            map_time.text=message
+
+
+        }
+        override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
+
+        override fun onProviderEnabled(provider: String) {}
+
+        override fun onProviderDisabled(provider: String) {}
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
+                requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(requireContext(),"접근 권한이 없습니다.",Toast.LENGTH_SHORT).show()
+            return
+        }else{
+
+            if(manager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+//                manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, gpsListener)
+                manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0F, gpsListener)
+            }else if(manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)){
+                manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0F, gpsListener)
+            }
+            Log.i("MyLocTest","onResume에서 requestLocationUpdates() 되었습니다.")
+
+
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        manager.removeUpdates(gpsListener)
+        Log.i("MyLocTest","onPause에서 removeUpdates() 되었습니다.")
+    }
+
+
+    fun showCurrentLocation(latitude:Double, longitude:Double){
+        var curPoint=MapPoint.mapPointWithGeoCoord(latitude, longitude)
+        var mapcenter=MapPointBounds(polyline.mapPoints)
+        var padding=100
+        map_view.moveCamera(CameraUpdateFactory.newMapPointBounds(mapcenter, padding))
+        map_time.text="내 위치는 Latitude : $latitude\n Longitude : $longitude"
+
     }
 
 
