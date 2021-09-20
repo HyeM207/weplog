@@ -22,6 +22,9 @@ class NavigationActivity : AppCompatActivity() {
 
         bottomNavigation=findViewById(R.id.bottomNavigationView1)
         initNavigationBar()
+
+
+
     }
 
     private fun initNavigationBar() {
@@ -55,5 +58,9 @@ class NavigationActivity : AppCompatActivity() {
                 .replace(R.id.frameLayoutContainer, fragment)
                 .commit()
         }
+
+
+
+
     }
 

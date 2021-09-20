@@ -9,23 +9,37 @@ import com.google.zxing.integration.android.IntentResult
 
 class QRcodeScanner : AppCompatActivity() {
 
-    private val MapFragment by lazy { MapFragment() }
+    // private val MapFragment by lazy { MapFragment() }
 
+    lateinit var pageName : String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.qrcode_scanner)
 
-        initQRcodeScanner()
+
+
+
+
+        if (intent.hasExtra("page")){
+
+            pageName = intent.getStringExtra("page").toString()
+            Toast.makeText(this, pageName +  "페이지 이름", Toast.LENGTH_SHORT).show()
+            initQRcodeScanner(pageName)
+        }
+
+
+
     }
 
-    private fun initQRcodeScanner() {
+    private fun initQRcodeScanner(pageName : String) {
         val integrator  = IntentIntegrator(this)
         integrator.setBeepEnabled(false)  // 소리 설정
         integrator.setOrientationLocked(true) // 세로 가로 모드 고정
         integrator.setPrompt("QR코드를 인증해주세요.")
         integrator.initiateScan() // QR 코드 스캐너  보여지고, 결과값은 onActivityResult로 전달됨
     }
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         val result : IntentResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data)
@@ -34,18 +48,23 @@ class QRcodeScanner : AppCompatActivity() {
                 Toast.makeText(this, "QR코드 인증이 취소되었습니다.", Toast.LENGTH_SHORT).show()
                 finish()
             } else {
-                //var toast = Toast(this)
-               // toast.initQrcodeToast(result.contents)
-                var intent = Intent(this, NavigationActivity::class.java)
-                startActivity(intent)
-                Toast.makeText(this, result.contents.toString(), Toast.LENGTH_SHORT).show()
 
-//                supportFragmentManager
-//                        .beginTransaction()
-//                        .replace(R.id.frameLayoutContainer, MapFragment)
-//                        .commit()
+                //Toast.makeText(this, pageName +"페이지 이름", Toast.LENGTH_SHORT).show()
 
-                // !! 페이지 이동을 이전 페이지로 넘어가도록 해야함!!!
+                // 페이지 이동
+                if (pageName.equals("Authentication")) {
+                    var intent = Intent(this, Authentication::class.java)
+                    intent.putExtra("data", result.contents.toString())
+                    Toast.makeText(this, result.contents.toString() + "내용", Toast.LENGTH_SHORT).show()
+                    startActivity(intent)
+                }
+                else if (pageName.equals("MapFragment")){
+                    var intent = Intent(this, NavigationActivity::class.java)
+                    intent.putExtra("data", result.contents.toString())
+                    Toast.makeText(this, result.contents.toString() + "내용", Toast.LENGTH_SHORT).show()
+                    startActivity(intent)
+                }
+
 
             }
         } else {

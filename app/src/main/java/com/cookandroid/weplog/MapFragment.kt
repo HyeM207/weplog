@@ -47,9 +47,11 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
 
     private val GPS_ENABLE_REQUEST_CODE = 2001
     private val PERMISSIONS_REQUEST_CODE = 100
+    private var walkState:Boolean=false
 
     lateinit var currentPointGeo: MapPoint.GeoCoordinate
     lateinit var address:String
+
 
 
     private val PREF : String = "sharedpref"
@@ -60,8 +62,10 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
 
     lateinit var map_btnstop : Button
     lateinit var map_btnend : Button
+    lateinit var map_btnGps : Button
     lateinit var map_view:MapView
 
+//    lateinit var polyline:MapPolyline
     lateinit var currentPoint:MapPoint
     lateinit var startPoint:MapPoint
     lateinit var endPoint:MapPoint
@@ -106,6 +110,8 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
 
         database = Firebase.database.reference
 
+
+        //map_view.setCurrentLocationEventListener(activity.this)
 
         val prefs : SharedPreferences = requireActivity().getSharedPreferences(PREF, Context.MODE_PRIVATE)
         val editor : SharedPreferences.Editor = prefs.edit() // 데이터 기록을 위한 editor
@@ -314,6 +320,7 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
 
             builder.setPositiveButton("네", DialogInterface.OnClickListener { dialog, which ->
                 val intent = Intent(activity, QRcodeScanner::class.java)
+                intent.putExtra("page", "MapFragment")
                 startActivity(intent)
             })
             builder.setNegativeButton("아니오", DialogInterface.OnClickListener { dialog, which ->
