@@ -143,7 +143,7 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
             map_btnstop.visibility = View.VISIBLE
             map_btnend.visibility = View.VISIBLE
 
-            Toast.makeText(activity, prefs.getString("isStarted","").toString(), Toast.LENGTH_SHORT).show()
+            //Toast.makeText(activity, prefs.getString("isStarted","").toString(), Toast.LENGTH_SHORT).show()
             startAlertDialog()
         }
 
@@ -269,6 +269,7 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
 
             builder.setPositiveButton("네", DialogInterface.OnClickListener { dialog, which ->
                 val intent = Intent(activity, QRcodeScanner::class.java)
+                intent.putExtra("page", "MapFragment")
                 startActivity(intent)
             })
             builder.setNegativeButton("아니오", DialogInterface.OnClickListener { dialog, which ->

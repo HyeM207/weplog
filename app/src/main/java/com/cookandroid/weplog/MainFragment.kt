@@ -39,8 +39,6 @@ class MainFragment : Fragment() {
         auth = FirebaseAuth.getInstance()
 
 
-
-
         main_nickname = view.findViewById(R.id.main_nickname)
         main_logoutBtn = view.findViewById(R.id.main_logoutBtn)
         mainRecordLayout = view.findViewById(R.id.mainRecordLayout)
