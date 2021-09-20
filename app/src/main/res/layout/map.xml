@@ -22,37 +22,25 @@
         android:id="@+id/map_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="80dp"
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="16dp"
         android:text="n시간 n분"
         android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/map_view" />
+        app:layout_constraintTop_toBottomOf="@+id/map_km" />
 
     <TextView
         android:id="@+id/map_km"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="80dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="8dp"
         android:text="nkm"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.906"
-        app:layout_constraintStart_toEndOf="@+id/map_time"
-        app:layout_constraintTop_toBottomOf="@+id/map_view" />
-
-    <Button
-        android:id="@+id/map_btnGps"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="24dp"
-        android:text="위치 권한 요청"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/map_btnstart" />
+        app:layout_constraintTop_toBottomOf="@+id/map_view" />
 
     <Button
         android:id="@+id/map_btnstart"
@@ -86,14 +74,12 @@
         android:layout_width="110dp"
         android:layout_height="44dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="68dp"
+        android:layout_marginEnd="80dp"
         android:text="END"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.93"
-        app:layout_constraintStart_toEndOf="@+id/map_btnstop"
-        app:layout_constraintTop_toBottomOf="@+id/map_km"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toBottomOf="@+id/map_time"
+        app:layout_constraintVertical_bias="0.012" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

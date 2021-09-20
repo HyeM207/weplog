@@ -52,15 +52,7 @@ class MapActivity: AppCompatActivity(), MapView.CurrentLocationEventListener, Ma
 
 //        val mapView = MapView(this)
 
-        map_btnGps.setOnClickListener{
-            if (checkLocationService()) {
-                // GPS가 켜져있을 경우
-                permissionCheck()
-            } else {
-                // GPS가 꺼져있을 경우
-                Toast.makeText(this, "GPS를 켜주세요", Toast.LENGTH_SHORT).show()
-            }
-        }
+
 
         //start 버튼 누르면 경로그리기 시작
         map_btnstart.setOnClickListener{
