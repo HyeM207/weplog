@@ -17,11 +17,21 @@ import android.os.SystemClock
 import android.util.Log
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.core.app.NotificationCompat
 import com.github.mikephil.charting.charts.BarChart
+import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.components.YAxis
+import com.github.mikephil.charting.data.*
+import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.ValueEventListener
 import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
@@ -47,11 +57,22 @@ class RecordActivity : AppCompatActivity() {
     private var kcal : TextView ?= null
     private var chart_cardview : CardView ?= null
     private var rec_btn : Button ?= null
+    private lateinit var database: DatabaseReference
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.record)
+
+        // record 페이지 접근 시 로그인 되어 있는지 확인
+        val user = Firebase.auth.currentUser
+        println("user : " + user!!.uid)
+        if (user == null) {
+            Toast.makeText(this, "[Record] user가 null", Toast.LENGTH_SHORT).show()
+            var intent = Intent(this, Login::class.java)
+            startActivity(intent)
+
+        }
 
         var mCalendar = Calendar.getInstance()
         var currentMonth = (mCalendar.get(Calendar.MONTH) + 1).toString()
@@ -89,7 +110,67 @@ class RecordActivity : AppCompatActivity() {
 
     fun calculateDataMatrix(){
         //barchart
+        barchart!!.description.text = "Step by Date"
+        barchart!!.setDrawBarShadow(false)
+        barchart!!.setDrawValueAboveBar(true)
+        barchart!!.description.isEnabled = true
+        barchart!!.setPinchZoom(true)
+        barchart!!.setDrawGridBackground(false)
+        val leftAxis = barchart!!.axisLeft
+        leftAxis.removeAllLimitLines()
+        //leftAxis.axisMaximum = 100f
+        leftAxis.axisMinimum = 0f
+        val datevalues: ArrayList<BarEntry> = ArrayList()
+        val line2_xlabels = ArrayList<String>()
 
+        var mCalendar = Calendar.getInstance()
+        var todayDate =
+            (mCalendar.get(Calendar.YEAR)).toString() + "/" + (mCalendar.get(Calendar.MONTH) + 1).toString() + "/" + (mCalendar.get(
+                Calendar.DAY_OF_MONTH
+            )).toString()
+        var month = (mCalendar.get(Calendar.YEAR)).toString() + "/" + (mCalendar.get(Calendar.MONTH) + 1).toString()
+        database = Firebase.database.reference
+        database.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for (postSnapshot in snapshot.children) {
+                    if (postSnapshot.key == "user") {
+                        for (snapshots in postSnapshot.children){
+                            if (snapshots.key == Firebase.auth.currentUser!!.uid) {
+                                //var day = snapshots.child("Pedometer").child("date").child(month).childrenCount.toString()
+                                var date: ArrayList<String> = ArrayList()
+                                var datecount : ArrayList<Int> = ArrayList()
+                                for (data in snapshots.child("Pedometer").child("date").child(month).children){
+                                    date.add(data.key.toString())
+                                    datecount.add(data.childrenCount.toInt())
+                                    //kcal!!.text = data.childrenCount.toString()
+                                }
+                                for (i in 0..date.size-1){
+                                    var t = datecount[i]
+                                    var t2 = date[i]
+                                    datevalues.add(BarEntry(i.toFloat(), t.toFloat()))
+                                    line2_xlabels.add(t2)
+                                }
+                                var set = BarDataSet(datevalues, "Steps Day")
+                                var datasets = ArrayList<IBarDataSet>()
+                                datasets.add(set)
+                                var data = BarData(datasets)
+                                data.setValueTextSize(6f)
+                                data.barWidth = .6f
+                                barchart!!.data = data
+                                barchart!!.notifyDataSetChanged()
+                                barchart!!.invalidate()
+                            }
+                        }
+
+                    }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+
+            }
+
+        })
 
     }
 }
@@ -345,36 +426,53 @@ class StepsTrackerService : Service() {
                     Calendar.DAY_OF_MONTH
                 )).toString()
             var size = mHighestPeakList.size
-            database.child("Pedometer").child("date").child(todayDate).get().addOnSuccessListener {
+
+            val user = Firebase.auth.currentUser
+
+            database.child("user").child(user!!.uid).child("Pedometer").get().addOnSuccessListener {
                 Log.i("firebase", "Got value ${it.value}")
                 println("Got value ${it.value}")
+                database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).get().addOnSuccessListener {
+                    Log.i("firebase", "Got value ${it.value}")
+                    println("Got value ${it.value}")
+                }.addOnFailureListener{
+                    database.child("user").child(user!!.uid).child("Pedometer").child("date").setValue(todayDate)
+                    count = 0
+                }
             }.addOnFailureListener{
-                database.child("Pedometer").child("date").setValue(todayDate)
+                database.child("user").child(user!!.uid).child("Pedometer").child("date").setValue(todayDate)
                 count = 0
             }
+//            database.child(user!!.uid).child("Pedometer").child("date").child(todayDate).get().addOnSuccessListener {
+//                Log.i("firebase", "Got value ${it.value}")
+//                println("Got value ${it.value}")
+//            }.addOnFailureListener{
+//                database.child("Pedometer").child("date").setValue(todayDate)
+//                count = 0
+//            }
             //database.child("Pedometer").child("date").setValue(todayDate)
             println(size)
             for (i in 0..(size - 1)) {
                 if (mHighestPeakList.get(i).isTruePeak) {
                     if (mHighestPeakList.get(i).value!! > RUNNINGPEAK) {
                         count = count + 1
-                        database.child("Pedometer").child("date").child(todayDate).child(count.toString()).child("type").setValue(RUNNING)
-                        database.child("Pedometer").child("date").child(todayDate).child(count.toString()).child("peak").setValue(mHighestPeakList.get(i).value!!.toInt())
-                        database.child("Pedometer").child("date").child(todayDate).child(count.toString()).child("time").setValue(mHighestPeakList.get(i).time!!)
+                        database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(count.toString()).child("type").setValue(RUNNING)
+                        database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(count.toString()).child("peak").setValue(mHighestPeakList.get(i).value!!.toInt())
+                        database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(count.toString()).child("time").setValue(mHighestPeakList.get(i).time!!)
                         println("running" + mHighestPeakList.get(i).value!!.toString())
                     } else {
                         if (mHighestPeakList.get(i).value!! > JOGGINGPEAK) {
                             count = count + 1
-                            database.child("Pedometer").child("date").child(todayDate).child(count.toString()).child("type").setValue(JOGGING)
-                            database.child("Pedometer").child("date").child(todayDate).child(count.toString()).child("peak").setValue(mHighestPeakList.get(i).value!!.toInt())
-                            database.child("Pedometer").child("date").child(todayDate).child(count.toString()).child("time").setValue(mHighestPeakList.get(i).time!!)
+                            database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(count.toString()).child("type").setValue(JOGGING)
+                            database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(count.toString()).child("peak").setValue(mHighestPeakList.get(i).value!!.toInt())
+                            database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(count.toString()).child("time").setValue(mHighestPeakList.get(i).time!!)
                             //mStepsTrackerDBHelper!!.createStepsEntry(mHighestPeakList.get(i).time!!, JOGGING, mHighestPeakList.get(i).value!!.toInt())
                             println("jogging" + mHighestPeakList.get(i).value!!.toString())
                         } else {
                             count = count + 1
-                            database.child("Pedometer").child("date").child(todayDate).child(count.toString()).child("type").setValue(WALKING)
-                            database.child("Pedometer").child("date").child(todayDate).child(count.toString()).child("peak").setValue(mHighestPeakList.get(i).value!!.toInt())
-                            database.child("Pedometer").child("date").child(todayDate).child(count.toString()).child("time").setValue(mHighestPeakList.get(i).time!!)
+                            database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(count.toString()).child("type").setValue(WALKING)
+                            database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(count.toString()).child("peak").setValue(mHighestPeakList.get(i).value!!.toInt())
+                            database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(count.toString()).child("time").setValue(mHighestPeakList.get(i).time!!)
                             //mStepsTrackerDBHelper!!.createStepsEntry(mHighestPeakList.get(i).time!!, WALKING, mHighestPeakList.get(i).value!!.toInt())
                             println("walking" + mHighestPeakList.get(i).value!!.toString())
                         }
