@@ -87,11 +87,19 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
     private var timerTask:Timer?=null
     private var time = 0
     private var timerIsRunning = false
+    var hour = 0
+    var min = 0
     var sec = 0
 
     //db용
     private var auth : FirebaseAuth? = null
     private lateinit var database: DatabaseReference
+    private val CurrentUser = FirebaseAuth.getInstance().currentUser
+    val uid = CurrentUser?.uid
+    private lateinit var pushRef:DatabaseReference
+
+    var mCalendar = Calendar.getInstance()
+    lateinit var todayDate:String
 
 
     override fun onCreateView(
@@ -110,7 +118,8 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
 
         database = Firebase.database.reference
 
-
+        todayDate = (mCalendar.get(Calendar.YEAR)).toString() + "/" + (mCalendar.get(Calendar.MONTH) + 1).toString() +
+                "/" + (mCalendar.get(Calendar.DAY_OF_MONTH)).toString()
         //map_view.setCurrentLocationEventListener(activity.this)
 
         val prefs : SharedPreferences = requireActivity().getSharedPreferences(PREF, Context.MODE_PRIVATE)
@@ -174,6 +183,11 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
             startState=true
             Log.i(LOG_TAG, String.format("startbtn click current location (%f,%f)", currentPointGeo.latitude, currentPointGeo.longitude))
 
+            pushRef=database.child("user/$uid/Pedometer/date").child(todayDate).push()
+            pushRef.child("walkstate/type").setValue("0")
+
+
+
 //            startAlertDialog()
         }
 
@@ -202,14 +216,15 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
             endAlertDialog()
             endTimer()
 
-            val CurrentUser = FirebaseAuth.getInstance().currentUser
-            val uid = CurrentUser?.uid
+
             var Record = Record()
             //db 저장
             Record.distance= (distanceSum*0.001).toFloat()
-            Record.time=sec
+            Record.time=String.format("%02d:%02d:%02d", hour, min, sec)
             var RecordValues = Record.toMap()
-            database.child("test").child("$uid").child("record").setValue(RecordValues)
+            pushRef.child("record").setValue(RecordValues)
+            map_km.text="0.00km"
+
 
 
 
@@ -227,14 +242,18 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
                 editor.putString("isStoped", "No")
                 editor.commit()
             }
+            //restart
             else if (prefs.getString("isStoped","").equals("Yes")){
                 // stop 상태일 때 버튼 누름 -> 시작하려고 함
                 //Toast.makeText(activity, prefs.getString("isStoped","").toString()+"1", Toast.LENGTH_SHORT).show()
                 map_btnstop.setText("STOP")
                 startState=true
+                timerIsRunning = !timerIsRunning
+                if(timerIsRunning) startTimer()
                 editor.putString("isStoped", "No")
                 editor.commit()
             }
+            //stop 눌렀을 때
             else if (prefs.getString("isStoped","").equals("No")){
                 //Toast.makeText(activity, prefs.getString("isStoped","").toString()+"2", Toast.LENGTH_SHORT).show()
                 map_btnstop.setText("RESTART")
@@ -281,10 +300,12 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
     private fun startTimer(){
         timerTask=kotlin.concurrent.timer(period = 10){
             time++
-//            val sec=time/100
-            sec=time/100
+            hour=time/100/3600
+            min=(time/100/60)%60
+            sec=(time/100)%60
             activity?.runOnUiThread{
-                map_time.text="$sec"+"초"
+                map_time.text=String.format("%02d:%02d:%02d", hour, min, sec)
+//                map_time.text="$sec"
             }
 
         }
@@ -298,7 +319,7 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
         timerTask?.cancel()
         time=0
         timerIsRunning=false
-        map_time.text="0초"
+        map_time.text="00:00:00"
     }
 
     fun startAlertDialog(){
@@ -382,7 +403,7 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
         var mapcenter=MapPointBounds(polyline.mapPoints)
         var padding=100
 
-        map_view.moveCamera(CameraUpdateFactory.newMapPointBounds(mapcenter, padding))
+//        map_view.moveCamera(CameraUpdateFactory.newMapPointBounds(mapcenter, padding))
 
         //이동거리 계산
         if (locationB.latitude > 0){

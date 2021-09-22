@@ -10,6 +10,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
@@ -54,7 +55,9 @@ class Authentication : AppCompatActivity() {
     lateinit var photoURI : Uri
     var authStep1 = false
     var authStep2 = false
-    var userName : String ?= ""
+
+    var userNickname : String = ""
+    //var userName : String ?= ""
     private lateinit var database: DatabaseReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -87,7 +90,6 @@ class Authentication : AppCompatActivity() {
 
         // 1단계. 인증하기 버튼
         auth_layoutStep1.setOnClickListener {
-
             val intent = Intent(this, QRcodeScanner::class.java)
             intent.putExtra("page", "Authentication")
             startActivity(intent)
@@ -129,7 +131,6 @@ class Authentication : AppCompatActivity() {
 
     private fun uploadPost() {
 
-
         val user = Firebase.auth.currentUser
         database = Firebase.database.reference
 
@@ -141,26 +142,33 @@ class Authentication : AppCompatActivity() {
             post.writerId = user?.uid
 
 
-//            val userRef = Firebase.database.getReference("users")
-//
-//            userRef.addValueEventListener(object :ValueEventListener{
-//                override fun onDataChange(snapshot: DataSnapshot) {
-//                    userName = snapshot.child(user?.uid.toString()).child("nickname").value.toString()
-//
-//                }
-//
-//                override fun onCancelled(error: DatabaseError) {
-//                }
-//            })
+            val userRef = Firebase.database.getReference("users")
 
-            post.writerNick = user.displayName
+            lateinit var nick : String
+            userRef.addValueEventListener(object :ValueEventListener{
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    nick = snapshot.child(user?.uid).child("nickname").value.toString()
+                    Log.e("snap",nick)
+                    //post.writerNick = nick
+                    userNickname = nick
+                    Log.e("snap2",userNickname)
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    userNickname="ERROR"
+                }
+            })
+            Log.e("snap3",userNickname)
+            //post.writerNick = nick
+            post.writerNick = userNickname
             post.timestamp = System.currentTimeMillis()
-            post.photoUrl = photoURI.toString() // storage에 업로드 한 url
+            post.photoUrl = fileName // storage에 업로드 한 사진 이름
 
             var postValues = post.toMap()
 
             if (key != null) {
-                database.child("users").child(user.uid).child("post").child(key).setValue(postValues)
+                //database.child("users").child(user.uid).child("post").child(key).setValue(postValues) // 기존에는 post 객체 모두 저장
+                database.child("users").child(user.uid).child("posts").child(key)  // 수정 후 : post객체 id만 저장
                 database.child("community").child(key).setValue(postValues)
             }
         }
@@ -200,16 +208,17 @@ class Authentication : AppCompatActivity() {
     private fun uploadImage(uri : Uri) {
 
         var storage : FirebaseStorage ?= FirebaseStorage.getInstance()
+        var uid = FirebaseAuth.getInstance().currentUser?.uid
 
         // 파일 이름 설정
-         fileName = "IMAGE_${SimpleDateFormat("yyyymmdd_HHmmss").format(Date())}_.png"
+        fileName = "IMAGE_${uid}_${SimpleDateFormat("yyyymmdd_HHmmss").format(Date())}_.png"
 
         // 클라우드 파일을 가리키는 포인터
         var imageRef = storage!!.reference.child("community").child(fileName)
 
         // 이미지 파일 업로드
         imageRef.putFile(uri!!).addOnSuccessListener {
-            Toast.makeText(this, " 업로드 성공" + uri.toString() , Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, " 업로드 성공" + imageRef.toString() , Toast.LENGTH_SHORT).show()
         }.addOnFailureListener{
             Toast.makeText(this, " 업로드 실패" , Toast.LENGTH_SHORT).show()
         }
@@ -260,7 +269,7 @@ class Authentication : AppCompatActivity() {
 
         when (requestCode){
             1 -> {
-                    if(requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK){
+                if(requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK){
 
                     // 카메라로부터 받은 데이터가 있을경우에만
                     val file = File(currentPhotoPath)
@@ -276,9 +285,9 @@ class Authentication : AppCompatActivity() {
                         auth_step2Preview.setImageBitmap(bitmap)
                     }
 
-                        authStep2 = true
-                        auth_layoutStep2.isClickable = false
-                        checkAuth()
+                    authStep2 = true
+                    auth_layoutStep2.isClickable = false
+                    checkAuth()
                 }
             }
         }
@@ -300,8 +309,8 @@ class Authentication : AppCompatActivity() {
                 }
                 // Continue only if the File was successfully created
                 photoFile?.also {
-                     photoURI = FileProvider.getUriForFile(
-                        this,"com.cookandroid.weplog.fileprovider", it
+                    photoURI = FileProvider.getUriForFile(
+                            this,"com.cookandroid.weplog.fileprovider", it
                     )
                     takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
                     startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO)

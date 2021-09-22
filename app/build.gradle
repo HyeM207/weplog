@@ -77,5 +77,13 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.0.2'
 
 
+    // circleImageView
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'de.hdodenhof:circleimageview:3.1.0'
+
+
+    // Glide (커뮤니티에서 firebase에서 이미지 가져와 적용)
+    implementation 'com.github.bumptech.glide:glide:4.10.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.10.0'
 
 }
