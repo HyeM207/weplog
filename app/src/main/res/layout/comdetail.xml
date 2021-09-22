@@ -6,16 +6,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ImageView
+
+    <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/comdetail_profile"
-        android:layout_width="93dp"
-        android:layout_height="95dp"
-        android:layout_marginTop="60dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.104"
+        android:layout_width="35dp"
+        android:layout_height="38dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="52dp"
+        android:src="@drawable/ic_baseline_groups_24"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:srcCompat="@tools:sample/avatars" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/comdetail_nick"
@@ -25,10 +25,10 @@
         android:textSize="20sp"
         app:layout_constraintBottom_toTopOf="@+id/comdetail_heart"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.079"
+        app:layout_constraintHorizontal_bias="0.032"
         app:layout_constraintStart_toEndOf="@+id/comdetail_profile"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.647" />
+        app:layout_constraintVertical_bias="0.649" />
 
     <ImageView
         android:id="@+id/comdetail_photo"
@@ -42,27 +42,26 @@
         app:srcCompat="@drawable/ic_launcher_background" />
 
 
-
-    <ImageButton
+    <ImageView
         android:id="@+id/comdetail_heart"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_marginTop="124dp"
-        android:layout_marginEnd="16dp"
+        android:src="@drawable/noheart"
         app:layout_constraintEnd_toStartOf="@+id/comdetail_check"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@android:drawable/btn_star" />
+        app:layout_constraintHorizontal_bias="0.83"
+        app:layout_constraintStart_toEndOf="@+id/comdetail_nick"
+        app:layout_constraintTop_toTopOf="parent" />
 
-
-    <ImageButton
-        android:id="@+id/comdetail_check"
+    <ImageView
+        android:id="@+id/comdetail_more"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_marginTop="124dp"
         android:layout_marginEnd="24dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@android:drawable/ic_menu_add" />
+        android:src="@drawable/more" />
 
     <TextView
         android:id="@+id/comdetail_text1"
@@ -80,27 +79,56 @@
         android:id="@+id/comdetail_accept"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="100dp"
         android:text="승인"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/comdetail_deny"
-        app:layout_constraintHorizontal_bias="0.566"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/comdetail_text1"
-        app:layout_constraintVertical_bias="0.353" />
+        app:layout_constraintVertical_bias="0.365" />
 
     <Button
         android:id="@+id/comdetail_deny"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
+        android:layout_marginStart="64dp"
         android:layout_marginEnd="88dp"
         android:layout_marginBottom="52dp"
         android:text="거절"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/comdetail_accept"
         app:layout_constraintTop_toBottomOf="@+id/comdetail_text1"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="1.0" />
+
+    <TextView
+        android:id="@+id/comdetial_certified"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="40dp"
+        android:text="Certified"
+        android:textAllCaps="true"
+        android:textColor="#009688"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/comdetail_photo"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/comdetail_profile"
+        app:layout_constraintVertical_bias="0.783" />
+
+    <ImageView
+        android:id="@+id/comdetail_check"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="124dp"
+        android:layout_marginEnd="4dp"
+        app:layout_constraintEnd_toStartOf="@+id/comdetail_more"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/blank_checkbox" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -24,8 +24,8 @@ class ComFragment : Fragment() {
     private val viewModel by lazy { ViewModelProvider(this).get(ListViewModel::class.java) }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+            inflater: LayoutInflater, container: ViewGroup?,
+            savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
         var view =  inflater.inflate(R.layout.community, container, false)
@@ -35,6 +35,7 @@ class ComFragment : Fragment() {
 //        postList = ArrayList()
         val mutableData = MutableLiveData<MutableList<Post>>()
 
+        // 시간순 작업하기
         val postRef = Firebase.database.getReference("community")
         postRef.addValueEventListener(object : ValueEventListener{
             val postList : MutableList<Post> = mutableListOf<Post>()
