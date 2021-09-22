@@ -6,7 +6,7 @@ import com.google.firebase.database.IgnoreExtraProperties
 @IgnoreExtraProperties
 data class Record (
     var distance : Float = 0F,
-    var time : Int = 0
+    var time : String ?= null
 ){
     /*
        data class TmpRecord(
