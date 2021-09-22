@@ -315,6 +315,7 @@ class StepsTrackerService : Service() {
     var mAboveThresholdValuesList : ArrayList<AccelerometerData> = ArrayList<AccelerometerData>()
     var mHighestPeakList : ArrayList<AccelerometerData> = ArrayList<AccelerometerData>()
 
+
     inner class AccelerometerListener() : SensorEventListener {
 
         override fun onSensorChanged(event: SensorEvent?) {
@@ -416,10 +417,10 @@ class StepsTrackerService : Service() {
         }
         //var stepInfo = step_info(RUNNING, mHighestPeakList.get(i).value!!.toInt(), mHighestPeakList.get(i).time!!)
         //database.child("Pedometer").child("date").child(todayDate).push().setValue(stepInfo)
-
+        var counts : Int = 0
         fun findStepTypeAndStoreInDB() { // db에 넣는 부분
             println("findStepTypeAndStoreInDB")
-            var count : Int = 0
+
             var mCalendar = Calendar.getInstance()
             var todayDate =
                 (mCalendar.get(Calendar.YEAR)).toString() + "/" + (mCalendar.get(Calendar.MONTH) + 1).toString() + "/" + (mCalendar.get(
@@ -430,18 +431,26 @@ class StepsTrackerService : Service() {
             val user = Firebase.auth.currentUser
 
             database.child("user").child(user!!.uid).child("Pedometer").get().addOnSuccessListener {
-                Log.i("firebase", "Got value ${it.value}")
+                //Log.i("firebase", "Got value ${it.value}")
                 println("Got value ${it.value}")
+                //counts = 0
+                counts = it!!.childrenCount.toInt()
+                println("countss : " + counts)
                 database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).get().addOnSuccessListener {
-                    Log.i("firebase", "Got value ${it.value}")
+                    //Log.i("firebase", "Got value ${it.value}")
                     println("Got value ${it.value}")
+                    //counts = 0
+                    counts = it!!.childrenCount.toInt()
+                    println("counts : " + counts)
                 }.addOnFailureListener{
                     database.child("user").child(user!!.uid).child("Pedometer").child("date").setValue(todayDate)
-                    count = 0
+                    counts = 0
+                    println(":counts초기")
                 }
             }.addOnFailureListener{
                 database.child("user").child(user!!.uid).child("Pedometer").child("date").setValue(todayDate)
-                count = 0
+                counts = 0
+                println("counts초기")
             }
 //            database.child(user!!.uid).child("Pedometer").child("date").child(todayDate).get().addOnSuccessListener {
 //                Log.i("firebase", "Got value ${it.value}")
@@ -455,26 +464,58 @@ class StepsTrackerService : Service() {
             for (i in 0..(size - 1)) {
                 if (mHighestPeakList.get(i).isTruePeak) {
                     if (mHighestPeakList.get(i).value!! > RUNNINGPEAK) {
-                        count = count + 1
-                        database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(count.toString()).child("type").setValue(RUNNING)
-                        database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(count.toString()).child("peak").setValue(mHighestPeakList.get(i).value!!.toInt())
-                        database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(count.toString()).child("time").setValue(mHighestPeakList.get(i).time!!)
-                        println("running" + mHighestPeakList.get(i).value!!.toString())
+
+                        database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).get().addOnSuccessListener {
+                            Log.i("firebase", "Got value ${it.value}")
+                            counts = it!!.childrenCount.toInt()
+                        }.addOnFailureListener{
+                            Log.e("firebase", "Error getting data", it)
+                        }
+                        if(counts != null){
+
+                            counts = counts!! + 1
+                            println("counts : " + counts)
+                            database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(counts.toString()).child("type").setValue(RUNNING)
+                            database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(counts.toString()).child("peak").setValue(mHighestPeakList.get(i).value!!.toInt())
+                            database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(counts.toString()).child("time").setValue(mHighestPeakList.get(i).time!!)
+                            println("running" + mHighestPeakList.get(i).value!!.toString())
+                        }
+
                     } else {
                         if (mHighestPeakList.get(i).value!! > JOGGINGPEAK) {
-                            count = count + 1
-                            database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(count.toString()).child("type").setValue(JOGGING)
-                            database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(count.toString()).child("peak").setValue(mHighestPeakList.get(i).value!!.toInt())
-                            database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(count.toString()).child("time").setValue(mHighestPeakList.get(i).time!!)
-                            //mStepsTrackerDBHelper!!.createStepsEntry(mHighestPeakList.get(i).time!!, JOGGING, mHighestPeakList.get(i).value!!.toInt())
-                            println("jogging" + mHighestPeakList.get(i).value!!.toString())
+                            database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).get().addOnSuccessListener {
+                                Log.i("firebase", "Got value ${it.value}")
+                                counts = it!!.childrenCount.toInt()
+                            }.addOnFailureListener{
+                                Log.e("firebase", "Error getting data", it)
+                            }
+                            if(counts != null){
+                                counts = counts!! + 1
+                                println("counts : " + counts)
+                                database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(counts.toString()).child("type").setValue(JOGGING)
+                                database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(counts.toString()).child("peak").setValue(mHighestPeakList.get(i).value!!.toInt())
+                                database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(counts.toString()).child("time").setValue(mHighestPeakList.get(i).time!!)
+                                //mStepsTrackerDBHelper!!.createStepsEntry(mHighestPeakList.get(i).time!!, JOGGING, mHighestPeakList.get(i).value!!.toInt())
+                                println("jogging" + mHighestPeakList.get(i).value!!.toString())
+                            }
+
                         } else {
-                            count = count + 1
-                            database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(count.toString()).child("type").setValue(WALKING)
-                            database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(count.toString()).child("peak").setValue(mHighestPeakList.get(i).value!!.toInt())
-                            database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(count.toString()).child("time").setValue(mHighestPeakList.get(i).time!!)
-                            //mStepsTrackerDBHelper!!.createStepsEntry(mHighestPeakList.get(i).time!!, WALKING, mHighestPeakList.get(i).value!!.toInt())
-                            println("walking" + mHighestPeakList.get(i).value!!.toString())
+                            database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).get().addOnSuccessListener {
+                                Log.i("firebase", "Got value ${it.value}")
+                                counts = it!!.childrenCount.toInt()
+                            }.addOnFailureListener{
+                                Log.e("firebase", "Error getting data", it)
+                            }
+                            if(counts != null){
+                                counts = counts!! + 1
+                                println("counts : " + counts)
+                                database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(counts.toString()).child("type").setValue(WALKING)
+                                database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(counts.toString()).child("peak").setValue(mHighestPeakList.get(i).value!!.toInt())
+                                database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(counts.toString()).child("time").setValue(mHighestPeakList.get(i).time!!)
+                                //mStepsTrackerDBHelper!!.createStepsEntry(mHighestPeakList.get(i).time!!, WALKING, mHighestPeakList.get(i).value!!.toInt())
+                                println("walking" + mHighestPeakList.get(i).value!!.toString())
+                            }
+
                         }
                     }
                 }

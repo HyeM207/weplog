@@ -60,12 +60,13 @@ class MyValueFormatter2(private val xValsDateLabel: ArrayList<String>) : ValueFo
 }
 
 class RecordDetailActivity : AppCompatActivity() {
-
+    private var myAdapter : ArrayAdapter<Any> ?= null
     private lateinit var database: DatabaseReference
     private var day_menu : Spinner?= null
     private var test : TextView?= null
     private var totalkcal : TextView ?= null
-    val items = arrayOf("아이템0","아이템1","아이템2","아이템3","아이템4")
+    var items : ArrayList<Any> ?= null
+    var item = arrayOf("1", "2")
     private var mCircleProgressBar : CircleProgressBar?= null // 원형 그래프 (오늘의 스텝 수)
     var mhorizontalBar : HorizontalBarChart?= null // 가로 바 그래프 (step type)
     var mlineChart : LineChart?= null // 시간별 step
@@ -93,11 +94,13 @@ class RecordDetailActivity : AppCompatActivity() {
         mhorizontalBar = findViewById(R.id.rec_graph_detail)
         mlineChart = findViewById(R.id.rec_graph_detail2)
         day_menu = findViewById(R.id.rec_day_menu)
-        test = findViewById(R.id.test)
+        test = findViewById(R.id.test
+        )
         totalkcal = findViewById(R.id.totalkcal)
-        val myAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, items)
+        val myAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, item)
 
         day_menu!!.adapter = myAdapter
+
 
         day_menu!!.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
@@ -172,20 +175,91 @@ class RecordDetailActivity : AppCompatActivity() {
                                 var j = 0
                                 var r = 0
 
-                                for (data in snapshot.child("Pedometer").child("date").child(todayDate).children){
-                                    if ( data.child("type").value.toString() == "0"){ //walking
-                                        w = w + 1
-                                        stepTime.add(SimpleDateFormat("HH:mm:ss").format(data.child("time").value.toString().toLong()))
-                                        stepAcc.add(data.child("peak").value.toString().toFloat())
-                                    } else if ( data.child("type").value.toString() == "1" ) { //jogging
-                                        j = j + 1
-                                        stepTime.add(SimpleDateFormat("HH:mm:ss").format(data.child("time").value.toString().toLong()))
-                                        stepAcc.add(data.child("peak").value.toString().toFloat())
-                                    } else if ( data.child("type").value.toString() == "2" ) { //running
-                                        r = r + 1
-                                        stepTime.add(SimpleDateFormat("HH:mm:ss").format(data.child("time").value.toString().toLong()))
-                                        stepAcc.add(data.child("peak").value.toString().toFloat())
+                                for (data in snapshot.child("Pedometer").child("date").child((mCalendar.get(Calendar.YEAR)).toString()).child((mCalendar.get(Calendar.MONTH) + 1).toString()).children){
+                                    if ( data.key != null ) {
+                                        println("data : " + data.key)
+                                        items!!.add(data.key!!.toInt())
                                     }
+                                }
+                                var i : Array<Any> ?= null
+                                i = items!!.toArray(arrayOfNulls(items!!.size))
+                                //myAdapter = ArrayAdapter<Any>(this, android.R.layout.simple_spinner_dropdown_item, i)
+
+
+                                //day_menu!!.adapter = myAdapter
+
+
+//                                day_menu!!.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+//                                    override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+//
+//                                        //아이템이 클릭 되면 맨 위부터 position 0번부터 순서대로 동작하게 됩니다.
+//                                        when(position) {
+//                                            0   ->  {
+//
+//                                            }
+//                                            1   ->  {
+//
+//                                            }
+//                                            //...
+//                                            else -> {
+//
+//                                            }
+//                                        }
+//                                    }
+//
+//                                    override fun onNothingSelected(parent: AdapterView<*>) {
+//
+//                                    }
+//                                }
+
+                                for (data in snapshot.child("Pedometer").child("date").child(todayDate).children){
+                                    if ( data != null ) {
+                                        if ( data.child("type").value.toString() == "0"){ //walking
+                                            w = w + 1
+                                            try {
+                                                stepTime.add(
+                                                    SimpleDateFormat("HH:mm:ss").format(
+                                                        data.child("time").value.toString().toLong()
+                                                    )
+                                                )
+                                                stepAcc.add(
+                                                    data.child("peak").value.toString().toFloat()
+                                                )
+                                            } catch ( e : NumberFormatException ) {
+
+                                            }
+                                        } else if ( data.child("type").value.toString() == "1" ) { //jogging
+                                            j = j + 1
+                                            try {
+                                            stepTime.add(SimpleDateFormat("HH:mm:ss").format(data.child("time").value.toString().toLong()))
+                                            stepAcc.add(data.child("peak").value.toString().toFloat())
+                                            } catch ( e : NumberFormatException ) {
+
+                                            }
+                                        } else if ( data.child("type").value.toString() == "2" ) { //running
+                                            r = r + 1
+                                            try {
+                                                stepTime.add(SimpleDateFormat("HH:mm:ss").format(data.child("time").value.toString().toLong()))
+                                                stepAcc.add(data.child("peak").value.toString().toFloat())
+                                            } catch ( e : NumberFormatException ) {
+
+                                            }
+
+                                        }
+                                    }
+//                                    if ( data.child("type").value.toString() == "0"){ //walking
+//                                        w = w + 1
+//                                        stepTime.add(SimpleDateFormat("HH:mm:ss").format(data.child("time").value.toString().toLong()))
+//                                        stepAcc.add(data.child("peak").value.toString().toFloat())
+//                                    } else if ( data.child("type").value.toString() == "1" ) { //jogging
+//                                        j = j + 1
+//                                        stepTime.add(SimpleDateFormat("HH:mm:ss").format(data.child("time").value.toString().toLong()))
+//                                        stepAcc.add(data.child("peak").value.toString().toFloat())
+//                                    } else if ( data.child("type").value.toString() == "2" ) { //running
+//                                        r = r + 1
+//                                        stepTime.add(SimpleDateFormat("HH:mm:ss").format(data.child("time").value.toString().toLong()))
+//                                        stepAcc.add(data.child("peak").value.toString().toFloat())
+//                                    }
                                     var totalCaloriesBurned : Float = w*0.05f + j*0.1f + r*0.2f
                                     totalkcal!!.text = String.format("%.2f", totalCaloriesBurned) + " kcal"
 
