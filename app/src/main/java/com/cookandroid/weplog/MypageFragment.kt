@@ -5,6 +5,11 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.Toast
+import androidx.core.content.res.ResourcesCompat
+import kotlinx.android.synthetic.main.mypage.*
+import kotlinx.android.synthetic.main.mypage.view.*
 
 
 class MypageFragment : Fragment() {
@@ -18,8 +23,34 @@ class MypageFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.mypage, container, false)
+        var view = inflater.inflate(R.layout.mypage, container, false)
+
+        val items = mutableListOf<ListViewItem>()
+        items.add(ListViewItem(ResourcesCompat.getDrawable(requireActivity().resources, R.drawable.ic_baseline_account_circle_24, null), "내가 쓴 글"))
+        items.add(ListViewItem(ResourcesCompat.getDrawable(requireActivity().resources, R.drawable.ic_baseline_article_24, null)!!, "개인정보 수정"))
+        items.add(ListViewItem(ResourcesCompat.getDrawable(requireActivity().resources, R.drawable.ic_baseline_announcement_24, null)!!, "공지사항"))
+        items.add(ListViewItem(ResourcesCompat.getDrawable(requireActivity().resources, R.drawable.ic_baseline_contact_support_24, null)!!, "문의하기"))
+        items.add(ListViewItem(ResourcesCompat.getDrawable(requireActivity().resources, R.drawable.ic_baseline_notifications_none_24, null)!!, "푸시알림 설정"))
+        items.add(ListViewItem(ResourcesCompat.getDrawable(requireActivity().resources, R.drawable.ic_baseline_article_24, null)!!, "about"))
+        items.add(ListViewItem(ResourcesCompat.getDrawable(requireActivity().resources, R.drawable.ic_baseline_power_settings_new_24, null)!!, "로그아웃"))
+        items.add(ListViewItem(ResourcesCompat.getDrawable(requireActivity().resources, R.drawable.ic_baseline_block_24, null)!!, "회원탈퇴"))
+
+
+        val adapter = ListViewAdapter(items)
+
+        view.my_list.adapter=adapter
+
+
+        view.my_list.setOnItemClickListener { parent: AdapterView<*>, view: View, position: Int, id: Long ->
+            val item = parent.getItemAtPosition(position) as ListViewItem
+            Toast.makeText(activity, item.title, Toast.LENGTH_SHORT).show() }
+
+
+
+
+
+
+        return view
     }
 
 }
