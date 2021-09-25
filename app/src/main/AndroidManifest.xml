@@ -64,7 +64,13 @@
         <activity android:name=".RecordDetailActivity" />
         <activity android:name=".RecordChoiceActivity" />
 
+
         <service android:name=".StepsTrackerService" />
+
+        <activity android:name=".MyProfileActivity" />
+        <activity android:name=".MyAccountActivity"/>
+        <activity android:name=".HistoryActivity"/>
+
     </application>
 
 </manifest>

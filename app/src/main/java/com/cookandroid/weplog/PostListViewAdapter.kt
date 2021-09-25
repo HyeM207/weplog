@@ -4,15 +4,11 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.SurfaceControl
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
@@ -20,7 +16,6 @@ import com.google.firebase.database.*
 
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.ktx.storage
 
 class PostListViewAdapter(private val context: Context): RecyclerView.Adapter <PostListViewAdapter.CustomViewHolder>(){
@@ -145,7 +140,7 @@ class PostListViewAdapter(private val context: Context): RecyclerView.Adapter <P
 
 
     class CustomViewHolder(itemView : View): RecyclerView.ViewHolder(itemView) {
-        val comitem_nick = itemView.findViewById<TextView>(R.id.comitem_nick)
+        val comitem_nick = itemView.findViewById<TextView>(R.id.history_date)
         val comitem_photo = itemView.findViewById<ImageView>(R.id.comitem_photo)
         val comitem_heart = itemView.findViewById<ImageView>(R.id.comitem_heart)
         val comitem_check = itemView.findViewById<ImageView>(R.id.comitem_check)

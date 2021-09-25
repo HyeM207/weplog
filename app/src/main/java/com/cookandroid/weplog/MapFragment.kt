@@ -6,14 +6,15 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.location.Address
 import android.location.Geocoder
+import android.location.Location
 import android.location.LocationManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,22 +24,16 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.getSystemService
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentTransaction
-import com.github.mikephil.charting.charts.Chart
-import kotlinx.android.synthetic.main.map.*
-import net.daum.mf.map.api.*
-import java.util.*
-import android.graphics.Color
-import android.location.*
+import androidx.fragment.app.Fragment
 import com.github.mikephil.charting.charts.Chart.LOG_TAG
-import com.google.android.gms.location.LocationRequest
 import com.google.firebase.auth.FirebaseAuth
-
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import kotlinx.android.synthetic.main.map.*
+import net.daum.mf.map.api.*
+import java.text.SimpleDateFormat
+import java.util.*
 
 class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.MapViewEventListener{
 
@@ -86,6 +81,7 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
     //시간 측정용 변수
     private var timerTask:Timer?=null
     private var time = 0
+    private val realTimerTask: TimerTask? = null
     private var timerIsRunning = false
     var hour = 0
     var min = 0
@@ -173,6 +169,13 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
             map_btnstop.visibility = View.VISIBLE
             map_btnend.visibility = View.VISIBLE
 
+            var now=System.currentTimeMillis()
+            var date=Date(now)
+            var startdateFormat=SimpleDateFormat("k:mm")
+            var startTimeString=startdateFormat.format(date)
+
+
+
             timerIsRunning = !timerIsRunning
             if (timerIsRunning) startTimer()
 
@@ -185,7 +188,7 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
 
             pushRef=database.child("user/$uid/Pedometer/date").child(todayDate).push()
             pushRef.child("walkstate/type").setValue("0")
-
+            pushRef.child("time/startTime").setValue("$startTimeString")
 
 
 //            startAlertDialog()
@@ -205,6 +208,8 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
             map_btnstop.visibility = View.INVISIBLE
             map_btnend.visibility = View.INVISIBLE
             startState=false
+            endTimer()
+            map_view.removePOIItem(startMarker)
 
 
             map_btnstop.setText("STOP")
@@ -213,9 +218,14 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
 
             //var intent = Intent(activity, Authentication::class.java)
             //startActivity(intent)
-            endAlertDialog()
-            endTimer()
 
+            endAlertDialog()
+
+
+            var now=System.currentTimeMillis()
+            var date=Date(now)
+            var endDateFormat=SimpleDateFormat("k:mm")
+            var endTimeString=endDateFormat.format(date)
 
             var Record = Record()
             //db 저장
@@ -223,8 +233,8 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
             Record.time=String.format("%02d:%02d:%02d", hour, min, sec)
             var RecordValues = Record.toMap()
             pushRef.child("record").setValue(RecordValues)
+            pushRef.child("time/endTime").setValue("$endTimeString")
             map_km.text="0.00km"
-
 
 
 
@@ -318,8 +328,11 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
     private fun endTimer(){
         timerTask?.cancel()
         time=0
-        timerIsRunning=false
-        map_time.text="00:00:00"
+        hour=0
+        min=0
+        sec=0
+        map_time.text=String.format("%02d:%02d:%02d", hour, min, sec)
+//        map_time.text="00:00:00"
     }
 
     fun startAlertDialog(){

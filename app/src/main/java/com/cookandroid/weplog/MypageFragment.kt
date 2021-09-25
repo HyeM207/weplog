@@ -1,5 +1,6 @@
 package com.cookandroid.weplog
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -27,13 +28,13 @@ class MypageFragment : Fragment() {
 
         val items = mutableListOf<ListViewItem>()
         items.add(ListViewItem(ResourcesCompat.getDrawable(requireActivity().resources, R.drawable.ic_baseline_account_circle_24, null), "내가 쓴 글"))
-        items.add(ListViewItem(ResourcesCompat.getDrawable(requireActivity().resources, R.drawable.ic_baseline_article_24, null)!!, "개인정보 수정"))
+        items.add(ListViewItem(ResourcesCompat.getDrawable(requireActivity().resources, R.drawable.ic_baseline_vpn_key_24, null)!!, "계정관리"))
         items.add(ListViewItem(ResourcesCompat.getDrawable(requireActivity().resources, R.drawable.ic_baseline_announcement_24, null)!!, "공지사항"))
         items.add(ListViewItem(ResourcesCompat.getDrawable(requireActivity().resources, R.drawable.ic_baseline_contact_support_24, null)!!, "문의하기"))
         items.add(ListViewItem(ResourcesCompat.getDrawable(requireActivity().resources, R.drawable.ic_baseline_notifications_none_24, null)!!, "푸시알림 설정"))
         items.add(ListViewItem(ResourcesCompat.getDrawable(requireActivity().resources, R.drawable.ic_baseline_article_24, null)!!, "about"))
-        items.add(ListViewItem(ResourcesCompat.getDrawable(requireActivity().resources, R.drawable.ic_baseline_power_settings_new_24, null)!!, "로그아웃"))
-        items.add(ListViewItem(ResourcesCompat.getDrawable(requireActivity().resources, R.drawable.ic_baseline_block_24, null)!!, "회원탈퇴"))
+//        items.add(ListViewItem(ResourcesCompat.getDrawable(requireActivity().resources, R.drawable.ic_baseline_power_settings_new_24, null)!!, "로그아웃"))
+//        items.add(ListViewItem(ResourcesCompat.getDrawable(requireActivity().resources, R.drawable.ic_baseline_block_24, null)!!, "회원탈퇴"))
 
 
         val adapter = ListViewAdapter(items)
@@ -43,7 +44,18 @@ class MypageFragment : Fragment() {
 
         view.my_list.setOnItemClickListener { parent: AdapterView<*>, view: View, position: Int, id: Long ->
             val item = parent.getItemAtPosition(position) as ListViewItem
-            Toast.makeText(activity, item.title, Toast.LENGTH_SHORT).show() }
+            Toast.makeText(activity, item.title, Toast.LENGTH_SHORT).show()
+
+            if (item.title=="계정관리"){
+                val accountIntent=Intent(activity, MyAccountActivity::class.java)
+                startActivity(accountIntent)
+            }
+
+
+
+
+
+        }
 
 
 
@@ -52,5 +64,10 @@ class MypageFragment : Fragment() {
 
         return view
     }
+
+
+
+
+
 
 }

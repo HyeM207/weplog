@@ -18,6 +18,7 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
+import kotlinx.android.synthetic.main.main.*
 
 
 class MainFragment : Fragment() {
@@ -25,6 +26,7 @@ class MainFragment : Fragment() {
     lateinit var main_nickname : TextView
     lateinit var main_logoutBtn : Button
     lateinit var mainRecordLayout : ConstraintLayout
+    lateinit var mainPlogLayout:ConstraintLayout
 
     private var auth : FirebaseAuth? = null
 
@@ -42,6 +44,7 @@ class MainFragment : Fragment() {
         main_nickname = view.findViewById(R.id.main_nickname)
         main_logoutBtn = view.findViewById(R.id.main_logoutBtn)
         mainRecordLayout = view.findViewById(R.id.mainRecordLayout)
+        mainPlogLayout = view.findViewById(R.id.mainPlogLayout)
 
         // main 페이지 접근 시 로그인 되어 있는지 확인
         val user = Firebase.auth.currentUser
@@ -79,6 +82,11 @@ class MainFragment : Fragment() {
         // record 창 누르면 record 페이지로 이동
         mainRecordLayout.setOnClickListener {
             var intent = Intent(activity, RecordActivity::class.java) //로그인 페이지 이동
+            startActivity(intent)
+        }
+
+        mainPlogLayout.setOnClickListener {
+            var intent = Intent(activity, HistoryActivity::class.java) //로그인 페이지 이동
             startActivity(intent)
         }
 

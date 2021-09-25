@@ -53,7 +53,7 @@
         app:layout_constraintTop_toBottomOf="@+id/profile_nickname" />
 
     <EditText
-        android:id="@+id/editTextTextEmailAddress"
+        android:id="@+id/profile_email"
         android:layout_width="328dp"
         android:layout_height="40dp"
         android:layout_marginTop="8dp"
@@ -63,8 +63,42 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView5" />
 
+    <TextView
+        android:id="@+id/profile_emailalert"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:text=""
+        android:textColor="#F44336"
+        android:textSize="10sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/profile_email" />
+
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="28dp"
+        android:text="전화번호"
+        android:textSize="10sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/profile_email" />
+
+    <EditText
+        android:id="@+id/profile_phone"
+        android:layout_width="328dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="8dp"
+        android:ems="10"
+        android:inputType="phone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView6"
+        android:maxLength="13"/>
+
     <Button
-        android:id="@+id/button"
+        android:id="@+id/my_profile_donebtn"
         android:layout_width="61dp"
         android:layout_height="40dp"
         android:layout_marginTop="8dp"
