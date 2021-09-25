@@ -1,17 +1,16 @@
 package com.cookandroid.weplog
 
-import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView.OnItemClickListener
 import android.widget.BaseAdapter
 import android.widget.ListView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.DialogFragment
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DatabaseReference
@@ -65,6 +64,7 @@ class bottomsheetFragment(context: Context) : BottomSheetDialogFragment() {
 //            true
 //        }
         date_db()
+
         return view
     }
 
@@ -103,6 +103,10 @@ class bottomsheetFragment(context: Context) : BottomSheetDialogFragment() {
                         for ( m in 1..currentMonth.toInt()){
                             list_item.add(MonthListViewModel(i.toString(), m.toString()))
                         }
+                    } else if ( i == joinyear!!.toInt()){
+                        for ( m in joinmonth!!.toInt()..12){
+                            list_item.add(MonthListViewModel(i.toString(), m.toString()))
+                        }
                     } else {
                         for ( m in 1..12){
                             list_item.add(MonthListViewModel(i.toString(), m.toString()))
@@ -112,6 +116,10 @@ class bottomsheetFragment(context: Context) : BottomSheetDialogFragment() {
             }
             listAdapter = ListAdapter(requireContext(), list_item)
             list!!.adapter = listAdapter
+            list!!.setOnItemClickListener { parent, view, position, id ->
+                val clickedDate = list_item[position]
+            }
+
         }
     }
 
