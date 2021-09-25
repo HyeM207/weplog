@@ -32,6 +32,13 @@ class HistoryActivity:AppCompatActivity() {
         var adapter=HistoryAdapter()
         histroy_cardlist.adapter=adapter
 
+        val bottomSheetFragment = bottomsheetFragment(applicationContext)
+
+        history_btnselectmonth.setOnClickListener {
+            bottomSheetFragment.show(supportFragmentManager, bottomSheetFragment.tag)
+        }
+
+
         auth = FirebaseAuth.getInstance()
         database = Firebase.database.reference
         todayDate = (mCalendar.get(Calendar.YEAR)).toString() + "/" + (mCalendar.get(Calendar.MONTH) + 1).toString() +

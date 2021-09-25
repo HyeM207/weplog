@@ -9,9 +9,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     card_view:cardUseCompatPadding="true"
-    card_view:cardElevation="4dp"
-    card_view:contentPadding="4dp"
-    card_view:cardCornerRadius="20dp">
+    card_view:cardElevation="0dp"
+    card_view:contentPadding="4dp">
 
 
     <RelativeLayout
@@ -31,6 +30,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textStyle="bold"
+            android:textColor="@color/black"
             android:layout_marginStart="20dp"
             android:layout_marginLeft="20dp"/>
 
@@ -38,34 +38,35 @@
             android:id="@+id/rec_year_txt"
             android:textSize="20sp"
             android:text="년 "
+            android:textColor="@color/black"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toRightOf="@+id/rec_year"
             android:textStyle="bold"
-            android:layout_marginStart="10dp"
-            android:layout_marginLeft="10dp"/>
+            android:layout_marginLeft="1dp"/>
 
         <TextView
             android:id="@+id/rec_month"
             android:textSize="20sp"
             android:text="9"
+            android:textColor="@color/black"
             android:textStyle="bold"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toRightOf="@+id/rec_year_txt"
-            android:layout_marginStart="20dp"
+            android:layout_marginStart="8dp"
             android:layout_marginLeft="20dp"/>
 
         <TextView
             android:id="@+id/rec_month_txt"
             android:textSize="20sp"
-            android:text="일"
+            android:text="월"
+            android:textColor="@color/black"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textStyle="bold"
             android:layout_toRightOf="@+id/rec_month"
-            android:layout_marginStart="10dp"
-            android:layout_marginLeft="10dp"/>
+            android:layout_marginLeft="1dp"/>
 
     </RelativeLayout>
 
