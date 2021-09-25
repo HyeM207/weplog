@@ -15,6 +15,8 @@ import android.os.Bundle
 import android.os.IBinder
 import android.os.SystemClock
 import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -27,6 +29,7 @@ import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -40,6 +43,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 
 
@@ -63,6 +67,7 @@ class RecordActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.record)
+
 
         // record 페이지 접근 시 로그인 되어 있는지 확인
         val user = Firebase.auth.currentUser
@@ -98,13 +103,25 @@ class RecordActivity : AppCompatActivity() {
 
         calculateDataMatrix()
 
+//        val inflater: LayoutInflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+//        val view: View = inflater.inflate(R.layout.record_choice, null, false)
+//        val bottomSheetDialog = BottomSheetDialog(this)
+//        bottomSheetDialog.setContentView(view)
+
+        val bottomSheetFragment = bottomsheetFragment(applicationContext)
+
+
         chart_cardview!!.setOnClickListener{
+
             var intent = Intent(this, RecordDetailActivity::class.java)
             startActivity(intent)
+            //this.overridePendingTransition(R.anim.sliding_up, R.anim.stay)
         }
         rec_btn!!.setOnClickListener {
-            var intent = Intent(this, RecordChoiceActivity::class.java)
-            startActivity(intent)
+            //var intent = Intent(this, RecordChoiceActivity::class.java)
+            //startActivity(intent)
+            //this.overridePendingTransition(R.anim.sliding_up, R.anim.stay)
+            bottomSheetFragment.show(supportFragmentManager, bottomSheetFragment.tag)
         }
     }
 
