@@ -2,20 +2,20 @@ package com.cookandroid.weplog
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.*
 import android.widget.AdapterView.OnItemClickListener
-import android.widget.BaseAdapter
-import android.widget.ListView
-import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import kotlinx.android.synthetic.main.record_choice.*
+import java.time.Month
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -24,7 +24,7 @@ class bottomsheetFragment(context: Context) : BottomSheetDialogFragment() {
 
     private val mContext: Context = context
     lateinit var listAdapter: ListAdapter
-    private var list : ListView?= null
+    private var recordchoicelist : ListView?= null
     private lateinit var database: DatabaseReference
 
     override fun onCreateView(
@@ -36,7 +36,10 @@ class bottomsheetFragment(context: Context) : BottomSheetDialogFragment() {
         val view = inflater.inflate(R.layout.record_choice, container, false)
         setStyle(BottomSheetDialogFragment.STYLE_NORMAL, R.style.SomeStyle)
         setStyle(DialogFragment.STYLE_NORMAL, R.style.SomeStyle)
-        list = view.findViewById(R.id.list)
+        recordchoicelist = view.findViewById(R.id.record_choicelist)
+
+
+
 
 
 //        var list_item = ArrayList<MonthListViewModel>()
@@ -69,7 +72,9 @@ class bottomsheetFragment(context: Context) : BottomSheetDialogFragment() {
     }
 
     fun date_db(){
+
         var list_item = ArrayList<MonthListViewModel>()
+
         val user = Firebase.auth.currentUser
         database = Firebase.database.reference
         var mCalendar = Calendar.getInstance()
@@ -115,9 +120,13 @@ class bottomsheetFragment(context: Context) : BottomSheetDialogFragment() {
                 }
             }
             listAdapter = ListAdapter(requireContext(), list_item)
-            list!!.adapter = listAdapter
-            list!!.setOnItemClickListener { parent, view, position, id ->
+            recordchoicelist!!.adapter = listAdapter
+
+
+            recordchoicelist!!.setOnItemClickListener { parent, view, position, id ->
                 val clickedDate = list_item[position]
+                Toast.makeText(activity, "$clickedDate", Toast.LENGTH_SHORT).show()
+
             }
 
         }
