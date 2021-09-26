@@ -1,10 +1,12 @@
 package com.cookandroid.weplog
 
+import android.app.Activity
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.graphics.Color
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -17,9 +19,7 @@ import android.os.SystemClock
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.Button
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.core.app.NotificationCompat
@@ -55,19 +55,25 @@ const val JOGGINGPEAK = 25
 const val RUNNINGPEAK = 30
 
 
-class RecordActivity : AppCompatActivity() {
+class RecordActivity : AppCompatActivity(), bottomsheetFragment.onDataPassListener {
 
     private var barchart: BarChart ?= null
     private var kcal : TextView ?= null
     private var chart_cardview : CardView ?= null
     private var rec_btn : Button ?= null
     private lateinit var database: DatabaseReference
+    private var date_list : ListView?= null
+    //val bottomSheetFragment = bottomsheetFragment(applicationContext)
 
+    override fun onDataPass(data: String?) {
+        Toast.makeText(this, "$data", Toast.LENGTH_SHORT).show()
+        rec_btn!!.text = data + "월"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.record)
-
+        this.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
         // record 페이지 접근 시 로그인 되어 있는지 확인
         val user = Firebase.auth.currentUser
@@ -91,6 +97,10 @@ class RecordActivity : AppCompatActivity() {
         kcal = findViewById(R.id.rec_kcal)
         chart_cardview = findViewById(R.id.rec_graph_cardview)
 
+//        var intent : Intent = intent
+//        if (intent != null){
+//            rec_btn!!.text = intent.getStringExtra("Month")
+//        }
         rec_btn!!.text = currentMonth + "월"
 
         var mStepsAnalysisIntent = Intent(this, StepsTrackerService::class.java)
@@ -102,14 +112,20 @@ class RecordActivity : AppCompatActivity() {
         }
 
         calculateDataMatrix()
-
+//
 //        val inflater: LayoutInflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 //        val view: View = inflater.inflate(R.layout.record_choice, null, false)
+//        val list: ListView = view.findViewById(R.id.record_choicelist)
+//        list!!.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
+//            println("clickclick")
+//            //Toast.makeText(context:this, selectItem.name, Toast.LENGTH_SHORT).show()
+//
+//        }
 //        val bottomSheetDialog = BottomSheetDialog(this)
 //        bottomSheetDialog.setContentView(view)
 
-        val bottomSheetFragment = bottomsheetFragment(applicationContext)
 
+        val bottomSheetFragment = bottomsheetFragment(applicationContext)
 
         chart_cardview!!.setOnClickListener{
 
@@ -122,8 +138,11 @@ class RecordActivity : AppCompatActivity() {
             //startActivity(intent)
             //this.overridePendingTransition(R.anim.sliding_up, R.anim.stay)
             bottomSheetFragment.show(supportFragmentManager, bottomSheetFragment.tag)
+
         }
     }
+
+
 
     fun calculateDataMatrix(){
         //barchart

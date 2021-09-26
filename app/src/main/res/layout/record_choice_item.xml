@@ -10,7 +10,8 @@
     android:layout_height="wrap_content"
     card_view:cardUseCompatPadding="true"
     card_view:cardElevation="1dp"
-    card_view:contentPadding="4dp">
+    card_view:contentPadding="4dp"
+    android:descendantFocusability="blocksDescendants">
 
 
     <RelativeLayout
@@ -24,6 +25,8 @@
         android:orientation="horizontal">
 
         <TextView
+            android:focusable="false"
+            android:clickable="false"
             android:id="@+id/rec_year"
             android:textSize="16sp"
             android:text="2021"
@@ -35,6 +38,8 @@
             android:layout_marginLeft="20dp"/>
 
         <TextView
+            android:focusable="false"
+            android:clickable="false"
             android:id="@+id/rec_year_txt"
             android:textSize="16sp"
             android:text="년 "
@@ -46,6 +51,8 @@
             android:layout_marginLeft="1dp"/>
 
         <TextView
+            android:focusable="false"
+            android:clickable="false"
             android:id="@+id/rec_month"
             android:textSize="16sp"
             android:text="9"
@@ -58,6 +65,8 @@
             android:layout_marginLeft="20dp"/>
 
         <TextView
+            android:focusable="false"
+            android:clickable="false"
             android:id="@+id/rec_month_txt"
             android:textSize="16sp"
             android:text="월"

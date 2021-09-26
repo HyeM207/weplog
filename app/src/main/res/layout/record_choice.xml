@@ -5,7 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:descendantFocusability="blocksDescendants">
 <!--    app:behavior_hideable="true"-->
 <!--    app:behavior_peekHeight="200dp"-->
 <!--    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">-->

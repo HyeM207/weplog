@@ -1,31 +1,53 @@
 package com.cookandroid.weplog
 
 import android.content.Context
+import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import android.widget.AdapterView.OnItemClickListener
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.FragmentManager
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import kotlinx.android.synthetic.main.mypage.view.*
 import kotlinx.android.synthetic.main.record_choice.*
-import java.time.Month
 import java.util.*
 import kotlin.collections.ArrayList
 
 
 class bottomsheetFragment(context: Context) : BottomSheetDialogFragment() {
 
+    lateinit var dataPassListener : onDataPassListener
     private val mContext: Context = context
     lateinit var listAdapter: ListAdapter
     private var recordchoicelist : ListView?= null
     private lateinit var database: DatabaseReference
+    var list_item = ArrayList<MonthListViewModel>()
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        dataPassListener = context as onDataPassListener //형변환
+    }
+
+    interface onDataPassListener {
+        fun onDataPass(data : String?)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+//        val pass : Button by lazy { view.findViewById(R.id.pass) }
+//
+//        // Activity의 OnCreate에서 했던 작업을 프래그먼트는 여기에서 수행행
+//        pass.setOnClickListener {
+//            dataPassListener.onDataPass("goodBye")
+//        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -34,6 +56,7 @@ class bottomsheetFragment(context: Context) : BottomSheetDialogFragment() {
     ): View? {
 
         val view = inflater.inflate(R.layout.record_choice, container, false)
+        requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         setStyle(BottomSheetDialogFragment.STYLE_NORMAL, R.style.SomeStyle)
         setStyle(DialogFragment.STYLE_NORMAL, R.style.SomeStyle)
         recordchoicelist = view.findViewById(R.id.record_choicelist)
@@ -75,6 +98,7 @@ class bottomsheetFragment(context: Context) : BottomSheetDialogFragment() {
 
         var list_item = ArrayList<MonthListViewModel>()
 
+        list_item = ArrayList<MonthListViewModel>()
         val user = Firebase.auth.currentUser
         database = Firebase.database.reference
         var mCalendar = Calendar.getInstance()
@@ -121,11 +145,19 @@ class bottomsheetFragment(context: Context) : BottomSheetDialogFragment() {
             }
             listAdapter = ListAdapter(requireContext(), list_item)
             recordchoicelist!!.adapter = listAdapter
-
-
             recordchoicelist!!.setOnItemClickListener { parent, view, position, id ->
-                val clickedDate = list_item[position]
-                Toast.makeText(activity, "$clickedDate", Toast.LENGTH_SHORT).show()
+                val clickedDate_m = list_item[position].month
+                val clickedDate_y = list_item[position].year
+                //Toast.makeText(activity, "$clickedDate_m", Toast.LENGTH_SHORT).show()
+                //val intent = Intent(context, RecordActivity::class.java)
+                //intent.putExtra("Month", clickedDate_m)
+                dataPassListener.onDataPass(clickedDate_m)
+                val fragmentManager: FragmentManager = requireActivity().supportFragmentManager
+                fragmentManager.beginTransaction().remove(this@bottomsheetFragment).commit()
+                fragmentManager.popBackStack()
+
+                //(activity as RecordActivity).destroyFragment()
+                //requireContext().startActivity(intent)
 
             }
 
