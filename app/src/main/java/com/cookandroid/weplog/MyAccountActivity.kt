@@ -21,6 +21,7 @@ class MyAccountActivity:AppCompatActivity() {
         val items= mutableListOf<ListViewItem>()
 
         items.add(ListViewItem(ContextCompat.getDrawable(this, R.drawable.ic_baseline_article_24), "개인정보 수정"))
+        items.add(ListViewItem(ContextCompat.getDrawable(this, R.drawable.ic_baseline_lock_24), "비밀번호 변경"))
         items.add(ListViewItem(ContextCompat.getDrawable(this, R.drawable.ic_baseline_power_settings_new_24), "로그아웃"))
         items.add(ListViewItem(ContextCompat.getDrawable(this, R.drawable.ic_baseline_block_24), "회원탈퇴"))
 
@@ -35,6 +36,9 @@ class MyAccountActivity:AppCompatActivity() {
             if (item.title=="개인정보 수정"){
                 val profileIntent= Intent(this, MyProfileActivity::class.java)
                 startActivity(profileIntent)
+            }else if (item.title=="비밀번호 변경"){
+                val pwIntent= Intent(this, PasswordActivity::class.java)
+                startActivity(pwIntent)
             }else if (item.title=="로그아웃"){
                 Firebase.auth.signOut()
                 var intent = Intent(this, Login::class.java)

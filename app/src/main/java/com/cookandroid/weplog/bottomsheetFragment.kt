@@ -4,10 +4,12 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import android.widget.AdapterView.OnItemClickListener
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -17,6 +19,7 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.mypage.view.*
 import kotlinx.android.synthetic.main.record_choice.*
+import java.time.Month
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -145,13 +148,14 @@ class bottomsheetFragment(context: Context) : BottomSheetDialogFragment() {
             }
             listAdapter = ListAdapter(requireContext(), list_item)
             recordchoicelist!!.adapter = listAdapter
+
+
             recordchoicelist!!.setOnItemClickListener { parent, view, position, id ->
                 val clickedDate_m = list_item[position].month
                 val clickedDate_y = list_item[position].year
-                //Toast.makeText(activity, "$clickedDate_m", Toast.LENGTH_SHORT).show()
-                //val intent = Intent(context, RecordActivity::class.java)
-                //intent.putExtra("Month", clickedDate_m)
                 dataPassListener.onDataPass(clickedDate_m)
+                (activity as HistoryActivity).setChoiceDate(clickedDate_y, clickedDate_m)
+
                 val fragmentManager: FragmentManager = requireActivity().supportFragmentManager
                 fragmentManager.beginTransaction().remove(this@bottomsheetFragment).commit()
                 fragmentManager.popBackStack()

@@ -134,7 +134,7 @@
                     android:textColor="@color/black" />
 
                 <Button
-                    android:id="@+id/history_btnselectmonth"
+                    android:id="@+id/history_btnwhole"
                     android:layout_width="60dp"
                     android:layout_height="60dp"
                     android:layout_marginStart="50dp"

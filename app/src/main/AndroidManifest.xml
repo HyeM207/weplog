@@ -70,6 +70,10 @@
         <activity android:name=".MyProfileActivity" />
         <activity android:name=".MyAccountActivity"/>
         <activity android:name=".HistoryActivity"/>
+        <activity android:name=".PasswordActivity"/>
+        <activity android:name=".VisitActivity"/>
+
+
 
     </application>
 

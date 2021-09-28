@@ -1,6 +1,8 @@
 package com.cookandroid.weplog
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -9,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.ListView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContentProviderCompat.requireContext
 import kotlinx.android.synthetic.main.main_history.*
@@ -18,10 +21,11 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
 import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
+import java.time.Month
 import java.util.*
 
 
-class HistoryActivity:AppCompatActivity() {
+class HistoryActivity:AppCompatActivity(), bottomsheetFragment.onDataPassListener {
 
     //db용
     private var auth : FirebaseAuth? = null
@@ -32,13 +36,17 @@ class HistoryActivity:AppCompatActivity() {
     //날짜
     var mCalendar = Calendar.getInstance()
     lateinit var todayDate:String
+    var choiceYear=""
+    var choiceMonth=""
+    var monthList= ArrayList<String>()
 
     //리스트뷰
     lateinit var listAdapter: ListAdapter
     private var list : ListView?= null
 
-
-
+    override fun onDataPass(data: String?) {
+        Toast.makeText(this, "$data", Toast.LENGTH_SHORT).show()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,8 +57,12 @@ class HistoryActivity:AppCompatActivity() {
 
         val bottomSheetFragment = bottomsheetFragment(applicationContext)
 
-        history_btnselectmonth.setOnClickListener {
+        history_btnpermonth.setOnClickListener {
             bottomSheetFragment.show(supportFragmentManager, bottomSheetFragment.tag)
+        }
+
+        history_btnwhole.setOnClickListener {
+            Toast.makeText(applicationContext, "전체 기록보기", Toast.LENGTH_SHORT).show()
         }
 
 
@@ -62,7 +74,6 @@ class HistoryActivity:AppCompatActivity() {
         database.child("user/$uid/Pedometer/date").get().addOnSuccessListener {
             var post = it.children
 
-            Log.i("firebase", "got date value first $post")
             for(p in post){
                 var year=p.key //2021 저장됨
                 Log.i("firebase", "got date value second $year")
@@ -70,60 +81,28 @@ class HistoryActivity:AppCompatActivity() {
         }
     }
 
+    fun setChoiceDate(year : String, month : String){
+        choiceMonth=month
+        choiceYear=year
+        Log.i("choiceDate", "bottomsheetfragment에서 데이터 전달받음 {$choiceYear, $choiceMonth}")
+        database.child("user/$uid/Pedometer/date").get().addOnSuccessListener {
+            var post = it.children
 
-    fun date_db(){
-        var list_item = ArrayList<MonthListViewModel>()
-        val user = Firebase.auth.currentUser
-        database = Firebase.database.reference
-        var mCalendar = Calendar.getInstance()
-        var currentyear = (mCalendar.get(Calendar.YEAR)).toString()
-        var currentMonth = (mCalendar.get(Calendar.MONTH) + 1).toString()
-        var currentday = (mCalendar.get(Calendar.DAY_OF_MONTH)).toString()
-        var joinyear : String ?= null
-        var joinmonth : String ?= null
-        var joinday : String ?= null
-
-        database.child("users").child(user!!.uid).child("joindate").get().addOnSuccessListener {
-            println("joindate : " + it.value)
-            var joindate = it.value.toString()
-            joinyear = joindate.substring(0, joindate.indexOf("/"))
-            joinmonth = joindate.substring(5, joindate.lastIndexOf("/"))
-            joinday = (joindate.substring(joindate.lastIndexOf("/")+1))
-            println( joinyear + joinmonth + joinday)
-            if (currentyear.toString() == joinyear.toString()){
-                println("if문 : " + currentyear.toString() + joinyear)
-                if ( currentMonth.toString() == joinmonth.toString() ){
-                    list_item.add(MonthListViewModel(currentyear, currentMonth))
-                } else {
-                    for (i in joinmonth!!.toInt()..currentMonth.toInt()) {
-                        println("i :: " + i)
-                        list_item.add(MonthListViewModel(currentyear, i.toString()))
-                    }
+            //해당 년도의 월 부분을 가져와서 monthList에 저장
+            for(p in post){
+                var pmonth=p.children
+                for (ps in pmonth){
+                    var m=ps.key
+                    monthList.add("$m")
+                    Log.i("firebase", "got date value in setChoicedate $m")
                 }
-            } else {
-                for(i in joinyear!!.toInt()..currentyear.toInt()){
-                    if ( i == currentyear.toInt()) {
-                        for ( m in 1..currentMonth.toInt()){
-                            list_item.add(MonthListViewModel(i.toString(), m.toString()))
-                        }
-                    } else if ( i == joinyear!!.toInt()){
-                        for ( m in joinmonth!!.toInt()..12){
-                            list_item.add(MonthListViewModel(i.toString(), m.toString()))
-                        }
-                    } else {
-                        for ( m in 1..12){
-                            list_item.add(MonthListViewModel(i.toString(), m.toString()))
-                        }
-                    }
-                }
-            }
-            listAdapter = ListAdapter(this, list_item)
-            list!!.adapter = listAdapter
-            list!!.setOnItemClickListener { parent, view, position, id ->
-                val clickedDate = list_item[position]
-            }
 
+//                var year=p.key //2021 저장됨
+//                var values=p.value
+//                Log.i("firebase", "got date value in setChoicedate $values")
+            }
         }
+
     }
 
 

@@ -27,6 +27,7 @@ class MainFragment : Fragment() {
     lateinit var main_logoutBtn : Button
     lateinit var mainRecordLayout : ConstraintLayout
     lateinit var mainPlogLayout:ConstraintLayout
+    lateinit var mainAreaLayout:ConstraintLayout
 
     private var auth : FirebaseAuth? = null
 
@@ -45,6 +46,7 @@ class MainFragment : Fragment() {
         main_logoutBtn = view.findViewById(R.id.main_logoutBtn)
         mainRecordLayout = view.findViewById(R.id.mainRecordLayout)
         mainPlogLayout = view.findViewById(R.id.mainPlogLayout)
+        mainAreaLayout = view.findViewById(R.id.mainAreaLayout)
 
         // main 페이지 접근 시 로그인 되어 있는지 확인
         val user = Firebase.auth.currentUser
@@ -87,6 +89,11 @@ class MainFragment : Fragment() {
 
         mainPlogLayout.setOnClickListener {
             var intent = Intent(activity, HistoryActivity::class.java) //로그인 페이지 이동
+            startActivity(intent)
+        }
+
+        mainAreaLayout.setOnClickListener {
+            var intent = Intent(activity, VisitActivity::class.java) //로그인 페이지 이동
             startActivity(intent)
         }
 
