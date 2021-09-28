@@ -39,7 +39,7 @@ class bottomsheetFragment(context: Context) : BottomSheetDialogFragment() {
     }
 
     interface onDataPassListener {
-        fun onDataPass(data : String?)
+        fun onDataPass(data : String, data2 : String)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -148,12 +148,13 @@ class bottomsheetFragment(context: Context) : BottomSheetDialogFragment() {
             }
             listAdapter = ListAdapter(requireContext(), list_item)
             recordchoicelist!!.adapter = listAdapter
-
-
             recordchoicelist!!.setOnItemClickListener { parent, view, position, id ->
                 val clickedDate_m = list_item[position].month
                 val clickedDate_y = list_item[position].year
-                dataPassListener.onDataPass(clickedDate_m)
+                //Toast.makeText(activity, "$clickedDate_m", Toast.LENGTH_SHORT).show()
+                //val intent = Intent(context, RecordActivity::class.java)
+                //intent.putExtra("Month", clickedDate_m)
+                dataPassListener.onDataPass(clickedDate_m, clickedDate_y)
                 (activity as HistoryActivity).setChoiceDate(clickedDate_y, clickedDate_m)
 
                 val fragmentManager: FragmentManager = requireActivity().supportFragmentManager
