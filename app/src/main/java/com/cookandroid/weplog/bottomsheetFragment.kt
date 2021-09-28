@@ -155,7 +155,7 @@ class bottomsheetFragment(context: Context) : BottomSheetDialogFragment() {
                 //val intent = Intent(context, RecordActivity::class.java)
                 //intent.putExtra("Month", clickedDate_m)
                 dataPassListener.onDataPass(clickedDate_m, clickedDate_y)
-                (activity as HistoryActivity).setChoiceDate(clickedDate_y, clickedDate_m)
+
 
                 val fragmentManager: FragmentManager = requireActivity().supportFragmentManager
                 fragmentManager.beginTransaction().remove(this@bottomsheetFragment).commit()
