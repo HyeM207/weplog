@@ -23,12 +23,15 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.core.app.NotificationCompat
+import androidx.core.view.isInvisible
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.*
+import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
@@ -44,7 +47,7 @@ import kotlin.collections.ArrayList
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-
+import com.google.android.material.internal.ContextUtils.getActivity
 
 
 const val WALKING = 0
@@ -63,17 +66,79 @@ class RecordActivity : AppCompatActivity(), bottomsheetFragment.onDataPassListen
     private var rec_btn : Button ?= null
     private lateinit var database: DatabaseReference
     private var date_list : ListView?= null
+    private var listener : ValueEventListener ?= null
+    var record_year : String ?= null
+    var record_month : String ?= null
     //val bottomSheetFragment = bottomsheetFragment(applicationContext)
 
-    override fun onDataPass(data: String?) {
+    override fun onDataPass(data: String, data2 : String) {
         Toast.makeText(this, "$data", Toast.LENGTH_SHORT).show()
-        rec_btn!!.text = data + "월"
+        record_month = data
+        record_year = data2
+        //var year = data2
+        //var month = data
+        rec_btn!!.text = record_year.toString() +"년  " + record_month.toString() + "월"
+        database.removeEventListener(listener!!)
+        db(record_month.toString(), record_year.toString())
+    }
+
+    fun db(m : String, y : String){
+//        //barchart
+//        barchart!!.description.text = "Step by Date"
+//        barchart!!.setDrawBarShadow(false)
+//        barchart!!.setDrawValueAboveBar(true)
+//        barchart!!.description.isEnabled = true
+//        barchart!!.setPinchZoom(true)
+//        barchart!!.setDrawGridBackground(false)
+//        val leftAxis = barchart!!.axisLeft
+//        leftAxis.removeAllLimitLines()
+//        //leftAxis.axisMaximum = 100f
+//        leftAxis.axisMinimum = 0f
+//        val datevalues: ArrayList<BarEntry> = ArrayList()
+//        val line2_xlabels = ArrayList<String>()
+
+
+        val user = Firebase.auth.currentUser
+        database = Firebase.database.reference
+        var mCalendar = Calendar.getInstance()
+        var currentMonth = (mCalendar.get(Calendar.MONTH) + 1).toString()
+        var currentYear = (mCalendar.get(Calendar.YEAR)).toString()
+        if ( currentMonth != m || currentYear != y ){
+            Toast.makeText(this, "다", Toast.LENGTH_SHORT).show()
+            database.child("user").child("fdfdff").child("Pedometer").get().addOnSuccessListener {
+                Toast.makeText(this, it.value.toString(), Toast.LENGTH_SHORT).show()
+                if (it.value.toString() == "null"){
+                    barchart!!.isInvisible = true
+                    Toast.makeText(this, "아직 플러깅 하지도 않", Toast.LENGTH_SHORT).show()
+                    println("아직 플러깅 하지도 않음")
+                }
+            //                //Log.i("firebase", "Got value ${it.value}")
+//                println("Got value ${it.value}")
+//                database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).get().addOnSuccessListener {
+//                    //Log.i("firebase", "Got value ${it.value}")
+//                    println("Got value ${it.value}")
+//                }.addOnFailureListener{
+//
+//                    println(":counts초기")
+//                }
+            }.addOnFailureListener{
+                barchart!!.isInvisible = true
+                Toast.makeText(this, "아직 플러깅 하지도 않", Toast.LENGTH_SHORT).show()
+                println("아직 플러깅 하지도 않음")
+            }
+        } else if ( currentMonth == m && currentYear == y){
+            Toast.makeText(this, "현", Toast.LENGTH_SHORT).show()
+            //database.addValueEventListener(listener!!)재
+            barchart!!.isInvisible = false
+            calculateDataMatrix()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.record)
         this.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+
 
         // record 페이지 접근 시 로그인 되어 있는지 확인
         val user = Firebase.auth.currentUser
@@ -87,6 +152,9 @@ class RecordActivity : AppCompatActivity(), bottomsheetFragment.onDataPassListen
 
         var mCalendar = Calendar.getInstance()
         var currentMonth = (mCalendar.get(Calendar.MONTH) + 1).toString()
+        var currentYear = (mCalendar.get(Calendar.YEAR)).toString()
+        record_year = currentYear
+        record_month = currentMonth
 //        var todayDate =
 //            (mCalendar.get(Calendar.YEAR)).toString() + "/" + (mCalendar.get(Calendar.MONTH) + 1).toString() + "/" + (mCalendar.get(
 //                Calendar.DAY_OF_MONTH
@@ -96,12 +164,7 @@ class RecordActivity : AppCompatActivity(), bottomsheetFragment.onDataPassListen
         barchart = findViewById(R.id.rec_graph)
         kcal = findViewById(R.id.rec_kcal)
         chart_cardview = findViewById(R.id.rec_graph_cardview)
-
-//        var intent : Intent = intent
-//        if (intent != null){
-//            rec_btn!!.text = intent.getStringExtra("Month")
-//        }
-        rec_btn!!.text = currentMonth + "월"
+        rec_btn!!.text = currentYear + "년  " + currentMonth + "월"
 
         var mStepsAnalysisIntent = Intent(this, StepsTrackerService::class.java)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -112,26 +175,13 @@ class RecordActivity : AppCompatActivity(), bottomsheetFragment.onDataPassListen
         }
 
         calculateDataMatrix()
-//
-//        val inflater: LayoutInflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-//        val view: View = inflater.inflate(R.layout.record_choice, null, false)
-//        val list: ListView = view.findViewById(R.id.record_choicelist)
-//        list!!.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
-//            println("clickclick")
-//            //Toast.makeText(context:this, selectItem.name, Toast.LENGTH_SHORT).show()
-//
-//        }
-//        val bottomSheetDialog = BottomSheetDialog(this)
-//        bottomSheetDialog.setContentView(view)
 
 
         val bottomSheetFragment = bottomsheetFragment(applicationContext)
 
         chart_cardview!!.setOnClickListener{
-
-            var intent = Intent(this, RecordDetailActivity::class.java)
-            startActivity(intent)
-            //this.overridePendingTransition(R.anim.sliding_up, R.anim.stay)
+            //var intent = Intent(this, RecordDetailActivity::class.java)
+            //startActivity(intent)
         }
         rec_btn!!.setOnClickListener {
             //var intent = Intent(this, RecordChoiceActivity::class.java)
@@ -140,33 +190,69 @@ class RecordActivity : AppCompatActivity(), bottomsheetFragment.onDataPassListen
             bottomSheetFragment.show(supportFragmentManager, bottomSheetFragment.tag)
 
         }
+
+        barchart!!.setOnChartValueSelectedListener(object : OnChartValueSelectedListener{
+            override fun onValueSelected(e: Entry?, h: Highlight?) {
+                val x = e!!.x.toInt()
+                val y = e!!.y
+                var intent = Intent(this@RecordActivity, RecordDetailActivity::class.java)
+                intent.putExtra("day", x.toString())
+                intent.putExtra("month", record_month.toString())
+                intent.putExtra("year", record_year.toString())
+                println("click chart : " + x + "/" + record_month + "/" + record_year)
+                startActivity(intent)
+            }
+
+            override fun onNothingSelected() {
+
+            }
+        })
     }
 
 
 
     fun calculateDataMatrix(){
         //barchart
-        barchart!!.description.text = "Step by Date"
+        barchart!!.description.isEnabled = false
+        //val custom: ValueFormatter = MyValueFormatter(Locale.getDefault())
         barchart!!.setDrawBarShadow(false)
         barchart!!.setDrawValueAboveBar(true)
-        barchart!!.description.isEnabled = true
+        barchart!!.description.isEnabled = false
         barchart!!.setPinchZoom(true)
         barchart!!.setDrawGridBackground(false)
+        val xAxis = barchart!!.xAxis
+        xAxis.position = XAxis.XAxisPosition.BOTTOM
+        xAxis.setDrawAxisLine(false)
+        xAxis.setDrawGridLines(false)
         val leftAxis = barchart!!.axisLeft
+        val rightAxis = barchart!!.axisRight
         leftAxis.removeAllLimitLines()
-        //leftAxis.axisMaximum = 100f
         leftAxis.axisMinimum = 0f
+        leftAxis.isEnabled = false
+
+
+        //rightAxis.setDrawGridLines(false)
+        //leftAxis.setDrawGridLines(false)
+        //rightAxis.valueFormatter = custom
+        rightAxis.axisMinimum = 0f
         val datevalues: ArrayList<BarEntry> = ArrayList()
         val line2_xlabels = ArrayList<String>()
-
+        var day : Int ?= null
         var mCalendar = Calendar.getInstance()
         var todayDate =
             (mCalendar.get(Calendar.YEAR)).toString() + "/" + (mCalendar.get(Calendar.MONTH) + 1).toString() + "/" + (mCalendar.get(
                 Calendar.DAY_OF_MONTH
             )).toString()
         var month = (mCalendar.get(Calendar.YEAR)).toString() + "/" + (mCalendar.get(Calendar.MONTH) + 1).toString()
+        if (((mCalendar.get(Calendar.MONTH)+1) == 4 || (mCalendar.get(Calendar.MONTH)+1) == 6 || (mCalendar.get(Calendar.MONTH)+1) == 9 || (mCalendar.get(Calendar.MONTH)+1) == 11)){
+            day = 30
+        } else if (((mCalendar.get(Calendar.MONTH)+1) == 2)) {
+            day = 28
+        } else {
+            day = 31
+        }
         database = Firebase.database.reference
-        database.addValueEventListener(object : ValueEventListener {
+        listener = database.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 for (postSnapshot in snapshot.children) {
                     if (postSnapshot.key == "user") {
@@ -180,21 +266,39 @@ class RecordActivity : AppCompatActivity(), bottomsheetFragment.onDataPassListen
                                     datecount.add(data.childrenCount.toInt())
                                     //kcal!!.text = data.childrenCount.toString()
                                 }
-                                for (i in 0..date.size-1){
-                                    var t = datecount[i]
-                                    var t2 = date[i]
-                                    datevalues.add(BarEntry(i.toFloat(), t.toFloat()))
-                                    line2_xlabels.add(t2)
+//                                for (i in 0..date.size-1){
+//                                    var t = datecount[i]
+//                                    var t2 = date[i]
+//                                    println("t : " + t + t2 + i.toString())
+//                                    datevalues.add(BarEntry(i.toFloat(), t.toFloat()))
+//                                    line2_xlabels.add(t2)
+//                                }
+                                for ( i in 1..day){
+                                    if ( i.toString() in date){
+                                        println("i : " + i.toString())
+                                        var t = datecount[date.indexOf(i.toString())]
+                                        datevalues.add(BarEntry(i.toFloat(), t.toFloat()))
+                                        line2_xlabels.add(i.toString())
+                                    } else {
+                                        datevalues.add(BarEntry(i.toFloat(), 0f))
+                                        line2_xlabels.add(i.toString())
+                                    }
+
                                 }
                                 var set = BarDataSet(datevalues, "Steps Day")
                                 var datasets = ArrayList<IBarDataSet>()
                                 datasets.add(set)
                                 var data = BarData(datasets)
-                                data.setValueTextSize(6f)
-                                data.barWidth = .6f
+                                //data.setValueTextSize(6f)
+                                //data.barWidth = .6f
                                 barchart!!.data = data
+                                //barchart!!.xAxis.labelCount = day
+                                //barchart!!.xAxis.labelCount = line2_xlabels.size
+                                barchart!!.xAxis.valueFormatter = (MyValueFormatter3(line2_xlabels))
+                                //barchart!!.setVisibleXRange(0f, 10f)
                                 barchart!!.notifyDataSetChanged()
                                 barchart!!.invalidate()
+
                             }
                         }
 

@@ -58,11 +58,25 @@ class MyValueFormatter2(private val xValsDateLabel: ArrayList<String>) : ValueFo
         }
     }
 }
+class MyValueFormatter3(private val xValsDateLabel: ArrayList<String>) : ValueFormatter() {
+
+    override fun getFormattedValue(value: Float): String {
+        return value.toString()
+    }
+
+    override fun getAxisLabel(value: Float, axis: AxisBase): String {
+        if (value.toInt() >= 1 && value.toInt() <= xValsDateLabel.size) {
+            return xValsDateLabel[value.toInt()-1]
+        } else {
+            return ("").toString()
+        }
+    }
+}
 
 class RecordDetailActivity : AppCompatActivity() {
-    private var myAdapter : ArrayAdapter<Any> ?= null
+    //private var myAdapter : ArrayAdapter<Any> ?= null
     private lateinit var database: DatabaseReference
-    private var day_menu : Spinner?= null
+    //private var day_menu : Spinner?= null
     private var test : TextView?= null
     private var totalkcal : TextView ?= null
     var items : ArrayList<Any> ?= null
@@ -70,6 +84,10 @@ class RecordDetailActivity : AppCompatActivity() {
     private var mCircleProgressBar : CircleProgressBar?= null // 원형 그래프 (오늘의 스텝 수)
     var mhorizontalBar : HorizontalBarChart?= null // 가로 바 그래프 (step type)
     var mlineChart : LineChart?= null // 시간별 step
+
+    var detail_day : String ?= null
+    var detail_month : String ?= null
+    var detail_year : String ?= null
 
     override fun onDestroy() {
         super.onDestroy()
@@ -93,44 +111,78 @@ class RecordDetailActivity : AppCompatActivity() {
         mCircleProgressBar = findViewById(R.id.rec_graph) // 원형 그래프 (오늘의 스텝 수)
         mhorizontalBar = findViewById(R.id.rec_graph_detail)
         mlineChart = findViewById(R.id.rec_graph_detail2)
-        day_menu = findViewById(R.id.rec_day_menu)
-        test = findViewById(R.id.test
-        )
+        //day_menu = findViewById(R.id.rec_day_menu)
+        test = findViewById(R.id.test)
         totalkcal = findViewById(R.id.totalkcal)
-        val myAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, item)
 
-        day_menu!!.adapter = myAdapter
+        if(intent.hasExtra("day") && intent.hasExtra("year") && intent.hasExtra("month")){
+            detail_day = intent.getStringExtra("day").toString()
+            detail_month = intent.getStringExtra("month").toString()
+            detail_year = intent.getStringExtra("year").toString()
+            update(detail_day.toString(), detail_month.toString(), detail_year.toString())
+        } else {
+            Toast.makeText(this, "전달된 데이터 없음", Toast.LENGTH_SHORT).show()
+        }
+        //val myAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, item)
+        //day_menu!!.adapter = myAdapter
+//        day_menu!!.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+//            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+//
+//                //아이템이 클릭 되면 맨 위부터 position 0번부터 순서대로 동작하게 됩니다.
+//                when(position) {
+//                    0   ->  {
+//
+//                    }
+//                    1   ->  {
+//
+//                    }
+//                    //...
+//                    else -> {
+//
+//                    }
+//                }
+//            }
+//
+//            override fun onNothingSelected(parent: AdapterView<*>) {
+//
+//            }
+//        }
 
+        //initdatabase()
 
-        day_menu!!.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+    }
 
-                //아이템이 클릭 되면 맨 위부터 position 0번부터 순서대로 동작하게 됩니다.
-                when(position) {
-                    0   ->  {
-
-                    }
-                    1   ->  {
-
-                    }
-                    //...
-                    else -> {
+    fun update(day : String, month : String, year : String){
+        var date = year + "/" + month + "/" + day
+        database.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for (postSnapshot in snapshot.children) {
+                    if (postSnapshot.key == "user"){
+                        for (shot in postSnapshot.children){
+                            if (shot.key == Firebase.auth.currentUser!!.uid) {
+                                println("ss : " + snapshot.child("Pedometer").child("date").child(date).toString())
+                                if ( snapshot.child("Pedometer").child("date").child(date).value == null ){
+                                    println("null")
+                                } else {
+                                    println("yes")
+                                }
+                            }
+                        }
 
                     }
                 }
             }
 
-            override fun onNothingSelected(parent: AdapterView<*>) {
-
+            override fun onCancelled(error: DatabaseError) {
+                Log.w(TAG, "loadPost:onCancelled", error.toException())
             }
-        }
 
-        initdatabase()
-
+        })
     }
 
-    fun initdatabase() {
+    fun initdatabase(day : String, month : String, year : String) {
         var mCalendar = Calendar.getInstance()
+        var date = year + "/" + month + "/" + day
         var todayDate =
             (mCalendar.get(Calendar.YEAR)).toString() + "/" + (mCalendar.get(Calendar.MONTH) + 1).toString() + "/" + (mCalendar.get(
                 Calendar.DAY_OF_MONTH
@@ -145,8 +197,6 @@ class RecordDetailActivity : AppCompatActivity() {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 for (postSnapshot in dataSnapshot.children) {
                     if (postSnapshot.key == "user"){
-                        //println("post : " + postSnapshot)
-
                         var c = 0
                         for (snapshot in postSnapshot.children){
 //                            if (c == 0){
@@ -155,14 +205,13 @@ class RecordDetailActivity : AppCompatActivity() {
 //                            } else {
 //                                totalkcal!!.text = snapshot.toString()
 //                            }
-
                             if (snapshot.key == Firebase.auth.currentUser!!.uid) {
                                 //test!!.text = snapshot.child("Pedometer").toString()
                                 //val stepInfo = snapshot.child("Pedometer").getValue(step_info::class.java)
-                                totalkcal!!.text = snapshot.child("Pedometer").child("date").child(todayDate).toString()
+                                totalkcal!!.text = snapshot.child("Pedometer").child("date").child(date).toString()
                                 // CircleGraph
                                 mCircleProgressBar!!.max = 500
-                                mCircleProgressBar!!.progress = snapshot.child("Pedometer").child("date").child(todayDate).childrenCount.toInt()
+                                mCircleProgressBar!!.progress = snapshot.child("Pedometer").child("date").child(date).childrenCount.toInt()
                                 mCircleProgressBar!!.setProgressFormatter(CircleProgressBar.ProgressFormatter { progress, max ->
                                     val pattern = "%d Steps"
                                     String.format(pattern, progress)
@@ -175,44 +224,14 @@ class RecordDetailActivity : AppCompatActivity() {
                                 var j = 0
                                 var r = 0
 
-                                for (data in snapshot.child("Pedometer").child("date").child((mCalendar.get(Calendar.YEAR)).toString()).child((mCalendar.get(Calendar.MONTH) + 1).toString()).children){
+                                for (data in snapshot.child("Pedometer").child("date").child(year).child(month).children){
                                     if ( data.key != null ) {
                                         println("data : " + data.key)
                                         items!!.add(data.key!!.toInt())
                                     }
                                 }
-                                var i : Array<Any> ?= null
-                                i = items!!.toArray(arrayOfNulls(items!!.size))
-                                //myAdapter = ArrayAdapter<Any>(this, android.R.layout.simple_spinner_dropdown_item, i)
 
-
-                                //day_menu!!.adapter = myAdapter
-
-
-//                                day_menu!!.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-//                                    override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
-//
-//                                        //아이템이 클릭 되면 맨 위부터 position 0번부터 순서대로 동작하게 됩니다.
-//                                        when(position) {
-//                                            0   ->  {
-//
-//                                            }
-//                                            1   ->  {
-//
-//                                            }
-//                                            //...
-//                                            else -> {
-//
-//                                            }
-//                                        }
-//                                    }
-//
-//                                    override fun onNothingSelected(parent: AdapterView<*>) {
-//
-//                                    }
-//                                }
-
-                                for (data in snapshot.child("Pedometer").child("date").child(todayDate).children){
+                                for (data in snapshot.child("Pedometer").child("date").child(date).children){
                                     if ( data != null ) {
                                         if ( data.child("type").value.toString() == "0"){ //walking
                                             w = w + 1

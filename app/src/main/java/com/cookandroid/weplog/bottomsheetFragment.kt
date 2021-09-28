@@ -36,7 +36,7 @@ class bottomsheetFragment(context: Context) : BottomSheetDialogFragment() {
     }
 
     interface onDataPassListener {
-        fun onDataPass(data : String?)
+        fun onDataPass(data : String, data2 : String)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -151,7 +151,7 @@ class bottomsheetFragment(context: Context) : BottomSheetDialogFragment() {
                 //Toast.makeText(activity, "$clickedDate_m", Toast.LENGTH_SHORT).show()
                 //val intent = Intent(context, RecordActivity::class.java)
                 //intent.putExtra("Month", clickedDate_m)
-                dataPassListener.onDataPass(clickedDate_m)
+                dataPassListener.onDataPass(clickedDate_m, clickedDate_y)
                 val fragmentManager: FragmentManager = requireActivity().supportFragmentManager
                 fragmentManager.beginTransaction().remove(this@bottomsheetFragment).commit()
                 fragmentManager.popBackStack()
