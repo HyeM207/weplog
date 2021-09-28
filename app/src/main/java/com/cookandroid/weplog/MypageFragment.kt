@@ -51,6 +51,11 @@ class MypageFragment : Fragment() {
                 startActivity(accountIntent)
             }
 
+            if (item.title=="내가 쓴 글"){
+                var intent = Intent(activity, MyPost::class.java)
+                startActivity(intent)
+            }
+
 
 
 
