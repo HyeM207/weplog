@@ -37,7 +37,7 @@ class ComFragment : Fragment() {
 
         // 시간순 작업하기
         val postRef = Firebase.database.getReference("community")
-        postRef.addValueEventListener(object : ValueEventListener{
+        postRef.orderByChild("timestamp").addValueEventListener(object : ValueEventListener{
             val postList : MutableList<Post> = mutableListOf<Post>()
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()) {
@@ -56,34 +56,23 @@ class ComFragment : Fragment() {
 
         })
 
-//        var imsiPost = Post()
-//        imsiPost.authNum = 2
-//        imsiPost.certified = false
-//        imsiPost.heartNum = 5
-//        imsiPost.numberReport = 0
-//        imsiPost.postId = "postIdBlaBla"
-//        imsiPost.writerId =  "sdfsdgni3qoi2b3"
-//        imsiPost.writerNick ="Test"
-//
-//
-//        postList.add(imsiPost)
-//        postList.add(imsiPost)
-//        postList.add(imsiPost)
-//        postList.add(imsiPost)
-
 
         // 리사이클러뷰 어댑터에 화면에 띄울 데이터를 넘긴다.
         adapter = PostListViewAdapter(requireContext())
 
 
         var rv_postList: RecyclerView = view.findViewById<RecyclerView>(R.id.com_postList)
-        rv_postList.layoutManager = LinearLayoutManager (requireContext())
-        rv_postList.setHasFixedSize(true)
 
+        // 역순 출력
+        var manager = LinearLayoutManager (requireContext())
+        manager.reverseLayout = true
+        manager.stackFromEnd = true
+
+        rv_postList.layoutManager = manager
+        rv_postList.setHasFixedSize(true)
         //rv_postList.adapter = PostListViewAdapter(mutableData)
         rv_postList.adapter = adapter
         observerData()
-
 
         return view
     }
@@ -94,6 +83,7 @@ class ComFragment : Fragment() {
             adapter.notifyDataSetChanged()
         })
     }
+
 
 
 }

@@ -8,7 +8,7 @@
     android:background="@color/white"
     tools:context=".Login">
 
-    <Button
+    <ImageView
         android:id="@+id/main_lv"
         android:layout_width="30dp"
         android:layout_height="30dp"
@@ -16,7 +16,8 @@
         android:layout_marginTop="40dp"
         android:background="@drawable/circle"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/green_circle" />
 
     <TextView
         android:id="@+id/main_nickname"

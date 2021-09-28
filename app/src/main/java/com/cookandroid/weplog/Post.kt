@@ -8,16 +8,20 @@ class Post (
         var writerId : String ?= "", // 작성자 id
         var writerNick : String ?= "", // 작성자 nickname
         var photoUrl : String ?= "", // 사진 url
-
-        var numberReport : Int ?= 0, // 신고 횟수
         var timestamp: Long ?= null, // 글 업로드 시간
+
 
         var authCount : Int ?= 0, // 승인 받은 횟수
         var certified : Boolean ?= authCount!! >2 , // 승인 여부 (승인 횟수가 3회 이상일 때만 true)
         var auths :  MutableMap<String, Boolean> = HashMap(),  // 승인 여부 목록
 
         var heartCount : Int ?= 0, // 좋아요 수
-        var hearts : MutableMap<String, Boolean> = HashMap()  // 좋아요 한 목록
+        var hearts : MutableMap<String, Boolean> = HashMap(),  // 좋아요 한 목록
+
+        var reportCnt : Int ?= 0, // 신고 횟수
+        var reports :  MutableMap<String, String> = HashMap()  // 신고 항목 (신고자 uid, 신고 항목)
+
+
 )
 {
     @Exclude
@@ -27,14 +31,14 @@ class Post (
                 "writerId" to writerId,
                 "writerNick" to writerNick,
                 "photoUrl" to photoUrl,
-
                 "authCount" to authCount,
                 "auths" to auths,
                 "certified" to certified,
-                "numberReport" to numberReport,
                 "timestamp" to timestamp,
                 "heartCount" to heartCount,
-                "hearts" to hearts
+                "hearts" to hearts,
+                "reportCnt" to reportCnt,
+                "reports" to reports
 
         )
     }

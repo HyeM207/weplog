@@ -136,41 +136,37 @@ class Authentication : AppCompatActivity() {
 
         if (user != null) {
             val key = database.child("users").child(user.uid).push().key
-            var post = Post()
-
-            post.postId = key
-            post.writerId = user?.uid
 
 
-            val userRef = Firebase.database.getReference("users")
+            database.child("users").child(user?.uid.toString()).get().addOnSuccessListener {
+                lateinit var postValues : Map<String, Any?>
+                //var nick : String = "init"
+                var post = Post()
 
-            lateinit var nick : String
-            userRef.addValueEventListener(object :ValueEventListener{
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    nick = snapshot.child(user?.uid).child("nickname").value.toString()
-                    Log.e("snap",nick)
-                    //post.writerNick = nick
-                    userNickname = nick
-                    Log.e("snap2",userNickname)
+                post.postId = key
+                post.writerId = user?.uid
+
+                val nick = it.child("nickname").value.toString()
+                Log.e("nick1", nick)
+                post.writerNick = nick
+
+                //Log.e("nick3", nick+"check")
+                post.timestamp = System.currentTimeMillis()
+                post.photoUrl = fileName // storage에 업로드 한 사진 이름
+
+                postValues = post.toMap()
+
+
+                if (key != null ) {
+                    //var myPost : MutableMap<String, Boolean> = mutableMapOf(key.toString() to false)
+                    Toast.makeText(this, key.toString(), Toast.LENGTH_SHORT).show()
+                    database.child("users").child(user.uid).child("posts/$key").setValue(false)// 수정 후 : post객체 id만 저장
+                    database.child("community").child(key).setValue(postValues)
                 }
 
-                override fun onCancelled(error: DatabaseError) {
-                    userNickname="ERROR"
-                }
-            })
-            Log.e("snap3",userNickname)
-            //post.writerNick = nick
-            post.writerNick = userNickname
-            post.timestamp = System.currentTimeMillis()
-            post.photoUrl = fileName // storage에 업로드 한 사진 이름
-
-            var postValues = post.toMap()
-
-            if (key != null) {
-                //database.child("users").child(user.uid).child("post").child(key).setValue(postValues) // 기존에는 post 객체 모두 저장
-                database.child("users").child(user.uid).child("posts").child(key)  // 수정 후 : post객체 id만 저장
-                database.child("community").child(key).setValue(postValues)
             }
+
+
         }
 
 

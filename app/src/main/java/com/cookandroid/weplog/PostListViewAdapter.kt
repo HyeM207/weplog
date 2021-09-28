@@ -4,11 +4,15 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.SurfaceControl
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
@@ -16,7 +20,9 @@ import com.google.firebase.database.*
 
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.ktx.storage
+import java.text.SimpleDateFormat
 
 class PostListViewAdapter(private val context: Context): RecyclerView.Adapter <PostListViewAdapter.CustomViewHolder>(){
     private var postList =  mutableListOf<Post>()
@@ -31,7 +37,7 @@ class PostListViewAdapter(private val context: Context): RecyclerView.Adapter <P
     }
 
     override fun onBindViewHolder(holder: PostListViewAdapter.CustomViewHolder, position: Int) {
-
+        var database = Firebase.database.reference
 
         // 닉네임 표기
         holder.comitem_nick.text = postList[position].writerNick.toString()
@@ -42,9 +48,30 @@ class PostListViewAdapter(private val context: Context): RecyclerView.Adapter <P
             if(it.isSuccessful){
                 Glide.with(holder.itemView?.context)
                         .load(it.result)
+                        .placeholder(R.drawable.loading2)
                         .into(holder.comitem_photo)
             }
         }
+
+
+        // 사용자 grade별 사진 출력
+        database.child("users").child(postList[position].writerId.toString()).addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val grade = snapshot.child("grade").value.toString()
+                when(grade){
+                    "1"-> holder.comitem_profile.setImageResource(R.drawable.yellow_circle)
+                    "2"-> holder.comitem_profile.setImageResource(R.drawable.green_circle)
+                    "3"-> holder.comitem_profile.setImageResource(R.drawable.blue_circle)
+                    "4"-> holder.comitem_profile.setImageResource(R.drawable.red_circle)
+                    "5"-> holder.comitem_profile.setImageResource(R.drawable.purple_circle)
+                }
+
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                // Getting Post failed, log a message
+            }
+        })
 
 
         var uid = FirebaseAuth.getInstance().currentUser?.uid
@@ -61,10 +88,7 @@ class PostListViewAdapter(private val context: Context): RecyclerView.Adapter <P
         holder.comitem_heartCount.text = postList[position].heartCount.toString()
 
 
-        // 하트 클릭시
-        holder.comitem_heart.setOnClickListener {
-            onHeartClicked(position)
-        }
+
 
         // 인증 여부 표기
         if (postList[position].certified == true){
@@ -72,6 +96,9 @@ class PostListViewAdapter(private val context: Context): RecyclerView.Adapter <P
         }else{
             holder.comitem_check.setImageResource(R.drawable.blank_checkbox)
         }
+
+        // timestamp 표기 (timestamp -> Date)
+        holder.comitem_timestamp.text = SimpleDateFormat("yyyy-MM-dd-hh-mm").format(postList[position].timestamp).toString()
 
         // 인증 수 표기
         holder.comitem_authNum.text = postList[position].authCount.toString()
@@ -96,43 +123,6 @@ class PostListViewAdapter(private val context: Context): RecyclerView.Adapter <P
 
     }
 
-    private fun onHeartClicked(position : Int) {
-
-        var uid : String = FirebaseAuth.getInstance().currentUser?.uid.toString()
-        var postId : String = postList[position].postId.toString()
-        var postRef = Firebase.database.getReference("community").child(postId)
-
-
-        postRef.runTransaction(object : Transaction.Handler {
-            override fun doTransaction(mutableData: MutableData): Transaction.Result {
-                val p = mutableData.getValue(Post::class.java)
-                        ?: return Transaction.success(mutableData)
-
-                if (p.hearts.containsKey(uid)) {
-                    // Unstar the post and remove self from stars
-                    p.heartCount = p.heartCount?.minus(1)
-                    p.hearts.remove(uid)
-                } else {
-                    // Star the post and add self to stars
-                    p.heartCount = p.heartCount?.plus(1)
-                    p.hearts[uid] = true
-                }
-
-                // Set value and report transaction success
-                mutableData.value = p
-                return Transaction.success(mutableData)
-            }
-
-            override fun onComplete(
-                    databaseError: DatabaseError?,
-                    committed: Boolean,
-                    currentData: DataSnapshot?
-            ) {
-                // Transaction completed
-                Log.d("TAG", "postTransaction:onComplete:" + databaseError!!)
-            }
-        })
-    }
 
     override fun getItemCount(): Int {
         return postList.size
@@ -140,13 +130,14 @@ class PostListViewAdapter(private val context: Context): RecyclerView.Adapter <P
 
 
     class CustomViewHolder(itemView : View): RecyclerView.ViewHolder(itemView) {
-        val comitem_nick = itemView.findViewById<TextView>(R.id.history_date)
+        val comitem_nick = itemView.findViewById<TextView>(R.id.comitem_nick)
         val comitem_photo = itemView.findViewById<ImageView>(R.id.comitem_photo)
         val comitem_heart = itemView.findViewById<ImageView>(R.id.comitem_heart)
         val comitem_check = itemView.findViewById<ImageView>(R.id.comitem_check)
         val comitem_heartCount = itemView.findViewById<TextView>(R.id.comitem_heartCount)
         val comitem_authNum = itemView.findViewById<TextView>(R.id.comitem_authNum)
-
+        val comitem_timestamp = itemView.findViewById<TextView>(R.id.comitem_timestamp)
+        val comitem_profile = itemView.findViewById<ImageView>(R.id.comitem_profile)
     }
 
 }

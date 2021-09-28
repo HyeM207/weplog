@@ -2,7 +2,9 @@ package com.cookandroid.weplog
 
 import android.content.ContentValues
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Base64
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
@@ -20,11 +22,13 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.login.*
+import java.security.MessageDigest
+import java.security.Signature
+import java.util.*
 
 
 class Login : AppCompatActivity() {
@@ -154,27 +158,27 @@ class Login : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-                if (requestCode == RC_SIGN_IN) {
+        if (requestCode == RC_SIGN_IN) {
 
-                    val task = GoogleSignIn.getSignedInAccountFromIntent(data)
-                    try {
-                        val account = task.getResult(ApiException::class.java)
-                        Toast.makeText(this, "[Login] firebaseAuthWithGoogle"+ account.id, Toast.LENGTH_SHORT).show()
-                        firebaseAuthWithGoogle(account.idToken!!)
-                    }catch (e : ApiException){
-                        Log.w(ContentValues.TAG, "Google sign in failed", e)
-                        Toast.makeText(this, "[Login] Google sign in failed", Toast.LENGTH_SHORT).show()
-                    }
-                }
-                else{
-                    Toast.makeText(this, "[Login] startForResult 안 됨", Toast.LENGTH_SHORT).show()
-                }
+            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+            try {
+                val account = task.getResult(ApiException::class.java)
+                Toast.makeText(this, "[Login] firebaseAuthWithGoogle"+ account.id, Toast.LENGTH_SHORT).show()
+                firebaseAuthWithGoogle(account.idToken!!)
+            }catch (e : ApiException){
+                Log.w(ContentValues.TAG, "Google sign in failed", e)
+                Toast.makeText(this, "[Login] Google sign in failed", Toast.LENGTH_SHORT).show()
             }
+        }
+        else{
+            Toast.makeText(this, "[Login] startForResult 안 됨", Toast.LENGTH_SHORT).show()
+        }
+    }
 
 
     //사용자가 정상적으로 로그인하면 GoogleSignInAccount 객체에서 ID 토큰을 가져와서
     // Firebase 사용자 인증 정보로 교환하고 해당 정보를 사용해 Firebase에 인증합니다.
-     private fun firebaseAuthWithGoogle(idToken: String) {
+    private fun firebaseAuthWithGoogle(idToken: String) {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         auth?.signInWithCredential(credential)
                 ?.addOnCompleteListener(this) { task ->
@@ -184,27 +188,43 @@ class Login : AppCompatActivity() {
                         Toast.makeText(this, "[Login] signInWithCredential:success", Toast.LENGTH_SHORT).show()
 
                         val CurrentUser = Firebase.auth.currentUser
+                        var isExist1: Boolean = false
 
 
-                        var User = User()
-                        CurrentUser?.let {
-                            for (profile in it.providerData) {
-                                User.uid = CurrentUser?.uid
-                                User.email = CurrentUser?.email
-                               // google 연동이라 password는 따로 저장하지 않음
-                                User.nickname = CurrentUser?.displayName
-                                User.phone = CurrentUser?.phoneNumber
+                        val userRef = Firebase.database.getReference("users")
+                        userRef.addValueEventListener(object : ValueEventListener {
+                            override fun onDataChange(snapshot: DataSnapshot) {
+                                if (!snapshot.child(CurrentUser?.uid.toString()).exists()) {
+                                    var User = User()
+                                    CurrentUser?.let {
+                                        for (profile in it.providerData) {
+                                            User.uid = CurrentUser?.uid
+                                            User.email = CurrentUser?.email
+                                            // google 연동이라 password는 따로 저장하지 않음
+                                            User.nickname = CurrentUser?.displayName
+                                            User.phone = CurrentUser?.phoneNumber
+                                            User.todayAuth = false
+
+                                            var mCalendar = Calendar.getInstance()
+                                            var todayDate = (mCalendar.get(Calendar.YEAR)).toString() + "/" + (mCalendar.get(Calendar.MONTH) + 1).toString() + "/" + (mCalendar.get(Calendar.DAY_OF_MONTH)).toString()
+                                            User.joindate = todayDate
+                                        }
+                                        var UserValues = User.toMap()
+
+                                        val uid = CurrentUser?.uid
+
+                                        if (uid != null) {
+                                            database.child("users").child(uid).setValue(UserValues)
+                                        }
+                                    }
+                                }
                             }
-                            var UserValues = User.toMap()
 
-
-                            val uid = CurrentUser?.uid
-
-                            if (uid != null) {
-                                database.child("users").child(uid).setValue(UserValues)
+                            override fun onCancelled(databaseError: DatabaseError) {
+                                // Getting Post failed, log a message
                             }
+                        })
 
-                        }
                         val user = auth!!.currentUser
                         updateUI(user)
                     } else {

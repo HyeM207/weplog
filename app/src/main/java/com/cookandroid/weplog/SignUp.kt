@@ -12,6 +12,7 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import java.util.*
 
 class SignUp : AppCompatActivity() {
 
@@ -64,7 +65,13 @@ class SignUp : AppCompatActivity() {
                                 User.nickname = signup_nickname.text.toString()
                                 User.phone = signup_phone.text.toString()
 
+                                var mCalendar = Calendar.getInstance()
+                                var todayDate = (mCalendar.get(Calendar.YEAR)).toString() + "/" + (mCalendar.get(Calendar.MONTH) + 1).toString() + "/" + (mCalendar.get(Calendar.DAY_OF_MONTH)).toString()
+                                User.joindate = todayDate
+
+                                User.todayAuth = false
                                 var UserValues = User.toMap()
+
 
 
                             val uid = CurrentUser?.uid

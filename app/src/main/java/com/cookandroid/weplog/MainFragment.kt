@@ -2,14 +2,19 @@ package com.cookandroid.weplog
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
@@ -28,6 +33,7 @@ class MainFragment : Fragment() {
     lateinit var mainRecordLayout : ConstraintLayout
     lateinit var mainPlogLayout:ConstraintLayout
     lateinit var mainAreaLayout:ConstraintLayout
+    lateinit var main_lv : ImageView
 
     private var auth : FirebaseAuth? = null
 
@@ -47,6 +53,7 @@ class MainFragment : Fragment() {
         mainRecordLayout = view.findViewById(R.id.mainRecordLayout)
         mainPlogLayout = view.findViewById(R.id.mainPlogLayout)
         mainAreaLayout = view.findViewById(R.id.mainAreaLayout)
+        main_lv = view.findViewById(R.id.main_lv)
 
         // main 페이지 접근 시 로그인 되어 있는지 확인
         val user = Firebase.auth.currentUser
@@ -58,27 +65,61 @@ class MainFragment : Fragment() {
         }
 
 
-        // nickname 설정
+        // nickname & grade 이미지 설정
         val userRef = Firebase.database.getReference("users")
 
         userRef.addValueEventListener(object : ValueEventListener {
-        override fun onDataChange(snapshot: DataSnapshot) {
-            val name = snapshot.child(user?.uid.toString()).child("nickname").value
-            main_nickname.setText(name.toString())
-        }
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val name = snapshot.child(user?.uid.toString()).child("nickname").value
+                main_nickname.setText(name.toString())
 
-        override fun onCancelled(databaseError: DatabaseError) {
-            // Getting Post failed, log a message
-        }
+                val grade = snapshot.child(user?.uid.toString()).child("grade").value.toString()
+                Log.e("grade", grade +" grade")
+                when(grade){
+                    "1"-> main_lv.setImageResource(R.drawable.yellow_circle)
+                    "2"-> main_lv.setImageResource(R.drawable.green_circle)
+                    "3"-> main_lv.setImageResource(R.drawable.blue_circle)
+                    "4"-> main_lv.setImageResource(R.drawable.red_circle)
+                    "5"-> main_lv.setImageResource(R.drawable.purple_circle)
+                }
+
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                // Getting Post failed, log a message
+            }
         })
 
+        // 내가 쓴글 보기
+        main_nickname.setOnClickListener {
+            var intent = Intent(activity, MyPost::class.java)
+            startActivity(intent)
+        }
 
 
         // 로그아웃
+
+        // 로그아웃
         main_logoutBtn.setOnClickListener {
+
+            var gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                    .requestIdToken(getString(R.string.default_web_client_id))
+                    .requestEmail()
+                    .build()
+
+
+            var googleSignInClient : GoogleSignInClient? = null
+            googleSignInClient = GoogleSignIn.getClient(requireContext(), gso)
+
+
+
             Firebase.auth.signOut()
+            FirebaseAuth.getInstance().signOut()
+            googleSignInClient?.signOut()  // 구글 로그인 세션까지 로그아웃 처리
+
             var intent = Intent(activity, Login::class.java)
             startActivity(intent)
+
         }
 
         // record 창 누르면 record 페이지로 이동
