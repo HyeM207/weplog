@@ -44,10 +44,6 @@ class HistoryActivity:AppCompatActivity() {
     lateinit var listAdapter: ListAdapter
     private var list : ListView?= null
 
-    override fun onDataPass(data: String?) {
-        Toast.makeText(this, "$data", Toast.LENGTH_SHORT).show()
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_history)
