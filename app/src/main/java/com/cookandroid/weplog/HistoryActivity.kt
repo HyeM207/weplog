@@ -25,7 +25,7 @@ import java.time.Month
 import java.util.*
 
 
-class HistoryActivity:AppCompatActivity() {
+class HistoryActivity:AppCompatActivity(), bottomsheetFragment.onDataPassListener {
 
     //db용
     private var auth : FirebaseAuth? = null
@@ -43,6 +43,12 @@ class HistoryActivity:AppCompatActivity() {
     //리스트뷰
     lateinit var listAdapter: ListAdapter
     private var list : ListView?= null
+
+    override fun onDataPass(data: String, data2 : String) {
+        Toast.makeText(this, "$data", Toast.LENGTH_SHORT).show()
+        choiceMonth = data
+        choiceYear = data2
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,8 +84,7 @@ class HistoryActivity:AppCompatActivity() {
     }
 
     fun setChoiceDate(year : String, month : String){
-        choiceMonth=month
-        choiceYear=year
+
         Log.i("choiceDate", "bottomsheetfragment에서 데이터 전달받음 {$choiceYear, $choiceMonth}")
         database.child("user/$uid/Pedometer/date").get().addOnSuccessListener {
             var post = it.children
