@@ -25,7 +25,7 @@ import java.time.Month
 import java.util.*
 
 
-class HistoryActivity:AppCompatActivity(), bottomsheetFragment.onDataPassListener {
+class HistoryActivity:AppCompatActivity() {
 
     //db용
     private var auth : FirebaseAuth? = null
