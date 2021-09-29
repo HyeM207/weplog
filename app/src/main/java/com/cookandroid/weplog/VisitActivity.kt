@@ -38,6 +38,13 @@ class VisitActivity:AppCompatActivity() {
         marker.mapPoint=MapPoint.mapPointWithGeoCoord(geo[0].latitude, geo[0].longitude)
         visit_mapview.addPOIItem(marker)
 
+        visit_allbtn.setOnClickListener {
+//            var intent = Intent(this, Login::class.java)
+//            startActivity(intent)
+        }
+
+
+
     }
 
 
