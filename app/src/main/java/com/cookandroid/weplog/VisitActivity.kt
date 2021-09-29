@@ -39,8 +39,8 @@ class VisitActivity:AppCompatActivity() {
         visit_mapview.addPOIItem(marker)
 
         visit_allbtn.setOnClickListener {
-//            var intent = Intent(this, Login::class.java)
-//            startActivity(intent)
+            var intent = Intent(this, VisitlistActivity::class.java)
+            startActivity(intent)
         }
 
 
