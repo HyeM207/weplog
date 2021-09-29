@@ -9,38 +9,38 @@
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/comdetail_profile"
-        android:layout_width="35dp"
-        android:layout_height="38dp"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
         android:layout_marginStart="40dp"
         android:layout_marginTop="52dp"
-        android:src="@drawable/ic_baseline_groups_24"
+        android:src="@drawable/green_circle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
 
     <TextView
         android:id="@+id/comdetail_nick"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="4dp"
         android:text="nickname"
         android:textColor="@color/black"
         android:textSize="20sp"
         app:layout_constraintBottom_toTopOf="@+id/comdetail_heart"
         app:layout_constraintStart_toEndOf="@+id/comdetail_profile"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.926" />
+        app:layout_constraintVertical_bias="0.684" />
 
     <ImageView
         android:id="@+id/comdetail_photo"
-        android:layout_width="330dp"
-        android:layout_height="366dp"
-        android:layout_marginTop="10dp"
+        android:layout_width="0dp"
+        android:layout_height="400dp"
+        android:layout_marginTop="12dp"
+        android:src="@drawable/loading2"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.533"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/comdetail_heart"
-        android:src="@drawable/loading2" />
-
+        app:layout_constraintTop_toBottomOf="@+id/comdetail_heart" />
 
     <ImageView
         android:id="@+id/comdetail_heart"
@@ -149,13 +149,15 @@
         app:layout_constraintStart_toEndOf="@+id/comdetail_nick"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Spinner
+    <ImageView
         android:id="@+id/comdetail_more"
         android:layout_width="51dp"
         android:layout_height="49dp"
         android:layout_marginTop="104dp"
         android:layout_marginEnd="28dp"
         android:background="@drawable/more"
+        android:textColor="@color/black"
+        app:iconTint="@color/black"
         app:layout_constraintBottom_toTopOf="@+id/comdetail_photo"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"

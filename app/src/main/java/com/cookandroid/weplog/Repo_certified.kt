@@ -10,10 +10,11 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 
-class Repo_Mypost {
+class Repo_certified {
     fun getData(): LiveData<MutableList<Post>> {
         val user = Firebase.auth.currentUser
         val mutableData = MutableLiveData<MutableList<Post>>()
+        val database = Firebase.database
         val postRef = Firebase.database.getReference("community")
         postRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -21,8 +22,7 @@ class Repo_Mypost {
                 if (snapshot.exists()) {
                     for (userSnapshot in snapshot.children) {
                         val getData = userSnapshot.getValue(Post::class.java)
-                        if (getData?.writerId.equals(user?.uid.toString())) { // 현재 사용자의 글만
-                            Log.e("같음", getData?.writerId.toString())
+                        if (getData?.certified == true) { // 인증된 글만
                             postList.add(getData!!)
                         }
 

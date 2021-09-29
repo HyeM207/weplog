@@ -32,14 +32,14 @@ class MyPostListViewAdapter (private val context: Context): RecyclerView.Adapter
 
         // 사진 불러오기
         Firebase.storage.reference.child("community")
-            .child(postList[position].photoUrl.toString()).downloadUrl.addOnCompleteListener {
-            if (it.isSuccessful) {
-                Glide.with(holder.itemView?.context)
-                    .load(it.result)
-                    .placeholder(R.drawable.loading2)
-                    .into(holder.myPostitem_photo)
-            }
-        }
+                .child(postList[position].photoUrl.toString()).downloadUrl.addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        Glide.with(holder.itemView?.context)
+                                .load(it.result)
+                                .placeholder(R.drawable.loading2)
+                                .into(holder.myPostitem_photo)
+                    }
+                }
 
         // item 클릭 시
         holder.itemView.setOnClickListener {

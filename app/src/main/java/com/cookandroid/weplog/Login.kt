@@ -203,7 +203,6 @@ class Login : AppCompatActivity() {
                                             // google 연동이라 password는 따로 저장하지 않음
                                             User.nickname = CurrentUser?.displayName
                                             User.phone = CurrentUser?.phoneNumber
-                                            User.todayAuth = false
 
                                             var mCalendar = Calendar.getInstance()
                                             var todayDate = (mCalendar.get(Calendar.YEAR)).toString() + "/" + (mCalendar.get(Calendar.MONTH) + 1).toString() + "/" + (mCalendar.get(Calendar.DAY_OF_MONTH)).toString()

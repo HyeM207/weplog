@@ -52,8 +52,8 @@ class SignUp : AppCompatActivity() {
                 Toast.makeText(this, "입력칸이 공란입니다.", Toast.LENGTH_SHORT).show()
             } else {
                 auth?.createUserWithEmailAndPassword(email, password)
-                    ?.addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
+                        ?.addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
 
                                 // Firebase Realtime database에 User 정보 저장
                                 val CurrentUser = FirebaseAuth.getInstance().currentUser
@@ -69,16 +69,15 @@ class SignUp : AppCompatActivity() {
                                 var todayDate = (mCalendar.get(Calendar.YEAR)).toString() + "/" + (mCalendar.get(Calendar.MONTH) + 1).toString() + "/" + (mCalendar.get(Calendar.DAY_OF_MONTH)).toString()
                                 User.joindate = todayDate
 
-                                User.todayAuth = false
+
                                 var UserValues = User.toMap()
 
 
+                                val uid = CurrentUser?.uid
 
-                            val uid = CurrentUser?.uid
-
-                            if (uid != null) {
-                                database.child("users").child(uid).setValue(UserValues)
-                            }
+                                if (uid != null) {
+                                    database.child("users").child(uid).setValue(UserValues)
+                                }
                                 /*
                                 val UserUpdates = hashMapOf<String,Any>(
                                     "/User/$uid" to UserValues
@@ -89,20 +88,20 @@ class SignUp : AppCompatActivity() {
                                 Toast.makeText(this, "회원가입 완료", Toast.LENGTH_LONG).show()
 
 
-                            if (auth!!.currentUser != null) {
-                                var intent = Intent(this, MainActivity::class.java)
-                                startActivity(intent)
-                            }
+                                if (auth!!.currentUser != null) {
+                                    var intent = Intent(this, NavigationActivity::class.java)
+                                    startActivity(intent)
+                                }
 
-                        } else {
-                            //show the error message
-                            Toast.makeText(
-                                this,
-                                task.exception?.message + "회원가입 실패",
-                                Toast.LENGTH_LONG
-                            ).show()
+                            } else {
+                                //show the error message
+                                Toast.makeText(
+                                        this,
+                                        task.exception?.message + "회원가입 실패",
+                                        Toast.LENGTH_LONG
+                                ).show()
+                            }
                         }
-                    }
             }
         }
 
@@ -110,10 +109,10 @@ class SignUp : AppCompatActivity() {
 
 
 
-            //val myRef : DatabaseReference = database.getReference("message")
-            //myRef.setValue("안녕 반가워!")
+        //val myRef : DatabaseReference = database.getReference("message")
+        //myRef.setValue("안녕 반가워!")
 
-        }
+    }
 
 
 

@@ -77,10 +77,10 @@ class MainFragment : Fragment() {
                 Log.e("grade", grade +" grade")
                 when(grade){
                     "1"-> main_lv.setImageResource(R.drawable.yellow_circle)
-                    "2"-> main_lv.setImageResource(R.drawable.green_circle)
-                    "3"-> main_lv.setImageResource(R.drawable.blue_circle)
+                    "2"-> main_lv.setImageResource(R.drawable.green2_circle)
+                    "3"-> main_lv.setImageResource(R.drawable.blue2_circle)
                     "4"-> main_lv.setImageResource(R.drawable.red_circle)
-                    "5"-> main_lv.setImageResource(R.drawable.purple_circle)
+                    "5"-> main_lv.setImageResource(R.drawable.purple2_circle)
                 }
 
             }

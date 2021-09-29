@@ -12,7 +12,7 @@ data class User(
         var phone: String ?= "",
         var credit: Int ?= 0,
         var grade: Int ?= 1,
-        var todayAuth: Boolean = false, // 일 인증 횟수 1회로 제한
+        var lastAuth: String ?= "", // 일 인증 횟수 1회로 제한을 위해 마지막 인증 날짜 저장
         var joindate: String ?= "",
         //var posts : String ?= ""
         var posts:  MutableMap<String, Boolean> = HashMap(),  // 게시물 목록
@@ -41,7 +41,7 @@ data class User(
                 "phone" to phone,
                 "grade" to grade,
                 "credit" to credit,
-                "todayAuth" to todayAuth,
+                "lastAuth" to lastAuth,
                 "joindate" to joindate,
                 "posts" to posts
         )

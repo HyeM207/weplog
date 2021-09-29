@@ -160,6 +160,9 @@ class Authentication : AppCompatActivity() {
                 if (key != null ) {
                     //var myPost : MutableMap<String, Boolean> = mutableMapOf(key.toString() to false)
                     Toast.makeText(this, key.toString(), Toast.LENGTH_SHORT).show()
+                    var mCalendar = Calendar.getInstance()
+                    var todayDate = (mCalendar.get(Calendar.YEAR)).toString() + "/" + (mCalendar.get(Calendar.MONTH) + 1).toString() + "/" + (mCalendar.get(Calendar.DAY_OF_MONTH)).toString()
+                    database.child("users").child(user.uid).child("lastAuth").setValue(todayDate)
                     database.child("users").child(user.uid).child("posts/$key").setValue(false)// 수정 후 : post객체 id만 저장
                     database.child("community").child(key).setValue(postValues)
                 }
@@ -174,27 +177,6 @@ class Authentication : AppCompatActivity() {
 
         val intent = Intent(this, NavigationActivity::class.java)
         startActivity(intent)
-
-
-//        database = Firebase.database.reference
-//
-//        if (user != null) {
-//            val key = database.child("users").child(user.uid).push().key
-//            var post = Post()
-//
-//            post.postId = key
-//            post.writerId = user?.uid
-//            post.writerNick = userName
-//            post.timestamp = System.currentTimeMillis()
-//            post.photoUrl = photoURI.toString() // storage에 업로드 한 url
-//
-//            var postValues = post.toMap()
-//
-//            if (key != null) {
-//                database.child("users").child(user.uid).child("post").child(key).setValue(postValues)
-//                database.child("community").child(key).setValue(postValues)
-//            }
-//        }
 
 
     }

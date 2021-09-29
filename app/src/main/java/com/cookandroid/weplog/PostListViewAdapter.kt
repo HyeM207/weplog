@@ -60,10 +60,10 @@ class PostListViewAdapter(private val context: Context): RecyclerView.Adapter <P
                 val grade = snapshot.child("grade").value.toString()
                 when(grade){
                     "1"-> holder.comitem_profile.setImageResource(R.drawable.yellow_circle)
-                    "2"-> holder.comitem_profile.setImageResource(R.drawable.green_circle)
-                    "3"-> holder.comitem_profile.setImageResource(R.drawable.blue_circle)
+                    "2"-> holder.comitem_profile.setImageResource(R.drawable.green2_circle)
+                    "3"-> holder.comitem_profile.setImageResource(R.drawable.blue2_circle)
                     "4"-> holder.comitem_profile.setImageResource(R.drawable.red_circle)
-                    "5"-> holder.comitem_profile.setImageResource(R.drawable.purple_circle)
+                    "5"-> holder.comitem_profile.setImageResource(R.drawable.purple2_circle)
                 }
 
             }
@@ -79,9 +79,9 @@ class PostListViewAdapter(private val context: Context): RecyclerView.Adapter <P
 
         // 하트 표기
         if (postList[position].hearts.containsKey(uid)){
-            holder.comitem_heart.setImageResource(R.drawable.heart)
+            holder.comitem_heart.setImageResource(R.drawable.greenheart)
         }else{
-            holder.comitem_heart.setImageResource(R.drawable.noheart)
+            holder.comitem_heart.setImageResource(R.drawable.greennoheart)
         }
 
         // 하트 수 출력
@@ -90,15 +90,8 @@ class PostListViewAdapter(private val context: Context): RecyclerView.Adapter <P
 
 
 
-        // 인증 여부 표기
-        if (postList[position].certified == true){
-            holder.comitem_check.setImageResource(R.drawable.checkbox)
-        }else{
-            holder.comitem_check.setImageResource(R.drawable.blank_checkbox)
-        }
-
         // timestamp 표기 (timestamp -> Date)
-        holder.comitem_timestamp.text = SimpleDateFormat("yyyy-MM-dd-hh-mm").format(postList[position].timestamp).toString()
+        holder.comitem_timestamp.text = SimpleDateFormat("yyyy.MM.dd hh:mm").format(postList[position].timestamp).toString()
 
         // 인증 수 표기
         holder.comitem_authNum.text = postList[position].authCount.toString()
@@ -112,14 +105,16 @@ class PostListViewAdapter(private val context: Context): RecyclerView.Adapter <P
 
         // 승인/거절한 게시물은 표시 x and 이미지 변경
         if (postList[position]?.auths?.containsKey(uid) == true) {
-            if (postList[position]?.auths?.get(uid) == true){
-                holder.comitem_check.setImageResource(R.drawable.checkbox)
-            }else{
-                holder.comitem_check.setImageResource(R.drawable.cross_checkbox)
+            if (postList[position]?.auths?.get(uid) == true) {
+                holder.comitem_check.setImageResource(R.drawable.green_checkbox)
+            } else {
+                holder.comitem_check.setImageResource(R.drawable.green_cross_checkbox)
             }
-        }else{
-            holder.comitem_check.setImageResource(R.drawable.blank_checkbox)
+        } else {
+            holder.comitem_check.setImageResource(R.drawable.green_blank_checkbox)
         }
+
+
 
     }
 

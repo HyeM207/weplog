@@ -8,14 +8,13 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 
-class Repo {
+class Repo_all {
     fun getData(): LiveData<MutableList<Post>> {
         val mutableData = MutableLiveData<MutableList<Post>>()
-        val database = Firebase.database
         val postRef = Firebase.database.getReference("community")
         postRef.addValueEventListener(object : ValueEventListener {
-            val postList : MutableList<Post> = mutableListOf<Post>()
             override fun onDataChange(snapshot: DataSnapshot) {
+                val postList : MutableList<Post> = mutableListOf<Post>()
                 if (snapshot.exists()) {
                     for (userSnapshot in snapshot.children) {
                         val getData = userSnapshot.getValue(Post::class.java)

@@ -3,8 +3,12 @@ package com.cookandroid.weplog
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.DialogInterface
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.ContextMenu
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -28,7 +32,7 @@ class ComDetail : AppCompatActivity() {
     lateinit var comdetail_check : ImageView
     lateinit var comdetial_certified : TextView
     lateinit var comdetail_timestamp : TextView
-    lateinit var comdetail_more : Spinner
+    lateinit var comdetail_more : ImageView
     lateinit var comdetail_profile : ImageView
     lateinit var comdetail_heartCount : TextView
 
@@ -46,7 +50,7 @@ class ComDetail : AppCompatActivity() {
         comdetail_check = findViewById(R.id.comdetail_check)
         comdetail_timestamp = findViewById(R.id.comdetail_timestamp)
         comdetail_more = findViewById(R.id.comdetail_more)
-        comdetail_profile= findViewById(R.id.comdetail_profile)
+        comdetail_profile = findViewById(R.id.comdetail_profile)
         comdetail_heartCount = findViewById(R.id.comdetail_heartCount)
 
 
@@ -74,37 +78,39 @@ class ComDetail : AppCompatActivity() {
 
                         // 사진 불러오기
                         getData?.photoUrl?.let {
-                            Firebase.storage.reference.child("community").child(it).downloadUrl.addOnCompleteListener {
-                                if (it.isSuccessful) {
-                                    if (!this@ComDetail.isDestroyed) {  // 오류 해결
-                                        Glide.with(this@ComDetail)
-                                                .load(it.result)
-                                                .placeholder(R.drawable.loading2)
-                                                .into(comdetail_photo)
+                            Firebase.storage.reference.child("community")
+                                    .child(it).downloadUrl.addOnCompleteListener {
+                                        if (it.isSuccessful) {
+                                            if (!this@ComDetail.isDestroyed) {  // 오류 해결
+                                                Glide.with(this@ComDetail)
+                                                        .load(it.result)
+                                                        .placeholder(R.drawable.loading2)
+                                                        .into(comdetail_photo)
 
+                                            }
+                                        }
                                     }
-                                }
-                            }
                         }
 
                         // grade별 프로필 설정
-                        database.child("users").child(getData?.writerId.toString()).addValueEventListener(object : ValueEventListener {
-                            override fun onDataChange(snapshot: DataSnapshot) {
-                                val grade = snapshot.child("grade").value.toString()
-                                when(grade){
-                                    "1"-> comdetail_profile.setImageResource(R.drawable.yellow_circle)
-                                    "2"-> comdetail_profile.setImageResource(R.drawable.green_circle)
-                                    "3"-> comdetail_profile.setImageResource(R.drawable.blue_circle)
-                                    "4"-> comdetail_profile.setImageResource(R.drawable.red_circle)
-                                    "5"-> comdetail_profile.setImageResource(R.drawable.purple_circle)
-                                }
+                        database.child("users").child(getData?.writerId.toString())
+                                .addValueEventListener(object : ValueEventListener {
+                                    override fun onDataChange(snapshot: DataSnapshot) {
+                                        val grade = snapshot.child("grade").value.toString()
+                                        when (grade) {
+                                            "1" -> comdetail_profile.setImageResource(R.drawable.yellow_circle)
+                                            "2" -> comdetail_profile.setImageResource(R.drawable.green2_circle)
+                                            "3" -> comdetail_profile.setImageResource(R.drawable.blue2_circle)
+                                            "4" -> comdetail_profile.setImageResource(R.drawable.red_circle)
+                                            "5" -> comdetail_profile.setImageResource(R.drawable.purple2_circle)
+                                        }
 
-                            }
+                                    }
 
-                            override fun onCancelled(databaseError: DatabaseError) {
-                                // Getting Post failed, log a message
-                            }
-                        })
+                                    override fun onCancelled(databaseError: DatabaseError) {
+                                        // Getting Post failed, log a message
+                                    }
+                                })
 
 
                         // 하트 수 출력
@@ -125,15 +131,18 @@ class ComDetail : AppCompatActivity() {
 
 
                         // timestamp 표기 (timestamp -> Date)
-                        comdetail_timestamp.text = SimpleDateFormat("yyyy-MM-dd-hh-mm").format(getData?.timestamp).toString()
+                        comdetail_timestamp.text =
+                                SimpleDateFormat("yyyy.MM.dd hh:mm").format(getData?.timestamp)
+                                        .toString()
 
 
                         // 하트 표기
                         if (getData?.hearts?.containsKey(uid) == true) {
-                            comdetail_heart.setImageResource(R.drawable.heart)
+                            comdetail_heart.setImageResource(R.drawable.greenheart)
                         } else {
-                            comdetail_heart.setImageResource(R.drawable.noheart)
+                            comdetail_heart.setImageResource(R.drawable.greennoheart)
                         }
+
 
                         // 승인/거절한 게시물은 표시 x and 이미지 변경
                         if (getData?.auths?.containsKey(uid) == true) {
@@ -141,13 +150,115 @@ class ComDetail : AppCompatActivity() {
                             comdetail_accept.visibility = View.GONE
                             comdetail_deny.visibility = View.GONE
                             if (getData?.auths?.get(uid) == true) {
-                                comdetail_check.setImageResource(R.drawable.checkbox)
+                                comdetail_check.setImageResource(R.drawable.green_checkbox)
                             } else {
-                                comdetail_check.setImageResource(R.drawable.cross_checkbox)
+                                comdetail_check.setImageResource(R.drawable.green_cross_checkbox)
                             }
                         } else {
-                            comdetail_check.setImageResource(R.drawable.blank_checkbox)
+                            comdetail_check.setImageResource(R.drawable.green_blank_checkbox)
                         }
+
+
+                        // 더보기 버튼
+                        comdetail_more.setOnClickListener {
+                            var popup = PopupMenu(this@ComDetail, it)
+
+
+                            // 본인일 경우
+                            if (user?.uid.toString().equals(getData?.writerId.toString())) {
+                                menuInflater.inflate(R.menu.menu_comdetail_user, popup.menu)
+                                popup.show()
+                                popup.setOnMenuItemClickListener {
+                                    when (it.itemId) {
+                                        R.id.itemRefresh -> {
+                                            Refresh()
+                                            return@setOnMenuItemClickListener true
+                                        }
+                                        R.id.itemDelete-> {
+
+                                            var selectedItem: String? = null
+                                            val builder = AlertDialog.Builder(this@ComDetail)
+                                                    .setTitle("게시물 삭제")
+                                                    .setMessage("게시물 삭제 시 복구 불가능합니다. 삭제하시겠습니까?")
+                                                    .setPositiveButton("삭제", DialogInterface.OnClickListener { dialog, which ->
+
+                                                        // community DB 게시물 삭제
+                                                        var postRef = getData?.postId?.let { it1 ->
+                                                            Firebase.database.getReference("community").child(it1)
+                                                        }
+                                                        if (postRef != null) {
+                                                            postRef.setValue(null)
+                                                        }
+
+                                                        // user DB 게시물 삭제
+                                                        var userRef =  Firebase.database.getReference("users").child(user?.uid.toString()).child("posts").child(getData?.postId.toString())
+                                                        userRef.setValue(null)
+
+                                                    })
+                                                    .setNegativeButton("취소", DialogInterface.OnClickListener { dialog, which ->
+                                                    })
+                                                    .show()
+                                            return@setOnMenuItemClickListener true
+                                        }
+                                        else -> {
+                                            return@setOnMenuItemClickListener false
+                                        }
+                                    }
+                                }
+                            } else {  // 타인일 경우
+                                menuInflater.inflate(R.menu.menu_comdetail_others, popup.menu)
+                                popup.show()
+                                popup.setOnMenuItemClickListener {
+                                    when (it.itemId) {
+                                        R.id.itemRefresh -> {
+                                            Refresh()
+                                            return@setOnMenuItemClickListener true
+                                        }
+
+                                        R.id.itemReport -> {
+                                            val items = arrayOf(
+                                                    "음란물 및 유해 콘텐츠",
+                                                    "증오 혹은 악의적인 콘텐츠",
+                                                    "욕설 및 비하",
+                                                    "유출/사칭/사기",
+                                                    "상업적 광고 및 판매"
+                                            )
+                                            var selectedItem: String? = null
+                                            val builder = AlertDialog.Builder(this@ComDetail)
+                                                    .setTitle("신고 항목")
+                                                    .setSingleChoiceItems(items, -1) { dialog, which ->
+                                                        selectedItem = items[which]
+
+                                                    }
+                                                    .setPositiveButton("신고") { dialog, which ->
+                                                        Log.e("reports", "신고 함수 호출 전" + selectedItem)
+                                                        selectedItem?.let {
+                                                            reportPost(
+                                                                    com_postId.toString(),
+                                                                    it
+                                                            )
+                                                        }
+                                                    }
+                                                    .setNegativeButton(
+                                                            "취소",
+                                                            DialogInterface.OnClickListener { dialog, which -> })
+                                                    .show()
+                                            return@setOnMenuItemClickListener true
+                                        }
+
+                                        else -> {
+                                            return@setOnMenuItemClickListener false
+                                        }
+                                    }
+
+                                }
+                            }
+
+                        }
+
+
+
+
                     }
                 }
 
@@ -163,7 +274,7 @@ class ComDetail : AppCompatActivity() {
 
             // 승인 버튼 누르기
             comdetail_accept.setOnClickListener {
-                onAuthClicked(com_postId)
+                onAuthClicked(com_postId,"accept")
                 Toast.makeText(this, "승인하셨습니다.", Toast.LENGTH_SHORT).show()
                 comdetail_text1.visibility = View.GONE
                 comdetail_accept.visibility = View.GONE
@@ -172,6 +283,7 @@ class ComDetail : AppCompatActivity() {
 
             // 거부 버튼 누르기
             comdetail_deny.setOnClickListener {
+                onAuthClicked(com_postId,"deny")
                 Toast.makeText(this, "거부하셨습니다.", Toast.LENGTH_SHORT).show()
                 comdetail_text1.visibility = View.GONE
                 comdetail_accept.visibility = View.GONE
@@ -179,69 +291,28 @@ class ComDetail : AppCompatActivity() {
             }
 
 
-            val spinner: Spinner = findViewById(R.id.comdetail_more)
 
-
-
-            var data1 = arrayOf("","새로고침", "신고하기")
-            //var sData = resources.getStringArray(R.array.comdetail_more)
-            var adapter = ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, data1)
-
-            spinner.adapter = adapter
-            spinner.setSelection(0)
-            spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
-                override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
-                    //Log.e("Spinner", p2.toString())
-                    when(p2){
-                        // 새로고침
-                        1 -> {
-                            try {
-
-                                val intent = getIntent()
-                                finish() //현재 액티비티 종료 실시
-                                overridePendingTransition(0, 0) //인텐트 애니메이션 없애기
-                                startActivity(intent) //현재 액티비티 재실행 실시
-                                overridePendingTransition(0, 0) //인텐트 애니메이션 없애기
-
-                                Log.e("Spinner","새로고침 완료")
-
-                            } catch (e: Exception) {
-                                e.printStackTrace()
-                                Log.e("Spinner","새로고침 실패")
-                            }
-                        }
-
-                        // 신고하기
-                        2 -> {
-                            val items = arrayOf("음란물 및 유해 콘텐츠", "증오 혹은 악의적인 콘텐츠", "욕설 및 비하", "유출/사칭/사기","상업적 광고 및 판매")
-                            var selectedItem: String? = null
-                            val builder = AlertDialog.Builder(this@ComDetail)
-                                    .setTitle("신고 항목")
-                                    .setSingleChoiceItems(items, -1) { dialog, which ->
-                                        selectedItem = items[which]
-
-                                    }
-                                    .setPositiveButton("신고") { dialog, which ->
-                                        Log.e("reports", "신고 함수 호출 전" + selectedItem)
-                                        selectedItem?.let { reportPost(com_postId.toString(), it) }
-                                    }
-                                    .setNegativeButton("취소", DialogInterface.OnClickListener { dialog, which -> })
-                                    .show()
-                        }
-                    }
-
-                }
-
-                override fun onNothingSelected(p0: AdapterView<*>?) {
-
-                }
-            }
 
 
 
         }
 
+    }
 
+    private fun Refresh() {
+        try {
+            val intent = getIntent()
+            finish() //현재 액티비티 종료 실시
+            overridePendingTransition(0, 0) //인텐트 애니메이션 없애기
+            startActivity(intent) //현재 액티비티 재실행 실시
+            overridePendingTransition(0, 0) //인텐트 애니메이션 없애기
+
+            Log.e("Spinner", "새로고침 완료")
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Log.e("Spinner", "새로고침 실패")
+        }
     }
 
     private fun reportPost(postId : String, reportTitle : String){
@@ -320,10 +391,11 @@ class ComDetail : AppCompatActivity() {
     }
 
 
-    private fun onAuthClicked(postId: String) {
+    private fun onAuthClicked(postId: String, btnString : String) {
         var uid : String = FirebaseAuth.getInstance().currentUser?.uid.toString()
         var postRef = Firebase.database.getReference("community").child(postId)
         var database = Firebase.database.reference
+
 
 
         postRef.runTransaction(object : Transaction.Handler {
@@ -335,47 +407,56 @@ class ComDetail : AppCompatActivity() {
                     Log.e("reports", "p 가 null")
                     return Transaction.success(mutableData)
                 } else {
-                    if (p.auths.containsKey(uid)) {
-
-                        // Unstar the post and remove self from stars
-                        p.authCount = p.authCount?.minus(1)
-                        p.auths.remove(uid)
-                    } else {
-                        // Star the post and add self to stars
-                        p.authCount = p.authCount?.plus(1)
-                        p.auths[uid] = true
+                    if (btnString.equals("accept")) { // 승인 버튼 클릭시
+                        if (!p.auths.containsKey(uid)) {
+                            // Star the post and add self to stars
+                            p.authCount = p.authCount?.plus(1)
+                            p.auths[uid] = true
 
 
-                        // 크레딧 지급 (5 credit)
-                        if (p.authCount!! == 3) {
-                            p.certified = true
-                            database.child("users").child(p.writerId!!).child("posts/${p.postId}").setValue(true)
+                            // 크레딧 지급 (5 credit)
+                            if (p.authCount!! == 3) {
+                                p.certified = true
+                                database.child("users").child(p.writerId!!)
+                                        .child("posts/${p.postId}").setValue(true)
 
-                            database.child("users").child(p.writerId!!).get().addOnSuccessListener {
-                                var credit : Int =  it.child("credit").value.toString().toInt()
-                                credit += 5
+                                database.child("users").child(p.writerId!!).get()
+                                        .addOnSuccessListener {
+                                            var credit: Int =
+                                                    it.child("credit").value.toString().toInt()
+                                            credit += 5
 
-                                var grade  = 0
-                                if(credit!! >= 200){
-                                    grade = 5
-                                }else {
-                                    if (credit!! >= 100) {
-                                        grade = 4
-                                    } else
-                                        if (credit!! >= 50) {
-                                            grade = 3
-                                        } else
-                                            if (credit!! >= 20) {
-                                                grade = 2
+                                            var grade = 0
+                                            if (credit!! >= 200) {
+                                                grade = 5
                                             } else {
-                                                grade = 1
+                                                if (credit!! >= 100) {
+                                                    grade = 4
+                                                } else
+                                                    if (credit!! >= 50) {
+                                                        grade = 3
+                                                    } else
+                                                        if (credit!! >= 20) {
+                                                            grade = 2
+                                                        } else {
+                                                            grade = 1
+                                                        }
                                             }
-                                }
-                                database.child("users").child(p.writerId!!).child("credit").setValue(credit.toString())
-                                database.child("users").child(p.writerId!!).child("grade").setValue(grade.toString())
-                            }
+                                            database.child("users").child(p.writerId!!)
+                                                    .child("credit")
+                                                    .setValue(credit.toString())
+                                            database.child("users").child(p.writerId!!)
+                                                    .child("grade")
+                                                    .setValue(grade.toString())
+                                        }
 
-                            Log.e("인증", "인증 크레딧 완료")
+                                Log.e("인증", "인증 크레딧 완료")
+                            }
+                        }
+                    } else {  // 승인 거부 시
+                        if (!p.auths.containsKey(uid)) {
+                            // Star the post and add self to stars
+                            p.auths[uid] = false
                         }
                     }
                 }
@@ -394,6 +475,10 @@ class ComDetail : AppCompatActivity() {
             }
 
         })
+
+
+
+
     }
 
 
