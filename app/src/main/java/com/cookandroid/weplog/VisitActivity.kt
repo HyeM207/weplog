@@ -33,14 +33,20 @@ class VisitActivity:AppCompatActivity() {
         Log.w("MyCurrentloctionaddress", geo[0].toString())
         Log.i("visitgeocode", "$geo_lat, $geo_long")
 
+        val visitlistfrag = VisitListFragment(applicationContext)
+
+
         var marker=MapPOIItem()
         marker.itemName=address
         marker.mapPoint=MapPoint.mapPointWithGeoCoord(geo[0].latitude, geo[0].longitude)
         visit_mapview.addPOIItem(marker)
 
         visit_allbtn.setOnClickListener {
-            var intent = Intent(this, VisitlistActivity::class.java)
-            startActivity(intent)
+//            var intent = Intent(this, VisitlistActivity::class.java)
+//            startActivity(intent)
+            visitlistfrag.show(supportFragmentManager, visitlistfrag.tag)
+
+
         }
 
 

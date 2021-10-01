@@ -88,8 +88,6 @@ class PostListViewAdapter(private val context: Context): RecyclerView.Adapter <P
         holder.comitem_heartCount.text = postList[position].heartCount.toString()
 
 
-
-
         // timestamp 표기 (timestamp -> Date)
         holder.comitem_timestamp.text = SimpleDateFormat("yyyy.MM.dd hh:mm").format(postList[position].timestamp).toString()
 

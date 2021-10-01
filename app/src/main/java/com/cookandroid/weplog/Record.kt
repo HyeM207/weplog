@@ -5,7 +5,7 @@ import com.google.firebase.database.IgnoreExtraProperties
 
 @IgnoreExtraProperties
 data class Record (
-    var distance : Float = 0F,
+    var distance : String ?= null,
     var time : String ?= null
 ){
     /*
