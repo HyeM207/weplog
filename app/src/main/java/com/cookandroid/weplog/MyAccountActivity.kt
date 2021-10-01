@@ -1,18 +1,32 @@
 package com.cookandroid.weplog
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.os.PersistableBundle
+import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.AdapterView
+import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.bumptech.glide.load.model.stream.MediaStoreImageThumbLoader
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 import kotlinx.android.synthetic.main.mypage_account.*
 
 class MyAccountActivity:AppCompatActivity() {
+    lateinit var builder : AlertDialog.Builder
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,7 +39,14 @@ class MyAccountActivity:AppCompatActivity() {
         items.add(ListViewItem(ContextCompat.getDrawable(this, R.drawable.ic_baseline_power_settings_new_24), "로그아웃"))
         items.add(ListViewItem(ContextCompat.getDrawable(this, R.drawable.ic_baseline_block_24), "회원탈퇴"))
 
+        // main 페이지 접근 시 로그인 되어 있는지 확인
+        val user = Firebase.auth.currentUser
+        if (user == null) {
+            Toast.makeText(this, "[Main] user가 null", Toast.LENGTH_SHORT).show()
+            var intent = Intent(this, Login::class.java)
+            startActivity(intent)
 
+        }
         val adapter=ListViewAdapter(items)
         my_accountlist.adapter=adapter
 
@@ -44,12 +65,120 @@ class MyAccountActivity:AppCompatActivity() {
                 var intent = Intent(this, Login::class.java)
                 startActivity(intent)
             } else if (item.title=="회원탈퇴"){
-                var intent = Intent(this, Withdrawal::class.java)
-                startActivity(intent)
+                withdrawal()
             }
 
         }
 
 
     }
+
+    private fun withdrawal() {
+        val inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val view = inflater.inflate(R.layout.withdrawal_edittext, null)
+
+        val alertDialog = AlertDialog.Builder(this)
+            .setTitle("회원탈퇴")
+            .setMessage("탈퇴 시 복구 불가능합니다. 탈퇴를 원하시면 \"탈퇴\"를 입력해주세요")
+            .setPositiveButton("확인") { dialog, which ->
+                val withdrawal_edittext: EditText = view.findViewById(R.id.withdrawal_edittext)
+                var check_str = withdrawal_edittext.text.toString()
+                if(check_str.equals("탈퇴")) {
+                    Toast.makeText(this, "탈퇴 성공", Toast.LENGTH_SHORT).show()
+
+                    var postRef = Firebase.database.getReference("community")
+
+                    val user = Firebase.auth.currentUser
+                    var database = Firebase.database.reference
+
+
+                    database.child("users").child(user?.uid.toString()).get().addOnSuccessListener {
+                        val postList: Map<String, Object> =
+                            it.child("posts").value as Map<String, Object>
+
+                        try {
+                            for (post in postList) {
+                                // 1. 연결된 사진 삭제
+                                database.child("community").child(post.key).get()
+                                    .addOnSuccessListener {
+                                        var photoUrl = it.child("photoUrl").value.toString()
+                                        Log.e("delete", "it :$photoUrl")
+
+                                        Firebase.storage.reference.child("community/${photoUrl}")
+                                            .delete().addOnSuccessListener {
+                                                Log.e("delete", "삭제 성공!")
+                                            }.addOnFailureListener {
+                                                Log.e("delete", "삭제 실패!" + it)
+                                            }
+                                    }
+
+                                // 2. community의 post 객체 삭제
+                                var postRef =
+                                    Firebase.database.getReference("community").child(post.key)
+//                            Log.e("post",postRef.toString())
+                                postRef.setValue(null)
+                                Log.e("post", post.key)
+                            }
+
+//                            // 3.로그아웃
+//                            logout()
+
+
+                            // 4. user 객체 삭제
+                            var userRef = Firebase.database.getReference("users").child(user?.uid.toString())
+                            userRef.setValue(null)
+
+
+                            // 5. auth에서 삭제
+                            val user = Firebase.auth.currentUser!!
+
+                            user.delete().addOnCompleteListener { task ->
+                                    if (task.isSuccessful) {
+                                        Log.d("delete", "User account deleted.")
+                                    }
+                            }
+
+
+                        } finally {
+
+                        }
+                    }
+
+                    }else{
+                        Toast.makeText(this, "입력이 올바르지 않습니다. 정확한 문자열을 입력해주세요.", Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                }
+
+            .setNeutralButton("취소", null)
+            .create()
+
+        //  여백 눌러도 창 안없어지게
+        alertDialog.setCancelable(false)
+
+        alertDialog.setView(view)
+        alertDialog.show()
+    }
+
+    private fun logout() {
+        var gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestEmail()
+            .build()
+
+
+        var googleSignInClient : GoogleSignInClient? = null
+        googleSignInClient = GoogleSignIn.getClient(this, gso)
+
+
+
+        Firebase.auth.signOut()
+        FirebaseAuth.getInstance().signOut()
+        googleSignInClient?.signOut()  // 구글 로그인 세션까지 로그아웃 처리
+
+        var intent = Intent(this, Login::class.java)
+        startActivity(intent)
+
+    }
+
 }

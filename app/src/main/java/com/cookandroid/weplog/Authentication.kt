@@ -50,14 +50,15 @@ class Authentication : AppCompatActivity() {
     lateinit var currentPhotoPath: String
     val REQUEST_TAKE_PHOTO = 1
 
-    lateinit var trashPlace : String
+
     lateinit var fileName : String
     lateinit var photoURI : Uri
     var authStep1 = false
     var authStep2 = false
+    private lateinit var pushRef:DatabaseReference
+    private var pushRefKey : String = ""
 
-    var userNickname : String = ""
-    //var userName : String ?= ""
+
     private lateinit var database: DatabaseReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -72,16 +73,23 @@ class Authentication : AppCompatActivity() {
         auth_step1txt = findViewById(R.id.auth_step1txt)
 
         auth_layoutUpload.visibility = View.INVISIBLE
+        var trashPlace : String = ""
 
-        if(intent.hasExtra("data")){
-            Toast.makeText(this, "내용 바꿈." + intent.getStringExtra("data"), Toast.LENGTH_SHORT).show()
+
+        if(intent.hasExtra("trashplace")){
+            Toast.makeText(this, "내용 바꿈." + intent.getStringExtra("trashplace"), Toast.LENGTH_SHORT).show()
             auth_step1txt.visibility = View.INVISIBLE
             auth_step1TPlace.visibility = View.VISIBLE
 
-            trashPlace = intent.getStringExtra("data").toString()
+            trashPlace = intent.getStringExtra("trashplace").toString()
             auth_step1TPlace.text = trashPlace
             authStep1 = true
             auth_layoutStep1.isClickable = false
+        }
+
+
+        if (intent.hasExtra("pushRefKey")){
+            pushRefKey = intent.getStringExtra("pushRefKey").toString()
         }
 
         // 인증 버튼 visible로 바꾸기
@@ -91,7 +99,6 @@ class Authentication : AppCompatActivity() {
         // 1단계. 인증하기 버튼
         auth_layoutStep1.setOnClickListener {
             val intent = Intent(this, QRcodeScanner::class.java)
-            intent.putExtra("page", "Authentication")
             startActivity(intent)
         }
 
@@ -118,7 +125,7 @@ class Authentication : AppCompatActivity() {
         // 최종 인증
         auth_layoutUpload.setOnClickListener {
             uploadImage(photoURI)
-            uploadPost()
+            uploadPost(trashPlace)
         }
 
         // skip 버튼
@@ -129,7 +136,7 @@ class Authentication : AppCompatActivity() {
 
     }
 
-    private fun uploadPost() {
+    private fun uploadPost(trashPlace : String) {
 
         val user = Firebase.auth.currentUser
         database = Firebase.database.reference
@@ -165,6 +172,11 @@ class Authentication : AppCompatActivity() {
                     database.child("users").child(user.uid).child("lastAuth").setValue(todayDate)
                     database.child("users").child(user.uid).child("posts/$key").setValue(false)// 수정 후 : post객체 id만 저장
                     database.child("community").child(key).setValue(postValues)
+
+
+                    // 위치 정보 추가
+                    pushRef=database.child("user/${user.uid}/Pedometer/date").child(todayDate).child("$pushRefKey/record")
+                    pushRef.child("trashPlace").setValue(trashPlace)
                 }
 
             }

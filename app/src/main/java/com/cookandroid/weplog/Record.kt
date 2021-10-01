@@ -6,7 +6,8 @@ import com.google.firebase.database.IgnoreExtraProperties
 @IgnoreExtraProperties
 data class Record (
     var distance : String ?= null,
-    var time : String ?= null
+    var time : String ?= null,
+    var trashPlace : String? = ""
 ){
     /*
        data class TmpRecord(
@@ -25,7 +26,8 @@ data class Record (
     fun toMap() : Map<String, Any?>{
         return mapOf(
             "distance" to distance,
-            "time" to time
+            "time" to time,
+            "trashPlace" to trashPlace
         )
     }
 

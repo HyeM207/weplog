@@ -38,6 +38,8 @@ import java.util.*
 
 class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.MapViewEventListener{
 
+    // authentication으로 보내는 key 값
+    private var pushRefKey : String = ""
 
     private val ACCESS_FINE_LOCATION = 1000     // Request Code
 
@@ -188,6 +190,7 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
             Log.i(LOG_TAG, String.format("startbtn click current location (%f,%f)", currentPointGeo.latitude, currentPointGeo.longitude))
 
             pushRef=database.child("user/$uid/Pedometer/date").child(todayDate).push()
+            pushRefKey = pushRef.key.toString() // authentication으로 넘겨줄 값
             pushRef.child("walkstate/type").setValue("0")
             pushRef.child("time/startTime").setValue("$startTimeString")
 
@@ -414,6 +417,7 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
 
             builder.setPositiveButton("네", DialogInterface.OnClickListener { dialog, which ->
                 var intent = Intent(activity, Authentication::class.java)
+                intent.putExtra("pushRefKey",pushRefKey)
                 startActivity(intent)
             })
             builder.setNegativeButton("아니오", DialogInterface.OnClickListener { dialog, which ->
