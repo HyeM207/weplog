@@ -12,6 +12,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -35,6 +36,8 @@ class ComDetail : AppCompatActivity() {
     lateinit var comdetail_more : ImageView
     lateinit var comdetail_profile : ImageView
     lateinit var comdetail_heartCount : TextView
+    lateinit var comdetail_constLayout2 : ConstraintLayout
+    lateinit var comdetail_text0 : TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,7 +55,8 @@ class ComDetail : AppCompatActivity() {
         comdetail_more = findViewById(R.id.comdetail_more)
         comdetail_profile = findViewById(R.id.comdetail_profile)
         comdetail_heartCount = findViewById(R.id.comdetail_heartCount)
-
+        comdetail_constLayout2 = findViewById(R.id.comdetail_constLayout2)
+        comdetail_text0 = findViewById(R.id.comdetail_text0)
 
         // postId 가져옴
         val intent = intent
@@ -119,14 +123,19 @@ class ComDetail : AppCompatActivity() {
 
                         // 자신의 글은 승인 못함
                         if (user?.uid.toString().equals(getData?.writerId.toString())) {
+                            comdetail_text0.visibility = View.GONE
                             comdetail_text1.visibility = View.GONE
                             comdetail_accept.visibility = View.GONE
                             comdetail_deny.visibility = View.GONE
+                            comdetail_constLayout2.visibility = View.GONE
                         }
 
                         // 인증 받은 글이면 visible 표기
                         if (getData?.certified == true) {
                             comdetial_certified.visibility = View.VISIBLE
+                        }
+                        else{
+                            comdetial_certified.visibility = View.INVISIBLE
                         }
 
 
@@ -146,9 +155,11 @@ class ComDetail : AppCompatActivity() {
 
                         // 승인/거절한 게시물은 표시 x and 이미지 변경
                         if (getData?.auths?.containsKey(uid) == true) {
+                            comdetail_text0.visibility = View.GONE
                             comdetail_text1.visibility = View.GONE
                             comdetail_accept.visibility = View.GONE
                             comdetail_deny.visibility = View.GONE
+                            comdetail_constLayout2.visibility = View.GONE
                             if (getData?.auths?.get(uid) == true) {
                                 comdetail_check.setImageResource(R.drawable.green_checkbox)
                             } else {
@@ -156,6 +167,7 @@ class ComDetail : AppCompatActivity() {
                             }
                         } else {
                             comdetail_check.setImageResource(R.drawable.green_blank_checkbox)
+                            comdetail_text0.text = getData?.writerNick.toString() + " 님의"
                         }
 
 
@@ -274,17 +286,16 @@ class ComDetail : AppCompatActivity() {
 
             // 승인 버튼 누르기
             comdetail_accept.setOnClickListener {
-                onAuthClicked(com_postId,"accept")
-                Toast.makeText(this, "승인하셨습니다.", Toast.LENGTH_SHORT).show()
+                onAuthClicked(com_postId)
+                Toast.makeText(this, "승인 완료.", Toast.LENGTH_SHORT).show()
                 comdetail_text1.visibility = View.GONE
                 comdetail_accept.visibility = View.GONE
                 comdetail_deny.visibility = View.GONE
             }
 
-            // 거부 버튼 누르기
+            // 취소 버튼 누르기
             comdetail_deny.setOnClickListener {
-                onAuthClicked(com_postId,"deny")
-                Toast.makeText(this, "거부하셨습니다.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "취소", Toast.LENGTH_SHORT).show()
                 comdetail_text1.visibility = View.GONE
                 comdetail_accept.visibility = View.GONE
                 comdetail_deny.visibility = View.GONE
@@ -391,7 +402,7 @@ class ComDetail : AppCompatActivity() {
     }
 
 
-    private fun onAuthClicked(postId: String, btnString : String) {
+    private fun onAuthClicked(postId: String) {
         var uid : String = FirebaseAuth.getInstance().currentUser?.uid.toString()
         var postRef = Firebase.database.getReference("community").child(postId)
         var database = Firebase.database.reference
@@ -407,56 +418,49 @@ class ComDetail : AppCompatActivity() {
                     Log.e("reports", "p 가 null")
                     return Transaction.success(mutableData)
                 } else {
-                    if (btnString.equals("accept")) { // 승인 버튼 클릭시
-                        if (!p.auths.containsKey(uid)) {
-                            // Star the post and add self to stars
-                            p.authCount = p.authCount?.plus(1)
-                            p.auths[uid] = true
+                    if (!p.auths.containsKey(uid)) {
+                        // Star the post and add self to stars
+                        p.authCount = p.authCount?.plus(1)
+                        p.auths[uid] = true
 
 
-                            // 크레딧 지급 (5 credit)
-                            if (p.authCount!! == 3) {
-                                p.certified = true
-                                database.child("users").child(p.writerId!!)
-                                        .child("posts/${p.postId}").setValue(true)
+                        // 크레딧 지급 (5 credit)
+                        if (p.authCount!! == 3) {
+                            p.certified = true
+                            database.child("users").child(p.writerId!!)
+                                .child("posts/${p.postId}").setValue(true)
 
-                                database.child("users").child(p.writerId!!).get()
-                                        .addOnSuccessListener {
-                                            var credit: Int =
-                                                    it.child("credit").value.toString().toInt()
-                                            credit += 5
+                            database.child("users").child(p.writerId!!).get()
+                                .addOnSuccessListener {
+                                    var credit: Int =
+                                        it.child("credit").value.toString().toInt()
+                                    credit += 5
 
-                                            var grade = 0
-                                            if (credit!! >= 200) {
-                                                grade = 5
-                                            } else {
-                                                if (credit!! >= 100) {
-                                                    grade = 4
-                                                } else
-                                                    if (credit!! >= 50) {
-                                                        grade = 3
-                                                    } else
-                                                        if (credit!! >= 20) {
-                                                            grade = 2
-                                                        } else {
-                                                            grade = 1
-                                                        }
-                                            }
-                                            database.child("users").child(p.writerId!!)
-                                                    .child("credit")
-                                                    .setValue(credit.toString())
-                                            database.child("users").child(p.writerId!!)
-                                                    .child("grade")
-                                                    .setValue(grade.toString())
-                                        }
+                                    var grade = 0
+                                    if (credit!! >= 200) {
+                                        grade = 5
+                                    } else {
+                                        if (credit!! >= 100) {
+                                            grade = 4
+                                        } else
+                                            if (credit!! >= 50) {
+                                                grade = 3
+                                            } else
+                                                if (credit!! >= 20) {
+                                                    grade = 2
+                                                } else {
+                                                    grade = 1
+                                                }
+                                    }
+                                    database.child("users").child(p.writerId!!)
+                                        .child("credit")
+                                        .setValue(credit.toString())
+                                    database.child("users").child(p.writerId!!)
+                                        .child("grade")
+                                        .setValue(grade.toString())
+                                }
 
-                                Log.e("인증", "인증 크레딧 완료")
-                            }
-                        }
-                    } else {  // 승인 거부 시
-                        if (!p.auths.containsKey(uid)) {
-                            // Star the post and add self to stars
-                            p.auths[uid] = false
+                            Log.e("인증", "인증 크레딧 완료")
                         }
                     }
                 }
@@ -466,9 +470,9 @@ class ComDetail : AppCompatActivity() {
             }
 
             override fun onComplete(
-                    databaseError: DatabaseError?,
-                    committed: Boolean,
-                    currentData: DataSnapshot?
+                databaseError: DatabaseError?,
+                committed: Boolean,
+                currentData: DataSnapshot?
             ) {
                 // Transaction completed
                 //Log.d("TAG", "postTransaction:onComplete:" + databaseError!!)
@@ -480,6 +484,7 @@ class ComDetail : AppCompatActivity() {
 
 
     }
+
 
 
 

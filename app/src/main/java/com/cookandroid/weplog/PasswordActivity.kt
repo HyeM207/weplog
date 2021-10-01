@@ -2,20 +2,14 @@ package com.cookandroid.weplog
 
 import android.content.DialogInterface
 import android.os.Bundle
-import android.telephony.PhoneNumberFormattingTextWatcher
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
-import android.util.Patterns
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
-import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.mypage_password.*
-import kotlinx.android.synthetic.main.mypage_profile.*
 
 
 class PasswordActivity:AppCompatActivity() {
@@ -51,7 +45,7 @@ class PasswordActivity:AppCompatActivity() {
                             //비밀번호 일치영부 확인
                             if(firstpw.text.toString().equals(secondpw.text.toString())) {
                                 //기존 비밀번호와 일치 여부 확인
-                                if(currentPw.text.toString().equals(pass)){
+                                if(edit_withdrawal.text.toString().equals(pass)){
                                     database.child("users/$uid/password").setValue(secondpw.text.toString())
                                     showAlert(5)
                                 }else{

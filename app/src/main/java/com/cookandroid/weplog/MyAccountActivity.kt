@@ -43,8 +43,10 @@ class MyAccountActivity:AppCompatActivity() {
                 Firebase.auth.signOut()
                 var intent = Intent(this, Login::class.java)
                 startActivity(intent)
+            } else if (item.title=="회원탈퇴"){
+                var intent = Intent(this, Withdrawal::class.java)
+                startActivity(intent)
             }
-
 
         }
 

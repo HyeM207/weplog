@@ -4,7 +4,9 @@
     package="com.cookandroid.weplog">
 
     <uses-sdk tools:overrideLibrary="com.google.zxing.client.android" />
+
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
     <uses-feature
         android:name="android.hardware.camera"
         android:required="true" />
@@ -24,7 +26,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Weplog"
         android:usesCleartextTraffic="true">
-        <activity android:name=".MyPost"></activity>
+        <activity android:name=".Withdrawal"></activity>
+        <activity android:name=".MyPost" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -33,11 +36,10 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths"></meta-data>
+                android:resource="@xml/file_paths" />
         </provider>
 
-        <activity android:name=".ComDetail"></activity>
-
+        <activity android:name=".ComDetail" />
         <activity android:name=".Authentication" />
         <activity
             android:name=".QRcodeScanner"
@@ -66,17 +68,13 @@
         <activity android:name=".RecordDetailActivity" />
         <activity android:name=".RecordChoiceActivity" />
 
-
         <service android:name=".StepsTrackerService" />
 
         <activity android:name=".MyProfileActivity" />
-        <activity android:name=".MyAccountActivity"/>
-        <activity android:name=".HistoryActivity"/>
-        <activity android:name=".PasswordActivity"/>
-        <activity android:name=".VisitActivity"/>
-
-
-
+        <activity android:name=".MyAccountActivity" />
+        <activity android:name=".HistoryActivity" />
+        <activity android:name=".PasswordActivity" />
+        <activity android:name=".VisitActivity" />
     </application>
 
 </manifest>
