@@ -25,26 +25,35 @@ class VisitActivity:AppCompatActivity() {
         visit_mapview.setMapCenterPoint(MapPoint.mapPointWithGeoCoord(36.1648803, 127.4809185), true);
         visit_mapview.setZoomLevel(11, true)
 //        var address="서울특별시 노원구 월계2동 845-13"
-        var address="서울특별시 용산구 서빙고로 137"
-        var geo=geocoder.getFromLocationName(address, 1)
-        var geo_lat=geo[0].latitude
-        var geo_long=geo[0].longitude
+//        var address="서울특별시 중구"
+        var addressList= arrayOf("서울특별시 중구", "서울특별시 도봉구", "서울특별시 성북구", "서울특별시 노원구", "서울특별시 강남구")
+        for (address in addressList){
+            var geo=geocoder.getFromLocationName(address, 1)
+            var geo_lat=geo[0].latitude
+            var geo_long=geo[0].longitude
 
-        Log.w("MyCurrentloctionaddress", geo[0].toString())
-        Log.i("visitgeocode", "$geo_lat, $geo_long")
+            var marker=MapPOIItem()
+            marker.itemName=address
+            marker.mapPoint=MapPoint.mapPointWithGeoCoord(geo[0].latitude, geo[0].longitude)
+            visit_mapview.addPOIItem(marker)
+        }
+
+
+//        Log.w("MyCurrentloctionaddress", geo[0].toString())
+//        Log.i("visitgeocode", "$geo_lat, $geo_long")
 
         val visitlistfrag = VisitListFragment(applicationContext)
 
 
-        var marker=MapPOIItem()
-        marker.itemName=address
-        marker.mapPoint=MapPoint.mapPointWithGeoCoord(geo[0].latitude, geo[0].longitude)
-        visit_mapview.addPOIItem(marker)
+//        var marker=MapPOIItem()
+//        marker.itemName=address
+//        marker.mapPoint=MapPoint.mapPointWithGeoCoord(geo[0].latitude, geo[0].longitude)
+//        visit_mapview.addPOIItem(marker)
 
         visit_allbtn.setOnClickListener {
-//            var intent = Intent(this, VisitlistActivity::class.java)
-//            startActivity(intent)
-            visitlistfrag.show(supportFragmentManager, visitlistfrag.tag)
+            var intent = Intent(this, VisitlistActivity::class.java)
+            startActivity(intent)
+//            visitlistfrag.show(supportFragmentManager, visitlistfrag.tag)
 
 
         }

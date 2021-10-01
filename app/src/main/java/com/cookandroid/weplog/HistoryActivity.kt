@@ -13,7 +13,6 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.main_history.*
 import java.text.DateFormat
 import java.text.SimpleDateFormat
-import java.time.LocalDate
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -36,7 +35,7 @@ class HistoryActivity:AppCompatActivity(), bottomsheetFragment.onDataPassListene
     var dayList= ArrayList<String>()
 
     //기록 계산 변수
-    var distSum=0
+    var distSum=0F
     var timeSum=0
     var plogSum=0
 
@@ -67,8 +66,6 @@ class HistoryActivity:AppCompatActivity(), bottomsheetFragment.onDataPassListene
 
         history_btnsevenday.setOnClickListener{
             setSevenHis()
-
-
         }
 
         history_btnpermonth.setOnClickListener {
@@ -76,11 +73,8 @@ class HistoryActivity:AppCompatActivity(), bottomsheetFragment.onDataPassListene
 
         }
 
-
-
         history_btnwhole.setOnClickListener {
             setAllHistory()
-//            Toast.makeText(applicationContext, "전체 기록보기", Toast.LENGTH_SHORT).show()
         }
 
 
@@ -89,6 +83,59 @@ class HistoryActivity:AppCompatActivity(), bottomsheetFragment.onDataPassListene
         todayDate = (mCalendar.get(Calendar.YEAR)).toString() + "/" + (mCalendar.get(Calendar.MONTH) + 1).toString() +
                 "/" + (mCalendar.get(Calendar.DAY_OF_MONTH)).toString()
 
+        setToday()
+
+
+    }
+
+    fun setToday(){
+        historyList.clear()
+        distSum=0f
+        timeSum=0
+        plogSum=0
+
+        var currentCalendar=Calendar.getInstance()
+        var y = currentCalendar.get(Calendar.YEAR)
+        var month = currentCalendar.get(Calendar.MONTH)+1
+        var day = currentCalendar.get(Calendar.DAY_OF_MONTH)
+
+        database.child("user/$uid/Pedometer/date/$y/$month").get().addOnSuccessListener {
+            if (it.child("$day").hasChildren()){
+                var dayData=it.child("$day").children
+                dayData=dayData.reversed()
+                for (plog in dayData){
+                    //플로그 객체 키 값
+                    var key=plog.key
+                    var History = History()
+                    History.year = "$y"
+                    History.month = "$month"
+                    History.day = "$day"
+                    History.time = it.child("$day/$key/record/time").value.toString()
+                    History.distance = it.child("$day/$key/record/distance").value.toString()
+                    History.startTime = it.child("$day/$key/time/startTime").value.toString()
+                    History.endTime = it.child("$day/$key/time/endTime").value.toString()
+
+                    plogSum++
+
+                    var split_time = History.time!!.split(":")
+                    timeSum=split_time[0].toInt()*60+split_time[1].toInt()
+                    distSum+= History.distance!!.toFloat()
+
+                    historyList.add(History)
+                }
+
+                text_km.text= String.format("%.2fkm", distSum)
+                text_time.text="${timeSum}분"
+                text_plog.text="${plogSum}회"
+
+            }
+
+
+            adapter.setListData(historyList)
+            adapter.notifyDataSetChanged()
+
+
+        }
 
     }
 
@@ -96,6 +143,12 @@ class HistoryActivity:AppCompatActivity(), bottomsheetFragment.onDataPassListene
     fun setHistory(year: String, month : String){
         //배열 초기화
         historyList.clear()
+        dayList.clear()
+
+        distSum=0f
+        timeSum=0
+        plogSum=0
+
         database.child("user/$uid/Pedometer/date/$year/$month").get().addOnSuccessListener {
             Log.i("firebase", "check snapshot $it")
 
@@ -123,11 +176,19 @@ class HistoryActivity:AppCompatActivity(), bottomsheetFragment.onDataPassListene
                     History.startTime = it.child("$day/$key/time/startTime").value.toString()
                     History.endTime = it.child("$day/$key/time/endTime").value.toString()
 
+                    plogSum++
+                    var split_time = History.time!!.split(":")
+                    timeSum=split_time[0].toInt()*60+split_time[1].toInt()
+                    distSum+= History.distance!!.toFloat()
+
                     historyList.add(History)
                     Log.i("firebase", "day : $day, key : $key")
                 }
 
             }
+            text_km.text= String.format("%.2fkm", distSum)
+            text_time.text="${timeSum}분"
+            text_plog.text="${plogSum}회"
 
             adapter.setListData(historyList)
             adapter.notifyDataSetChanged()
@@ -139,6 +200,9 @@ class HistoryActivity:AppCompatActivity(), bottomsheetFragment.onDataPassListene
         historyList.clear()
         monthList.clear()
         yearList.clear()
+        distSum=0f
+        timeSum=0
+        plogSum=0
 
         database.child("user/$uid/Pedometer/date").get().addOnSuccessListener {
             var post = it.children
@@ -186,6 +250,11 @@ class HistoryActivity:AppCompatActivity(), bottomsheetFragment.onDataPassListene
                             History.startTime = it.child("$y/$month/$day/$key/time/startTime").value.toString()
                             History.endTime = it.child("$y/$month/$day/$key/time/endTime").value.toString()
 
+                            plogSum++
+                            var split_time = History.time!!.split(":")
+                            timeSum=split_time[0].toInt()*60+split_time[1].toInt()
+                            distSum+= History.distance!!.toFloat()
+
                             historyList.add(History)
                             Log.i("firebase", "day : $day, key : $key")
                         }
@@ -197,6 +266,9 @@ class HistoryActivity:AppCompatActivity(), bottomsheetFragment.onDataPassListene
 
 
             }
+            text_km.text= String.format("%.2fkm", distSum)
+            text_time.text="${timeSum}분"
+            text_plog.text="${plogSum}회"
             adapter.setListData(historyList)
             adapter.notifyDataSetChanged()
 
@@ -210,8 +282,9 @@ class HistoryActivity:AppCompatActivity(), bottomsheetFragment.onDataPassListene
 
 
     fun setSevenHis(){
+        historyList.clear()
 
-        distSum=0
+        distSum=0f
         timeSum=0
         plogSum=0
 
@@ -244,17 +317,21 @@ class HistoryActivity:AppCompatActivity(), bottomsheetFragment.onDataPassListene
                         History.endTime = it.child("$y/$month/$day/$key/time/endTime").value.toString()
 
                         plogSum++
-                        History.time
+
+                        var split_time = History.time!!.split(":")
+                        timeSum=split_time[0].toInt()*60+split_time[1].toInt()
+                        distSum+= History.distance!!.toFloat()
+
                         historyList.add(History)
-
-
-
                     }
                 }
 
                 currentCalendar.add(Calendar.DATE, -1)
 
             }
+            text_km.text= String.format("%.2fkm", distSum)
+            text_time.text="${timeSum}분"
+            text_plog.text="${plogSum}회"
 
             adapter.setListData(historyList)
             adapter.notifyDataSetChanged()

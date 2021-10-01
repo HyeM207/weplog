@@ -196,6 +196,7 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
 
 
 //            startAlertDialog()
+
         }
 
 
