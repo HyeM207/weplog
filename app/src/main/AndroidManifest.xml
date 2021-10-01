@@ -63,18 +63,17 @@
             android:value="97057967321758666cd3716054500f3b" />
 
         <service android:name=".StepsTrackerService" />
-
         <activity android:name=".RecordActivity" />
         <activity android:name=".RecordDetailActivity" />
         <activity android:name=".RecordChoiceActivity" />
-
         <service android:name=".StepsTrackerService" />
-
         <activity android:name=".MyProfileActivity" />
         <activity android:name=".MyAccountActivity" />
         <activity android:name=".HistoryActivity" />
         <activity android:name=".PasswordActivity" />
         <activity android:name=".VisitActivity" />
+        <activity android:name=".VisitlistActivity" />
+
     </application>
 
 </manifest>

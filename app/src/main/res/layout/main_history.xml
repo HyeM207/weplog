@@ -41,7 +41,7 @@
 
 
                 <TextView
-                    android:id="@+id/textView1"
+                    android:id="@+id/text_km"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="21dp"
@@ -64,7 +64,7 @@
                     app:layout_constraintTop_toBottomOf="@id/textView9" />
 
                 <TextView
-                    android:id="@+id/textView3"
+                    android:id="@+id/text_time"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
@@ -73,7 +73,7 @@
                     android:textColor="@color/white"
                     android:textStyle="bold"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/textView1" />
+                    app:layout_constraintTop_toBottomOf="@id/text_km" />
 
                 <TextView
                     android:id="@+id/textView4"
@@ -87,7 +87,7 @@
                     app:layout_constraintTop_toBottomOf="@id/textView2" />
 
                 <TextView
-                    android:id="@+id/textView5"
+                    android:id="@+id/text_plog"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
@@ -96,7 +96,7 @@
                     android:textColor="@color/white"
                     android:textStyle="bold"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/textView3" />
+                    app:layout_constraintTop_toBottomOf="@id/text_time" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
