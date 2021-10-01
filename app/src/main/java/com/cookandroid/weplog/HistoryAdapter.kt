@@ -11,14 +11,12 @@ import kotlinx.android.synthetic.main.history_item.view.*
 
 class HistoryAdapter(): RecyclerView.Adapter<HistoryAdapter.HistoryViewHolder>(){
 
-    var titles = arrayOf("9월 25일", "9월 20일", "9월 19일", "9월 15일", "9월 10일")
-    var details = arrayOf("Item one", "Item two", "Item three", "Item four", "Itme five")
 
-    var images = intArrayOf(R.drawable.ic_launcher_foreground,
-        R.drawable.ic_launcher_foreground,
-        R.drawable.ic_launcher_foreground,
-        R.drawable.ic_launcher_foreground,
-        R.drawable.ic_launcher_foreground)
+    private var historyList =  mutableListOf<History>()
+
+    fun setListData(data:MutableList<History>){
+        historyList = data
+    }
 
 
     class HistoryViewHolder(itemview: View) : RecyclerView.ViewHolder(itemview) {
@@ -36,11 +34,19 @@ class HistoryAdapter(): RecyclerView.Adapter<HistoryAdapter.HistoryViewHolder>()
     }
 
     override fun onBindViewHolder(holder: HistoryViewHolder, position: Int) {
-        holder.historydate.setText(titles.get(position))
-        holder.historykm.setText(details.get(position))
+
+        holder.historystarttime.text = historyList[position].startTime
+        holder.historyendtime.text = historyList[position].endTime
+        holder.historyruntime.text = historyList[position].time
+        holder.historydate.text = String.format("%s월 %s일", historyList[position].month, historyList[position].day)
+        holder.historykm.text = historyList[position].distance
+
     }
 
     override fun getItemCount(): Int {
-        return titles.size
+        return historyList.size
     }
+
+
+
 }

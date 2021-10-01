@@ -230,16 +230,20 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
 
             var Record = Record()
             //db 저장
-            Record.distance= (distanceSum*0.001).toFloat()
+
+//            Record.distance= (distanceSum*0.001).toFloat()
+            Record.distance = String.format("%.2f", distanceSum*0.001)
             Record.time=String.format("%02d:%02d:%02d", hour, min, sec)
             var RecordValues = Record.toMap()
+            Log.i("firebase", "time : $sec")
             pushRef.child("record").setValue(RecordValues)
             pushRef.child("time/endTime").setValue("$endTimeString")
             map_km.text="0.00km"
-
-
-
-
+            time=0
+            hour=0
+            min=0
+            sec=0
+            map_time.text=String.format("%02d:%02d:%02d", hour, min, sec)
 
 
 
@@ -328,11 +332,11 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
 
     private fun endTimer(){
         timerTask?.cancel()
-        time=0
-        hour=0
-        min=0
-        sec=0
-        map_time.text=String.format("%02d:%02d:%02d", hour, min, sec)
+//        time=0
+//        hour=0
+//        min=0
+//        sec=0
+//        map_time.text=String.format("%02d:%02d:%02d", hour, min, sec)
 //        map_time.text="00:00:00"
     }
 

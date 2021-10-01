@@ -22,7 +22,10 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
         android:layout_marginEnd="25dp"
+        android:backgroundTint="@color/white"
+        android:textColor="@color/black"
         android:text="전체보기"
+        android:elevation="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
