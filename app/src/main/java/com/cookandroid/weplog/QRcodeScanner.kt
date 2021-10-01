@@ -17,11 +17,17 @@ class QRcodeScanner : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.qrcode_scanner)
 
-        initQRcodeScanner()
+
+        if (intent.hasExtra("page")){
+            pageName = intent.getStringExtra("page").toString()
+            Toast.makeText(this, pageName +  "페이지 이름", Toast.LENGTH_SHORT).show()
+            initQRcodeScanner(pageName)
+        }
+
 
     }
 
-    private fun initQRcodeScanner() {
+    private fun initQRcodeScanner(pageName : String) {
         val integrator  = IntentIntegrator(this)
         integrator.setBeepEnabled(false)  // 소리 설정
         integrator.setOrientationLocked(true) // 세로 가로 모드 고정
@@ -39,10 +45,12 @@ class QRcodeScanner : AppCompatActivity() {
             } else {
 
                 // 페이지 이동
-                var intent = Intent(this, Authentication::class.java)
-                intent.putExtra("data", result.contents.toString())
-                Toast.makeText(this, result.contents.toString() + "내용", Toast.LENGTH_SHORT).show()
-                startActivity(intent)
+                if (pageName.equals("Authentication")) {
+                    var intent = Intent(this, Authentication::class.java)
+                    intent.putExtra("data", result.contents.toString())
+                    Toast.makeText(this, result.contents.toString() + "내용", Toast.LENGTH_SHORT).show()
+                    startActivity(intent)
+                }
 
             }
         } else {

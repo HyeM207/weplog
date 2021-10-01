@@ -99,6 +99,7 @@ class Authentication : AppCompatActivity() {
         // 1단계. 인증하기 버튼
         auth_layoutStep1.setOnClickListener {
             val intent = Intent(this, QRcodeScanner::class.java)
+            intent.putExtra("page","Authentication")
             startActivity(intent)
         }
 
