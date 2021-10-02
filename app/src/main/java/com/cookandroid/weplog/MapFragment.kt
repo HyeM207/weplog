@@ -242,6 +242,14 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
             Log.i("firebase", "time : $sec")
             pushRef.child("record").setValue(RecordValues)
             pushRef.child("time/endTime").setValue("$endTimeString")
+            var plogkey=pushRef.key
+//            database.child("user/$uid/visit/서울특별시/노원구/월계2동 845-13/count").setValue("0")
+            database.child("user/$uid/visit/서울특별시/도봉구/쌍문1동 삼양로144길/count").setValue("0")
+            database.child("user/$uid/visit/서울특별시/도봉구/방학3 501-9/count").setValue("0")
+            database.child("user/$uid/visit/경기도/고양시/덕양구 흥도동/count").setValue("0")
+
+
+
             map_km.text="0.00km"
             time=0
             hour=0
@@ -417,8 +425,10 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
             builder.setCancelable(false) //외부 레이아웃 클릭시도 팝업창이 사라지지않게 설정
 
             builder.setPositiveButton("네", DialogInterface.OnClickListener { dialog, which ->
+
                 var intent = Intent(activity, Authentication::class.java)
                 intent.putExtra("pushRefKey",pushRefKey)
+                Log.i("firebase", "check pushrefkey in mapfragment : $pushRefKey")
                 startActivity(intent)
             })
             builder.setNegativeButton("아니오", DialogInterface.OnClickListener { dialog, which ->

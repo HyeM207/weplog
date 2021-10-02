@@ -1,8 +1,9 @@
 package com.cookandroid.weplog
 
 data class VisitArea(
-    var areaname: String = "",
-    var trashname: String = "",
-    var isExpanded: Boolean = false,
+    var bigarea: String = "",
+    var trasharea: String = "",
+    var middlearea: String = "",
+    var count : Int = 0
 
     )
