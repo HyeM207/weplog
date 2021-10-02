@@ -18,16 +18,11 @@ class QRcodeScanner : AppCompatActivity() {
         setContentView(R.layout.qrcode_scanner)
 
 
-
-
-
         if (intent.hasExtra("page")){
-
             pageName = intent.getStringExtra("page").toString()
             Toast.makeText(this, pageName +  "페이지 이름", Toast.LENGTH_SHORT).show()
             initQRcodeScanner(pageName)
         }
-
 
 
     }
@@ -49,8 +44,6 @@ class QRcodeScanner : AppCompatActivity() {
                 finish()
             } else {
 
-                //Toast.makeText(this, pageName +"페이지 이름", Toast.LENGTH_SHORT).show()
-
                 // 페이지 이동
                 if (pageName.equals("Authentication")) {
                     var intent = Intent(this, Authentication::class.java)
@@ -58,13 +51,6 @@ class QRcodeScanner : AppCompatActivity() {
                     Toast.makeText(this, result.contents.toString() + "내용", Toast.LENGTH_SHORT).show()
                     startActivity(intent)
                 }
-                else if (pageName.equals("MapFragment")){
-                    var intent = Intent(this, NavigationActivity::class.java)
-                    intent.putExtra("data", result.contents.toString())
-                    Toast.makeText(this, result.contents.toString() + "내용", Toast.LENGTH_SHORT).show()
-                    startActivity(intent)
-                }
-
 
             }
         } else {

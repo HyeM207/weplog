@@ -18,8 +18,9 @@ class Repo_all {
                 if (snapshot.exists()) {
                     for (userSnapshot in snapshot.children) {
                         val getData = userSnapshot.getValue(Post::class.java)
-                        postList.add(getData!!)
-
+                        if (getData?.isView == true) {
+                            postList.add(getData!!)
+                        }
                         mutableData.value = postList
                     }
                 }

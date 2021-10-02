@@ -21,10 +21,11 @@ class Repo_noncertified {
                 if (snapshot.exists()) {
                     for (userSnapshot in snapshot.children) {
                         val getData = userSnapshot.getValue(Post::class.java)
-                        if (getData?.certified == false) { // 인증된 글만
-                            postList.add(getData!!)
+                        if (getData?.isView == true) {
+                            if (getData?.certified == false) { // 인증된 글만
+                                postList.add(getData!!)
+                            }
                         }
-
                         mutableData.value = postList
                     }
                 }

@@ -194,6 +194,15 @@ class ComDetail : AppCompatActivity() {
                                                     .setMessage("게시물 삭제 시 복구 불가능합니다. 삭제하시겠습니까?")
                                                     .setPositiveButton("삭제", DialogInterface.OnClickListener { dialog, which ->
 
+                                                        // storage에 있는 사진 삭제
+                                                        getData?.photoUrl?.let { it1 ->
+                                                            Firebase.storage.reference.child("community/$it1").delete().addOnSuccessListener {
+                                                                Log.e("delete", "삭제 성공!")
+                                                            }.addOnFailureListener {
+                                                                Log.e("delete", "삭제 실패!"+it1)
+                                                            }
+                                                        }
+
                                                         // community DB 게시물 삭제
                                                         var postRef = getData?.postId?.let { it1 ->
                                                             Firebase.database.getReference("community").child(it1)
@@ -206,6 +215,8 @@ class ComDetail : AppCompatActivity() {
                                                         var userRef =  Firebase.database.getReference("users").child(user?.uid.toString()).child("posts").child(getData?.postId.toString())
                                                         userRef.setValue(null)
 
+                                                        var intent = Intent(this@ComDetail, NavigationActivity::class.java)
+                                                        startActivity(intent)
                                                     })
                                                     .setNegativeButton("취소", DialogInterface.OnClickListener { dialog, which ->
                                                     })
@@ -334,7 +345,7 @@ class ComDetail : AppCompatActivity() {
         var database = Firebase.database.reference
 
 
-        Log.e("reports", "신고 함수 안")
+        //Log.e("reports", "신고 함수 안")
         postRef.runTransaction(object : Transaction.Handler {
             override fun doTransaction(mutableData: MutableData): Transaction.Result {
                 val p = mutableData.getValue(Post::class.java)
@@ -357,26 +368,27 @@ class ComDetail : AppCompatActivity() {
                         toastM = "신고 완료"
 
                         if (p.reportCnt!! == 3){
-                            // 데이터 복제
-                            var post = Post()
-
-                            post.postId = p.postId
-                            post.writerId = p.writerId
-                            post.timestamp = p.timestamp
-                            post.reportCnt = p.reportCnt
-                            post.writerNick = p.writerNick
-                            post.photoUrl = p.photoUrl
-                            post.heartCount = p.heartCount
-                            post.certified = p.certified
-                            post.authCount = p.authCount
-                            post.auths = p.auths
-                            post.reports = p.reports
-
-                            var postValues : Map<String, Any?> = post.toMap()
-                            p.postId?.let { database.child("reports").child(it).setValue(postValues) }
-
-                            // 데이터 삭제
-                            postRef.setValue(null)
+                                p.isView = false  // 안 보이게 설정
+//                            // 데이터 복제
+//                            var post = Post()
+//
+//                            post.postId = p.postId
+//                            post.writerId = p.writerId
+//                            post.timestamp = p.timestamp
+//                            post.reportCnt = p.reportCnt
+//                            post.writerNick = p.writerNick
+//                            post.photoUrl = p.photoUrl
+//                            post.heartCount = p.heartCount
+//                            post.certified = p.certified
+//                            post.authCount = p.authCount
+//                            post.auths = p.auths
+//                            post.reports = p.reports
+//
+//                            var postValues : Map<String, Any?> = post.toMap()
+//                            p.postId?.let { database.child("reports").child(it).setValue(postValues) }
+//
+//                            // 데이터 삭제
+//                            postRef.setValue(null)
                         }
 
                     }

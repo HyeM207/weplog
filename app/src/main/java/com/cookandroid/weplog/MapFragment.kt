@@ -39,6 +39,8 @@ import java.util.*
 
 class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.MapViewEventListener{
 
+    // authentication으로 보내는 key 값
+    private var pushRefKey : String = ""
 
     private val ACCESS_FINE_LOCATION = 1000     // Request Code
 
@@ -164,7 +166,6 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
         }
 
         map_btnstart.setOnClickListener {
-
             Toast.makeText(activity, "start click listener", Toast.LENGTH_SHORT).show()
             editor.putString("isStarted", "Yes")
             editor.commit()
@@ -177,6 +178,7 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
             var date=Date(now)
             var startdateFormat=SimpleDateFormat("k:mm")
             var startTimeString=startdateFormat.format(date)
+
 
 
             timerIsRunning = !timerIsRunning
@@ -428,6 +430,7 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
 
             builder.setPositiveButton("네", DialogInterface.OnClickListener { dialog, which ->
                 var intent = Intent(activity, Authentication::class.java)
+                intent.putExtra("pushRefKey",pushRefKey)
                 startActivity(intent)
             })
             builder.setNegativeButton("아니오", DialogInterface.OnClickListener { dialog, which ->

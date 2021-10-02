@@ -21,9 +21,11 @@ class Repo_Mypost {
                 if (snapshot.exists()) {
                     for (userSnapshot in snapshot.children) {
                         val getData = userSnapshot.getValue(Post::class.java)
-                        if (getData?.writerId.equals(user?.uid.toString())) { // 현재 사용자의 글만
-                            Log.e("같음", getData?.writerId.toString())
-                            postList.add(getData!!)
+                        if (getData?.isView == true) {
+                            if (getData?.writerId.equals(user?.uid.toString())) { // 현재 사용자의 글만
+                                Log.e("같음", getData?.writerId.toString())
+                                postList.add(getData!!)
+                            }
                         }
 
                         mutableData.value = postList
