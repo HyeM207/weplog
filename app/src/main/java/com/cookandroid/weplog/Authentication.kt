@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
@@ -82,6 +83,9 @@ class Authentication : AppCompatActivity() {
             auth_step1TPlace.visibility = View.VISIBLE
 
             trashPlace = intent.getStringExtra("trashplace").toString()
+            auth_step1TPlace.setSingleLine(false)
+            auth_step1TPlace.setTextSize(16F)
+            auth_step1TPlace.setTextColor(Color.parseColor("#000000"));
             auth_step1TPlace.text = trashPlace
             authStep1 = true
             auth_layoutStep1.isClickable = false
@@ -100,6 +104,7 @@ class Authentication : AppCompatActivity() {
         auth_layoutStep1.setOnClickListener {
             val intent = Intent(this, QRcodeScanner::class.java)
             intent.putExtra("page","Authentication")
+            intent.putExtra("pushRefKey", pushRefKey)
             startActivity(intent)
         }
 
@@ -241,18 +246,6 @@ class Authentication : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-//        auth_step2Preview = findViewById(R.id.auth_step2Preview)
-//        auth_step2Preview.visibility = View.VISIBLE
-//
-//        val REQUEST_IMAGE_CAPTURE = 1
-//
-//        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-//            //Toast.makeText(this, "사진 Preview 함수 작동", Toast.LENGTH_SHORT).show()
-//            val imageBitmap = data?.extras?.get("data") as Bitmap
-//            auth_step2Preview.setImageBitmap(imageBitmap)
-//            authStep2 = true
-//            checkAuth()
-//        }
         val REQUEST_IMAGE_CAPTURE = 1
 
         auth_step2Preview = findViewById(R.id.auth_step2Preview)

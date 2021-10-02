@@ -12,6 +12,7 @@ class QRcodeScanner : AppCompatActivity() {
     // private val MapFragment by lazy { MapFragment() }
 
     lateinit var pageName : String
+    lateinit var pushRefKey : String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,8 +22,14 @@ class QRcodeScanner : AppCompatActivity() {
         if (intent.hasExtra("page")){
             pageName = intent.getStringExtra("page").toString()
             Toast.makeText(this, pageName +  "페이지 이름", Toast.LENGTH_SHORT).show()
+
+            if (intent.hasExtra("pushRefKey")){
+                pushRefKey = intent.getStringExtra("pushRefKey").toString()
+            }
+
             initQRcodeScanner(pageName)
         }
+
 
 
     }
@@ -47,8 +54,9 @@ class QRcodeScanner : AppCompatActivity() {
                 // 페이지 이동
                 if (pageName.equals("Authentication")) {
                     var intent = Intent(this, Authentication::class.java)
-                    intent.putExtra("data", result.contents.toString())
-                    Toast.makeText(this, result.contents.toString() + "내용", Toast.LENGTH_SHORT).show()
+                    intent.putExtra("trashplace", result.contents.toString())
+                    intent.putExtra("pushRefKey", pushRefKey)
+                    //Toast.makeText(this, result.contents.toString() + "내용", Toast.LENGTH_SHORT).show()
                     startActivity(intent)
                 }
 

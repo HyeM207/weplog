@@ -82,7 +82,7 @@ class MyAccountActivity:AppCompatActivity() {
             .setMessage("탈퇴 시 복구 불가능합니다. 탈퇴를 원하시면 \"탈퇴\"를 입력해주세요")
             .setPositiveButton("확인") { dialog, which ->
                 val withdrawal_edittext: EditText = view.findViewById(R.id.withdrawal_edittext)
-                var check_str = withdrawal_edittext.text.toString()
+                var check_str = withdrawal_edittext.text.toString().trim()
                 if(check_str.equals("탈퇴")) {
                     Toast.makeText(this, "탈퇴 성공", Toast.LENGTH_SHORT).show()
 
@@ -113,8 +113,7 @@ class MyAccountActivity:AppCompatActivity() {
                                     }
 
                                 // 2. community의 post 객체 삭제
-                                var postRef =
-                                    Firebase.database.getReference("community").child(post.key)
+                                var postRef = Firebase.database.getReference("community").child(post.key)
 //                            Log.e("post",postRef.toString())
                                 postRef.setValue(null)
                                 Log.e("post", post.key)
