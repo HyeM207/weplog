@@ -94,7 +94,7 @@ class Authentication : AppCompatActivity() {
 
         if (intent.hasExtra("pushRefKey")){
             pushRefKey = intent.getStringExtra("pushRefKey").toString()
-            Log.i("firebase", "$pushRefKey")
+            Log.e("1002", "$pushRefKey exists" )
         }
 
         // 인증 버튼 visible로 바꾸기
@@ -106,6 +106,7 @@ class Authentication : AppCompatActivity() {
             val intent = Intent(this, QRcodeScanner::class.java)
             intent.putExtra("page","Authentication")
             intent.putExtra("pushRefKey", pushRefKey)
+            Log.e("1002", pushRefKey+"QR 페이지 이동 전 ")
             startActivity(intent)
         }
 

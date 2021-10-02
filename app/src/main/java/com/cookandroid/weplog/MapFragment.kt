@@ -236,7 +236,7 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
             //var intent = Intent(activity, Authentication::class.java)
             //startActivity(intent)
 
-            endAlertDialog()
+
 
 
             var now=System.currentTimeMillis()
@@ -259,7 +259,7 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
             database.child("user/$uid/visit/서울특별시/도봉구/쌍문1동 삼양로144길/count").setValue("0")
             database.child("user/$uid/visit/서울특별시/도봉구/방학3 501-9/count").setValue("0")
             database.child("user/$uid/visit/경기도/고양시/덕양구 흥도동/count").setValue("0")
-
+            pushRefKey = pushRef.key.toString()
 
 
             map_km.text="0.00km"
@@ -269,7 +269,7 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
             sec=0
             map_time.text=String.format("%02d:%02d:%02d", hour, min, sec)
 
-
+            endAlertDialog()
 
         }
 
@@ -440,7 +440,7 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
 
                 var intent = Intent(activity, Authentication::class.java)
                 intent.putExtra("pushRefKey",pushRefKey)
-                Log.i("firebase", "check pushrefkey in mapfragment : $pushRefKey")
+                Log.i("1002", "check pushrefkey in mapfragment : $pushRefKey")
                 startActivity(intent)
             })
             builder.setNegativeButton("아니오", DialogInterface.OnClickListener { dialog, which ->
