@@ -94,6 +94,7 @@ class Authentication : AppCompatActivity() {
 
         if (intent.hasExtra("pushRefKey")){
             pushRefKey = intent.getStringExtra("pushRefKey").toString()
+            Log.i("firebase", "$pushRefKey")
         }
 
         // 인증 버튼 visible로 바꾸기
@@ -131,7 +132,8 @@ class Authentication : AppCompatActivity() {
         // 최종 인증
         auth_layoutUpload.setOnClickListener {
             uploadImage(photoURI)
-            uploadPost(trashPlace)
+            Log.i("firebase", "업로드 함수 실행 전에 플로그객체 키 값 확인 $pushRefKey")
+            uploadPost(trashPlace, pushRefKey)
         }
 
         // skip 버튼
@@ -142,7 +144,7 @@ class Authentication : AppCompatActivity() {
 
     }
 
-    private fun uploadPost(trashPlace : String) {
+    private fun uploadPost(trashPlace : String, plogkey:String) {
 
         val user = Firebase.auth.currentUser
         database = Firebase.database.reference
@@ -181,7 +183,8 @@ class Authentication : AppCompatActivity() {
 
 
                     // 위치 정보 추가
-                    pushRef=database.child("user/${user.uid}/Pedometer/date").child(todayDate).child("$pushRefKey/record")
+                    Log.i("firebase", "업로드 하기전에 플로그객체 키 값 확인 $plogkey")
+                    pushRef=database.child("user/${user.uid}/Pedometer/date").child(todayDate).child("$plogkey/record")
                     pushRef.child("trashPlace").setValue(trashPlace)
                 }
 

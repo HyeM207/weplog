@@ -12,6 +12,7 @@ import android.location.Geocoder
 import android.location.Location
 import android.location.LocationManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
@@ -106,7 +107,8 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
             savedInstanceState: Bundle?
     ): View? {
 
-
+        //pedometer Service
+        var mStepsAnalysisIntent = Intent(activity, StepsTrackerService::class.java)
         var view = inflater.inflate(R.layout.map, container, false)
         map_view=view.findViewById(R.id.map_view)
         auth = FirebaseAuth.getInstance()
@@ -190,17 +192,27 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
             Log.i(LOG_TAG, String.format("startbtn click current location (%f,%f)", currentPointGeo.latitude, currentPointGeo.longitude))
 
             pushRef=database.child("user/$uid/Pedometer/date").child(todayDate).push()
-            pushRefKey = pushRef.key.toString() // authentication으로 넘겨줄 값
-            pushRef.child("walkstate/type").setValue("0")
+            //pushRef.child("step/type").setValue("0")
             pushRef.child("time/startTime").setValue("$startTimeString")
+            println("pp : " + pushRef.key)
 
+            //pedometer service start
+            mStepsAnalysisIntent.putExtra("start", pushRef.key.toString())
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                requireActivity().startForegroundService(mStepsAnalysisIntent) //안드로이드 8.0이상부터는 startService사용이 어렵다고 함
+            } else {
+                requireActivity().startService(mStepsAnalysisIntent)
+            }
 
 //            startAlertDialog()
-
         }
 
 
         map_btnend.setOnClickListener {
+
+            //pedometer Service 중단
+            requireActivity().stopService(mStepsAnalysisIntent)
+
             editor.putString("isStarted", "No")
             editor.remove("isStoped")
             editor.commit()
@@ -242,6 +254,14 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
             Log.i("firebase", "time : $sec")
             pushRef.child("record").setValue(RecordValues)
             pushRef.child("time/endTime").setValue("$endTimeString")
+            var plogkey=pushRef.key
+//            database.child("user/$uid/visit/서울특별시/노원구/월계2동 845-13/count").setValue("0")
+            database.child("user/$uid/visit/서울특별시/도봉구/쌍문1동 삼양로144길/count").setValue("0")
+            database.child("user/$uid/visit/서울특별시/도봉구/방학3 501-9/count").setValue("0")
+            database.child("user/$uid/visit/경기도/고양시/덕양구 흥도동/count").setValue("0")
+
+
+
             map_km.text="0.00km"
             time=0
             hour=0
@@ -417,8 +437,10 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
             builder.setCancelable(false) //외부 레이아웃 클릭시도 팝업창이 사라지지않게 설정
 
             builder.setPositiveButton("네", DialogInterface.OnClickListener { dialog, which ->
+
                 var intent = Intent(activity, Authentication::class.java)
                 intent.putExtra("pushRefKey",pushRefKey)
+                Log.i("firebase", "check pushrefkey in mapfragment : $pushRefKey")
                 startActivity(intent)
             })
             builder.setNegativeButton("아니오", DialogInterface.OnClickListener { dialog, which ->

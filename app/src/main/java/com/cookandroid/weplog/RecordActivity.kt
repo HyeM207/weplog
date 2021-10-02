@@ -4,8 +4,11 @@ import android.app.Activity
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
+import android.content.Intent.getIntent
+import android.content.Intent.getIntentOld
 import android.content.pm.ActivityInfo
 import android.graphics.Color
 import android.hardware.Sensor
@@ -48,6 +51,7 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.internal.ContextUtils.getActivity
+import kotlin.collections.HashMap
 
 
 const val WALKING = 0
@@ -166,13 +170,13 @@ class RecordActivity : AppCompatActivity(), bottomsheetFragment.onDataPassListen
         chart_cardview = findViewById(R.id.rec_graph_cardview)
         rec_btn!!.text = currentYear + "년  " + currentMonth + "월"
 
-        var mStepsAnalysisIntent = Intent(this, StepsTrackerService::class.java)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            this.startForegroundService(mStepsAnalysisIntent) //안드로이드 8.0이상부터는 startService사용이 어렵다고 함
-
-        } else {
-            this.startService(mStepsAnalysisIntent)
-        }
+//        var mStepsAnalysisIntent = Intent(this, StepsTrackerService::class.java)
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            this.startForegroundService(mStepsAnalysisIntent) //안드로이드 8.0이상부터는 startService사용이 어렵다고 함
+//
+//        } else {
+//            this.startService(mStepsAnalysisIntent)
+//        }
 
         calculateDataMatrix()
 
@@ -194,13 +198,61 @@ class RecordActivity : AppCompatActivity(), bottomsheetFragment.onDataPassListen
         barchart!!.setOnChartValueSelectedListener(object : OnChartValueSelectedListener{
             override fun onValueSelected(e: Entry?, h: Highlight?) {
                 val x = e!!.x.toInt()
-                val y = e!!.y
+                val y = e!!.y.toInt()
+                var step_list = ArrayList<HashMap<String, String>>()
+
                 var intent = Intent(this@RecordActivity, RecordDetailActivity::class.java)
                 intent.putExtra("day", x.toString())
                 intent.putExtra("month", record_month.toString())
                 intent.putExtra("year", record_year.toString())
+                intent.putExtra("step", y)
+                var date = record_year.toString() + "/" + record_month.toString() + "/" + x.toString()
                 println("click chart : " + x + "/" + record_month + "/" + record_year)
-                startActivity(intent)
+                database.child("user").child(user!!.uid).child("Pedometer").child("date").child(date).get().addOnSuccessListener {
+                    for(i in it.children){
+                        for ( v in i.child("step").children){
+                            //println("ii : " + v.value)
+                            var t_hashMap = HashMap<String, String>()
+                            for ( h in v.children){
+                                t_hashMap.put(h.key.toString(), h.value.toString())
+                            }
+                            //println("hh : " + t_hashMap.toString())
+                            step_list.add(t_hashMap)
+                        }
+                    }
+                    println("step_list : " + step_list)
+                }.addOnFailureListener{
+
+                }
+                intent.putExtra("step_list", step_list)
+                database.child("user").child(user!!.uid).child("Pedometer").child("date").get().addOnSuccessListener {
+                    //if (it.)
+                }.addOnFailureListener {  }
+                database.addValueEventListener(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        for (postSnapshot in snapshot.children) {
+                            if (postSnapshot.key == "user"){
+                                for (shot in postSnapshot.children){
+                                    if (shot.key == Firebase.auth.currentUser!!.uid) {
+
+                                        if ( shot.child("Pedometer").child("date").child(date).value == null ){
+                                            println("null")
+                                        } else {
+                                            println("yes")
+                                            startActivity(intent)
+                                        }
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        Log.w(ContentValues.TAG, "loadPost:onCancelled", error.toException())
+                    }
+
+                })
             }
 
             override fun onNothingSelected() {
@@ -262,8 +314,20 @@ class RecordActivity : AppCompatActivity(), bottomsheetFragment.onDataPassListen
                                 var date: ArrayList<String> = ArrayList()
                                 var datecount : ArrayList<Int> = ArrayList()
                                 for (data in snapshots.child("Pedometer").child("date").child(month).children){
-                                    date.add(data.key.toString())
-                                    datecount.add(data.childrenCount.toInt())
+                                    println("dd : " + data.value.toString())
+                                    var step_count = 0
+                                    for (d in data.children) {
+                                        println("ddd : " + d.value.toString()) // 각 객체별 항목
+                                        for ( s in d.children ){
+                                            if(s.key == "step"){
+                                                step_count = step_count + s.childrenCount.toInt()
+                                            }
+                                        }
+                                    }
+                                    date.add(data.key.toString()) // 일
+                                    datecount.add(step_count) // 당일 걸음 수
+                                    //datecount.add(data.childrenCount.toInt())
+                                    println("step : " + step_count + "/" + data.key.toString() + "일")
                                     //kcal!!.text = data.childrenCount.toString()
                                 }
 //                                for (i in 0..date.size-1){
@@ -331,8 +395,12 @@ class StepsTrackerService : Service() {
         const val CHANNEL_ID = "primary_notification_channel"
     }
 
-    override fun onBind(intent: Intent?): IBinder? { return null }
+    override fun onBind(intent: Intent?): IBinder? {
 
+        return null
+    }
+
+    var step_id : String ?= null
     var mSensorManager : SensorManager?= null
     var mStepDetectorSensor : Sensor?= null
     var mAccelerometerSensor : Sensor?= null
@@ -358,9 +426,13 @@ class StepsTrackerService : Service() {
         notificationManager.createNotificationChannel(notificationChannel)
     }
 
+
     override fun onCreate() {
         super.onCreate()
         println("onCreate_Service")
+
+        //Toast.makeText(this, step_id, Toast.LENGTH_SHORT).show()
+
 
         database = Firebase.database.reference
 
@@ -393,6 +465,8 @@ class StepsTrackerService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        step_id = intent!!.getStringExtra("start")
+        Toast.makeText(this, step_id, Toast.LENGTH_SHORT).show()
         return START_STICKY // START_STICKY 상수값을 이용하여 혹시 서비스가 종료되더라도 다시 자동으로 실행되도록 할 수 있다.
     }
 
@@ -502,7 +576,7 @@ class StepsTrackerService : Service() {
                     (mRawDataList.get(i).time!! / 1000000L) + timeoffsetValue!!
 
             }
-
+            //println("step_id" + step_id)
             findHighPeaks()
             removeClosePeaks()
             findStepTypeAndStoreInDB()
@@ -560,7 +634,7 @@ class StepsTrackerService : Service() {
         var counts : Int = 0
         fun findStepTypeAndStoreInDB() { // db에 넣는 부분
             println("findStepTypeAndStoreInDB")
-
+            println("step_id" + step_id)
             var mCalendar = Calendar.getInstance()
             var todayDate =
                 (mCalendar.get(Calendar.YEAR)).toString() + "/" + (mCalendar.get(Calendar.MONTH) + 1).toString() + "/" + (mCalendar.get(
@@ -570,54 +644,61 @@ class StepsTrackerService : Service() {
 
             val user = Firebase.auth.currentUser
 
-            database.child("user").child(user!!.uid).child("Pedometer").get().addOnSuccessListener {
-                //Log.i("firebase", "Got value ${it.value}")
-                println("Got value ${it.value}")
-                //counts = 0
-                counts = it!!.childrenCount.toInt()
-                println("countss : " + counts)
-                database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).get().addOnSuccessListener {
-                    //Log.i("firebase", "Got value ${it.value}")
-                    println("Got value ${it.value}")
-                    //counts = 0
+//            database.child("user").child(user!!.uid).child("Pedometer").get().addOnSuccessListener {
+//                //Log.i("firebase", "Got value ${it.value}")
+//                println("Got value ${it.value}")
+//                //counts = 0
+//                counts = it!!.childrenCount.toInt()
+//                println("countss : " + counts)
+//                database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).get().addOnSuccessListener {
+//                    //Log.i("firebase", "Got value ${it.value}")
+//                    println("Got value ${it.value}")
+//                    //counts = 0
+//                    counts = it!!.childrenCount.toInt()
+//                    println("counts : " + counts)
+//                }.addOnFailureListener{
+//                    database.child("user").child(user!!.uid).child("Pedometer").child("date").setValue(todayDate)
+//                    counts = 0
+//                    println(":counts초기")
+//                }
+//            }.addOnFailureListener{
+//                database.child("user").child(user!!.uid).child("Pedometer").child("date").setValue(todayDate)
+//                counts = 0
+//                println("counts초기")
+//            }
+            database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(step_id.toString()).get().addOnSuccessListener {
+                println("counts초기 아님")
+                database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(step_id.toString()).child("step").get().addOnSuccessListener {
+                    println("counts초기 아님")
                     counts = it!!.childrenCount.toInt()
                     println("counts : " + counts)
                 }.addOnFailureListener{
-                    database.child("user").child(user!!.uid).child("Pedometer").child("date").setValue(todayDate)
-                    counts = 0
-                    println(":counts초기")
+                    println("counts초기")
                 }
             }.addOnFailureListener{
-                database.child("user").child(user!!.uid).child("Pedometer").child("date").setValue(todayDate)
+                //database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(step_id.toString()).setValue("step")
                 counts = 0
                 println("counts초기")
             }
-//            database.child(user!!.uid).child("Pedometer").child("date").child(todayDate).get().addOnSuccessListener {
-//                Log.i("firebase", "Got value ${it.value}")
-//                println("Got value ${it.value}")
-//            }.addOnFailureListener{
-//                database.child("Pedometer").child("date").setValue(todayDate)
-//                count = 0
-//            }
-            //database.child("Pedometer").child("date").setValue(todayDate)
-            println(size)
+//            println(size)
             for (i in 0..(size - 1)) {
                 if (mHighestPeakList.get(i).isTruePeak) {
                     if (mHighestPeakList.get(i).value!! > RUNNINGPEAK) {
 
-                        database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).get().addOnSuccessListener {
+                        database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(step_id.toString()).child("step").get().addOnSuccessListener {
                             Log.i("firebase", "Got value ${it.value}")
                             counts = it!!.childrenCount.toInt()
                         }.addOnFailureListener{
                             Log.e("firebase", "Error getting data", it)
+                            //counts = 0
                         }
                         if(counts != null){
 
                             counts = counts!! + 1
                             println("counts : " + counts)
-                            database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(counts.toString()).child("type").setValue(RUNNING)
-                            database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(counts.toString()).child("peak").setValue(mHighestPeakList.get(i).value!!.toInt())
-                            database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(counts.toString()).child("time").setValue(mHighestPeakList.get(i).time!!)
+                            database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(step_id.toString()).child("step").child(counts.toString()).child("type").setValue(RUNNING)
+                            database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(step_id.toString()).child("step").child(counts.toString()).child("peak").setValue(mHighestPeakList.get(i).value!!.toInt())
+                            database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(step_id.toString()).child("step").child(counts.toString()).child("time").setValue(mHighestPeakList.get(i).time!!)
                             println("running" + mHighestPeakList.get(i).value!!.toString())
                         }
 
@@ -632,9 +713,9 @@ class StepsTrackerService : Service() {
                             if(counts != null){
                                 counts = counts!! + 1
                                 println("counts : " + counts)
-                                database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(counts.toString()).child("type").setValue(JOGGING)
-                                database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(counts.toString()).child("peak").setValue(mHighestPeakList.get(i).value!!.toInt())
-                                database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(counts.toString()).child("time").setValue(mHighestPeakList.get(i).time!!)
+                                database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(step_id.toString()).child("step").child(counts.toString()).child("type").setValue(JOGGING)
+                                database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(step_id.toString()).child("step").child(counts.toString()).child("peak").setValue(mHighestPeakList.get(i).value!!.toInt())
+                                database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(step_id.toString()).child("step").child(counts.toString()).child("time").setValue(mHighestPeakList.get(i).time!!)
                                 //mStepsTrackerDBHelper!!.createStepsEntry(mHighestPeakList.get(i).time!!, JOGGING, mHighestPeakList.get(i).value!!.toInt())
                                 println("jogging" + mHighestPeakList.get(i).value!!.toString())
                             }
@@ -649,9 +730,9 @@ class StepsTrackerService : Service() {
                             if(counts != null){
                                 counts = counts!! + 1
                                 println("counts : " + counts)
-                                database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(counts.toString()).child("type").setValue(WALKING)
-                                database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(counts.toString()).child("peak").setValue(mHighestPeakList.get(i).value!!.toInt())
-                                database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(counts.toString()).child("time").setValue(mHighestPeakList.get(i).time!!)
+                                database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(step_id.toString()).child("step").child(counts.toString()).child("type").setValue(WALKING)
+                                database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(step_id.toString()).child("step").child(counts.toString()).child("peak").setValue(mHighestPeakList.get(i).value!!.toInt())
+                                database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).child(step_id.toString()).child("step").child(counts.toString()).child("time").setValue(mHighestPeakList.get(i).time!!)
                                 //mStepsTrackerDBHelper!!.createStepsEntry(mHighestPeakList.get(i).time!!, WALKING, mHighestPeakList.get(i).value!!.toInt())
                                 println("walking" + mHighestPeakList.get(i).value!!.toString())
                             }

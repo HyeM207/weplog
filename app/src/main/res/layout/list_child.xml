@@ -4,19 +4,23 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/area_item_child_container"
     android:layout_width="match_parent"
-    android:layout_height="70dp"
+    android:layout_height="wrap_content"
     android:background="#e8f4f4">
 
     <TextView
         android:id="@+id/child_title"
-        android:textColor="@color/white"
-        android:textSize="18sp"
-        android:gravity="center_vertical"
         android:layout_width="wrap_content"
-        android:layout_height="20dp"
+        android:layout_height="match_parent"
         android:layout_marginLeft="20dp"
         android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:gravity="center_vertical"
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent" />
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
