@@ -12,6 +12,7 @@ import android.location.Geocoder
 import android.location.Location
 import android.location.LocationManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
@@ -106,7 +107,8 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
             savedInstanceState: Bundle?
     ): View? {
 
-
+        //pedometer Service
+        var mStepsAnalysisIntent = Intent(activity, StepsTrackerService::class.java)
         var view = inflater.inflate(R.layout.map, container, false)
         map_view=view.findViewById(R.id.map_view)
         auth = FirebaseAuth.getInstance()
@@ -190,17 +192,27 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
             Log.i(LOG_TAG, String.format("startbtn click current location (%f,%f)", currentPointGeo.latitude, currentPointGeo.longitude))
 
             pushRef=database.child("user/$uid/Pedometer/date").child(todayDate).push()
-            pushRefKey = pushRef.key.toString() // authentication으로 넘겨줄 값
-            pushRef.child("walkstate/type").setValue("0")
+            //pushRef.child("step/type").setValue("0")
             pushRef.child("time/startTime").setValue("$startTimeString")
+            println("pp : " + pushRef.key)
 
+            //pedometer service start
+            mStepsAnalysisIntent.putExtra("start", pushRef.key.toString())
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                requireActivity().startForegroundService(mStepsAnalysisIntent) //안드로이드 8.0이상부터는 startService사용이 어렵다고 함
+            } else {
+                requireActivity().startService(mStepsAnalysisIntent)
+            }
 
 //            startAlertDialog()
-
         }
 
 
         map_btnend.setOnClickListener {
+
+            //pedometer Service 중단
+            requireActivity().stopService(mStepsAnalysisIntent)
+
             editor.putString("isStarted", "No")
             editor.remove("isStoped")
             editor.commit()
