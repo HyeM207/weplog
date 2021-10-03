@@ -49,6 +49,8 @@ class MainFragment : Fragment() {
     private var mCircleProgressBar : CircleProgressBar?= null // 원형 그래프 (오늘의 스텝 수)
     private lateinit var database: DatabaseReference
     private var auth : FirebaseAuth? = null
+    val user = Firebase.auth.currentUser
+
 
     fun update(day : String, month : String, year : String){
         var date = year + "/" + month + "/" + day
@@ -134,7 +136,6 @@ class MainFragment : Fragment() {
         main_timetxt = view.findViewById(R.id.main_timetxt)
 
         // main 페이지 접근 시 로그인 되어 있는지 확인
-        val user = Firebase.auth.currentUser
         if (user == null) {
 //            Toast.makeText(activity, "[Main] user가 null", Toast.LENGTH_SHORT).show()
             var intent = Intent(activity, Login::class.java)
@@ -250,6 +251,37 @@ class MainFragment : Fragment() {
         (requireActivity() as AppCompatActivity).supportActionBar?.show()
 
     }
+
+    fun checkLv(){
+        main_leveltext.text="현재 Yellow 등급입니다."
+
+        // nickname & grade 이미지 설정
+        val userRef = Firebase.database.getReference("users")
+
+        userRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val name = snapshot.child(user?.uid.toString()).child("nickname").value
+                main_nickname.setText(name.toString())
+
+                val grade = snapshot.child(user?.uid.toString()).child("grade").value.toString()
+                Log.e("grade", grade +" grade")
+                when(grade){
+                    "1"-> main_lv.setImageResource(R.drawable.yellow_circle)
+                    "2"-> main_lv.setImageResource(R.drawable.green2_circle)
+                    "3"-> main_lv.setImageResource(R.drawable.blue2_circle)
+                    "4"-> main_lv.setImageResource(R.drawable.red_circle)
+                    "5"-> main_lv.setImageResource(R.drawable.purple2_circle)
+                }
+
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                // Getting Post failed, log a message
+            }
+        })
+
+    }
+
 
 
 
