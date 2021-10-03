@@ -41,8 +41,11 @@ class VisitlistActivity:AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        setContentView(R.layout.visit_list)
         setContentView(R.layout.expandable_list)
+
+        var actionBar = supportActionBar
+        actionBar!!.setTitle("방문 지역 목")
+        actionBar!!.setDisplayHomeAsUpEnabled(true)
 
         expandableListView = findViewById(R.id.expendableList)
         database = Firebase.database.reference

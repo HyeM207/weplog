@@ -44,6 +44,7 @@ class VisitActivity:AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_visit)
+
         visit_mapview.setMapCenterPoint(MapPoint.mapPointWithGeoCoord(36.1648803, 127.4809185), true);
         visit_mapview.setZoomLevel(11, true)
         visit_mapview.currentLocationTrackingMode = MapView.CurrentLocationTrackingMode.TrackingModeOff
@@ -61,6 +62,17 @@ class VisitActivity:AppCompatActivity() {
 
 
 
+    }
+
+
+    override fun onResume() {
+        super.onResume()
+        supportActionBar!!.hide()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        supportActionBar!!.show()
     }
 
     fun setAddress(){

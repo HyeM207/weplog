@@ -27,6 +27,7 @@ class PasswordActivity:AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
         database = Firebase.database.reference
+        supportActionBar!!.hide()
 
 
         btn_pwcheck.setOnClickListener {
@@ -75,6 +76,17 @@ class PasswordActivity:AppCompatActivity() {
 
     }
 
+
+    override fun onResume() {
+        super.onResume()
+        supportActionBar!!.hide()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        supportActionBar!!.show()
+    }
+
     fun pwCheck(pw : String): Boolean{
         //pw 조건 : 숫자/문자/특수문자 2개이상 포함, 8~15자
         return pw.matches("^(?=.*[a-zA-Z0-9])(?=.*[a-zA-Z!@#\$%^&*])(?=.*[0-9!@#\$%^&*]).{8,15}\$".toRegex())
@@ -110,6 +122,8 @@ class PasswordActivity:AppCompatActivity() {
                 }
             }).create().show()
     }
+
+
 
 
 
