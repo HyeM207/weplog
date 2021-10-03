@@ -13,6 +13,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
@@ -28,7 +29,6 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.main.*
-
 
 
 class MainFragment : Fragment() {
@@ -51,6 +51,7 @@ class MainFragment : Fragment() {
         var view = inflater.inflate(R.layout.main, container, false)
 
         auth = FirebaseAuth.getInstance()
+        (requireActivity() as AppCompatActivity).supportActionBar?.hide()
 
 
         main_nickname = view.findViewById(R.id.main_nickname)
@@ -63,7 +64,7 @@ class MainFragment : Fragment() {
         // main 페이지 접근 시 로그인 되어 있는지 확인
         val user = Firebase.auth.currentUser
         if (user == null) {
-            Toast.makeText(activity, "[Main] user가 null", Toast.LENGTH_SHORT).show()
+//            Toast.makeText(activity, "[Main] user가 null", Toast.LENGTH_SHORT).show()
             var intent = Intent(activity, Login::class.java)
             startActivity(intent)
 
@@ -113,9 +114,16 @@ class MainFragment : Fragment() {
         main_logoutBtn.setOnClickListener {
 
             var gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                    .requestIdToken(getString(R.string.default_web_client_id))
-                    .requestEmail()
-                    .build()
+                .requestIdToken("804853471593-vruv3i2eeu2t0n3je5i2np56uh5oevgg.apps.googleusercontent.com")
+                .requestEmail()
+                .build()
+
+
+
+//            var gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+//                    .requestIdToken(getString(R.string.default_web_client_id))
+//                    .requestEmail()
+//                    .build()
 
 
             var googleSignInClient : GoogleSignInClient? = null
@@ -149,6 +157,17 @@ class MainFragment : Fragment() {
         }
 
         return view
+
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        (requireActivity() as AppCompatActivity).supportActionBar?.hide()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        (requireActivity() as AppCompatActivity).supportActionBar?.show()
 
     }
 

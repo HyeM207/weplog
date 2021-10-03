@@ -1,10 +1,13 @@
 package com.cookandroid.weplog
 
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -29,7 +32,6 @@ class SignUp : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.signup)
-        setTitle("회원가입")
 
         database = Firebase.database.reference
         auth = FirebaseAuth.getInstance()
@@ -41,10 +43,11 @@ class SignUp : AppCompatActivity() {
         signup_phone = findViewById(R.id.signup_phone)
         signup_signBtn = findViewById(R.id.signup_signBtn)
 
+        supportActionBar!!.hide()
 
         // 회원가입 절차
         signup_signBtn.setOnClickListener {
-            Toast.makeText(this, "버튼 눌림", Toast.LENGTH_LONG).show()
+//            Toast.makeText(this, "버튼 눌림", Toast.LENGTH_LONG).show()
             var email = signup_email.text.toString()
             var password = signup_password.text.toString()
 
@@ -85,21 +88,31 @@ class SignUp : AppCompatActivity() {
                                   database.updateChildren(UserUpdates)
                                 */
 
-                                Toast.makeText(this, "회원가입 완료", Toast.LENGTH_LONG).show()
+//                                Toast.makeText(this, "회원가입 완료", Toast.LENGTH_LONG).show()
+                                AlertDialog.Builder(this)
+                                    .setTitle("알림")
+                                    .setMessage("회원가입이 완료되었습니다.")
+                                    .setPositiveButton("ok", object : DialogInterface.OnClickListener {
+                                        override fun onClick(dialog: DialogInterface, which: Int) {
+                                            Log.d("MyTag", "positive")
+                                            finish()
+                                            overridePendingTransition(0,0)
+                                        }
+                                    }).create().show()
 
 
-                                if (auth!!.currentUser != null) {
-                                    var intent = Intent(this, NavigationActivity::class.java)
-                                    startActivity(intent)
-                                }
+//                                if (auth!!.currentUser != null) {
+//                                    var intent = Intent(this, NavigationActivity::class.java)
+//                                    startActivity(intent)
+//                                }
 
                             } else {
                                 //show the error message
-                                Toast.makeText(
-                                        this,
-                                        task.exception?.message + "회원가입 실패",
-                                        Toast.LENGTH_LONG
-                                ).show()
+//                                Toast.makeText(
+//                                        this,
+//                                        task.exception?.message + "회원가입 실패",
+//                                        Toast.LENGTH_LONG
+//                                ).show()
                             }
                         }
             }
@@ -112,6 +125,17 @@ class SignUp : AppCompatActivity() {
         //val myRef : DatabaseReference = database.getReference("message")
         //myRef.setValue("안녕 반가워!")
 
+    }
+
+
+    override fun onResume() {
+        super.onResume()
+        supportActionBar!!.hide()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        supportActionBar!!.show()
     }
 
 

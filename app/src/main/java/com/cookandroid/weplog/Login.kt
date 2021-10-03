@@ -8,6 +8,7 @@ import android.util.Base64
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -34,7 +35,7 @@ import java.util.*
 class Login : AppCompatActivity() {
 
 
-    lateinit var login_signUpBtn: Button
+    lateinit var login_signUpBtn: TextView
     lateinit var login_btn: Button
     lateinit var login_email: EditText
     lateinit var login_pw: EditText
@@ -62,15 +63,18 @@ class Login : AppCompatActivity() {
         login_email = findViewById(R.id.login_email)
         login_pw = findViewById(R.id.login_pw)
 
+        supportActionBar!!.hide()
 
         val user = FirebaseAuth.getInstance().currentUser
         if (user != null) {
             Log.e("user", "user: ${user.toString()}")
-            Toast.makeText(this, "[Login] currentUser가 null이 아님" + user, Toast.LENGTH_SHORT).show()
+//            Toast.makeText(this, "[Login] currentUser가 null이 아님" + user, Toast.LENGTH_SHORT).show()
             var intent = Intent(this, NavigationActivity::class.java)
             startActivity(intent)
             finish()
         }
+
+
 
         login_btn.setOnClickListener {
             login()
@@ -89,7 +93,7 @@ class Login : AppCompatActivity() {
         //login_googleBtn = findViewById(R.id.login_googleBtn)
         login_googleBtn.setOnClickListener {
             GooglesignIn()
-            Toast.makeText(this, "[Login] Google 버튼 누름", Toast.LENGTH_SHORT).show()
+//            Toast.makeText(this, "[Login] Google 버튼 누름", Toast.LENGTH_SHORT).show()
         }
 
 
@@ -102,6 +106,17 @@ class Login : AppCompatActivity() {
         }
 
     }
+
+    override fun onResume() {
+        super.onResume()
+        supportActionBar!!.hide()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        supportActionBar!!.show()
+    }
+
 
 
 
@@ -118,16 +133,16 @@ class Login : AppCompatActivity() {
         var password = login_pw.text.toString()
 
         if (email.length < 1 || password.length < 1) {
-            Toast.makeText(this, "입력칸이 공란입니다.", Toast.LENGTH_SHORT).show()
+//            Toast.makeText(this, "입력칸이 공란입니다.", Toast.LENGTH_SHORT).show()
         } else {
             auth?.signInWithEmailAndPassword(email, password)
                     ?.addOnCompleteListener { task ->
                         if (task.isSuccessful) {
                             //Login
                             //moveMainPage(task.result?.user)
-                            Toast.makeText(this, "로그인 완료", Toast.LENGTH_SHORT).show()
+//                            Toast.makeText(this, "로그인 완료", Toast.LENGTH_SHORT).show()
                             if (auth!!.currentUser != null) {
-                                Toast.makeText(this, "로그인 찐 완료", Toast.LENGTH_SHORT).show()
+//                                Toast.makeText(this, "로그인 찐 완료", Toast.LENGTH_SHORT).show()
                                 var intent = Intent(this, NavigationActivity::class.java)
                                 startActivity(intent)
                                 finish()
@@ -135,11 +150,11 @@ class Login : AppCompatActivity() {
                         } else {
                             //show the error message
                             Log.w("Login", "signInWithEmail:failure", task.exception)
-                            Toast.makeText(
-                                    this,
-                                    task.exception?.message + "로그인 실패",
-                                    Toast.LENGTH_LONG
-                            ).show()
+//                            Toast.makeText(
+//                                    this,
+//                                    task.exception?.message + "로그인 실패",
+//                                    Toast.LENGTH_LONG
+//                            ).show()
 
                         }
                     }
@@ -149,7 +164,7 @@ class Login : AppCompatActivity() {
 
     // 구글 로그인
     private fun GooglesignIn() {
-        Toast.makeText(this, "[Login] signIn 함수 실행", Toast.LENGTH_SHORT).show()
+//        Toast.makeText(this, "[Login] signIn 함수 실행", Toast.LENGTH_SHORT).show()
         val signInIntent : Intent = googleSignInClient!!.signInIntent
         startActivityForResult(signInIntent, RC_SIGN_IN)
     }
@@ -162,15 +177,15 @@ class Login : AppCompatActivity() {
             val task = GoogleSignIn.getSignedInAccountFromIntent(data)
             try {
                 val account = task.getResult(ApiException::class.java)
-                Toast.makeText(this, "[Login] firebaseAuthWithGoogle"+ account.id, Toast.LENGTH_SHORT).show()
+//                Toast.makeText(this, "[Login] firebaseAuthWithGoogle"+ account.id, Toast.LENGTH_SHORT).show()
                 firebaseAuthWithGoogle(account.idToken!!)
             }catch (e : ApiException){
                 Log.w(ContentValues.TAG, "Google sign in failed", e)
-                Toast.makeText(this, "[Login] Google sign in failed", Toast.LENGTH_SHORT).show()
+//                Toast.makeText(this, "[Login] Google sign in failed", Toast.LENGTH_SHORT).show()
             }
         }
         else{
-            Toast.makeText(this, "[Login] startForResult 안 됨", Toast.LENGTH_SHORT).show()
+//            Toast.makeText(this, "[Login] startForResult 안 됨", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -184,7 +199,7 @@ class Login : AppCompatActivity() {
                     if (task.isSuccessful) {
                         // 아이디 비밀번호 맞을 때
                         Log.d("Login", "signInWithCredential:success")
-                        Toast.makeText(this, "[Login] signInWithCredential:success", Toast.LENGTH_SHORT).show()
+//                        Toast.makeText(this, "[Login] signInWithCredential:success", Toast.LENGTH_SHORT).show()
 
                         val CurrentUser = Firebase.auth.currentUser
                         var isExist1: Boolean = false
@@ -229,7 +244,7 @@ class Login : AppCompatActivity() {
                         // 아이디 비밀번호 틀렸을 때
                         // If sign in fails, display a message to the user.
                         Log.w("Login", "signInWithCredential:failure", task.exception)
-                        Toast.makeText(this, task.exception?.message, Toast.LENGTH_SHORT).show()
+//                        Toast.makeText(this, task.exception?.message, Toast.LENGTH_SHORT).show()
                         updateUI(null)
                     }
                 }

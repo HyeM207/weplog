@@ -22,9 +22,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
+            android:backgroundTint="@color/white"
+            android:background="@color/white"
             app:labelVisibilityMode="unlabeled"
             app:menu="@menu/menu_bottom"
-            tools:ignore="MissingConstraints" />
+            tools:ignore="MissingConstraints"
+            app:itemIconTint="@drawable/menu_selector_color"
+            app:itemTextColor="@drawable/menu_selector_color"/>
+
     </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

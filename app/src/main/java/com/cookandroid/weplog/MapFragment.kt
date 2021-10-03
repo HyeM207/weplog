@@ -19,6 +19,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -32,11 +33,13 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import com.google.zxing.integration.android.IntentIntegrator
 import kotlinx.android.synthetic.main.map.*
 import net.daum.mf.map.api.*
 import java.text.SimpleDateFormat
 import java.util.*
 
+@Suppress("DEPRECATION")
 class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.MapViewEventListener{
 
     // authentication으로 보내는 key 값
@@ -105,12 +108,33 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
             inflater: LayoutInflater, container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
+        if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACTIVITY_RECOGNITION) != PackageManager.PERMISSION_GRANTED) {
+            println("Permission is not granted")
+            ActivityCompat.requestPermissions(
+                requireActivity(),
+                arrayOf(Manifest.permission.ACTIVITY_RECOGNITION),
+                IntentIntegrator.REQUEST_CODE
+            )
 
+        }
         //pedometer Service
         var mStepsAnalysisIntent = Intent(activity, StepsTrackerService::class.java)
         var view = inflater.inflate(R.layout.map, container, false)
         map_view=view.findViewById(R.id.map_view)
         auth = FirebaseAuth.getInstance()
+
+
+        if (Build.VERSION.SDK_INT >= 19 && Build.VERSION.SDK_INT < 21) {
+            setWindowFlag(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, true)
+        }
+        if (Build.VERSION.SDK_INT >= 19) {
+            requireActivity().window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+        }
+        if (Build.VERSION.SDK_INT >= 21) {
+            setWindowFlag(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, false)
+            requireActivity().window.statusBarColor = Color.TRANSPARENT
+        }
+
 
         permissionCheck()
         map_view.setMapViewEventListener(this)
@@ -138,7 +162,8 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
 //        editor.remove("isStoped")
 //        editor.commit()
 
-        Toast.makeText(activity, prefs.getString("isStarted","").toString(), Toast.LENGTH_SHORT).show()
+        (requireActivity() as AppCompatActivity).supportActionBar?.hide()
+//        Toast.makeText(activity, prefs.getString("isStarted","").toString(), Toast.LENGTH_SHORT).show()
         polyline.lineColor= Color.argb(255,148,234,255)
 
 
@@ -190,7 +215,7 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
                 startPoint= MapPoint.mapPointWithGeoCoord(currentPointGeo.latitude, currentPointGeo.longitude)
                 makeStartMarker()
 
-                Toast.makeText(activity, prefs.getString("isStarted","").toString(), Toast.LENGTH_SHORT).show()
+//                Toast.makeText(activity, prefs.getString("isStarted","").toString(), Toast.LENGTH_SHORT).show()
                 startState=true
                 Log.i(LOG_TAG, String.format("startbtn click current location (%f,%f)", currentPointGeo.latitude, currentPointGeo.longitude))
 
@@ -246,7 +271,7 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
             map_view.removePOIItem(startMarker)
 
 
-            map_btnstop.setText("STOP")
+            map_btnstop.setText("일시정지")
             editor.putString("isStoped", "No")
             editor.commit()
 
@@ -279,7 +304,7 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
             pushRefKey = pushRef.key.toString()
 
 
-            map_km.text="0.00km"
+            map_km.text="0.00"
             time=0
             hour=0
             min=0
@@ -302,7 +327,7 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
             else if (prefs.getString("isStoped","").equals("Yes")){
                 // stop 상태일 때 버튼 누름 -> 시작하려고 함
                 //Toast.makeText(activity, prefs.getString("isStoped","").toString()+"1", Toast.LENGTH_SHORT).show()
-                map_btnstop.setText("STOP")
+                map_btnstop.setText("일시정지")
                 startState=true
                 timerIsRunning = !timerIsRunning
                 if(timerIsRunning) startTimer()
@@ -312,7 +337,7 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
             //stop 눌렀을 때
             else if (prefs.getString("isStoped","").equals("No")){
                 //Toast.makeText(activity, prefs.getString("isStoped","").toString()+"2", Toast.LENGTH_SHORT).show()
-                map_btnstop.setText("RESTART")
+                map_btnstop.setText("계속")
                 startState=false
                 timerIsRunning = !timerIsRunning
                 if(!timerIsRunning) pauseTimer()
@@ -324,6 +349,28 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
 
         return view
 
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        (requireActivity() as AppCompatActivity).supportActionBar?.hide()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        (requireActivity() as AppCompatActivity).supportActionBar?.show()
+
+    }
+
+    private fun setWindowFlag(bits: Int, on: Boolean) {
+        val win = requireActivity().window
+        val winParams = win.attributes
+        if (on) {
+            winParams.flags = winParams.flags or bits
+        } else {
+            winParams.flags = winParams.flags and bits.inv()
+        }
+        win.attributes = winParams
     }
 
     private fun makeStartMarker(){
@@ -492,7 +539,7 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
             distance=locationA.distanceTo(locationB)
             Log.i(LOG_TAG, String.format("Map distance between A B %f", distance))
             distanceSum+=distance
-            map_km.text= String.format("%.2f km", distanceSum*0.001)
+            map_km.text= String.format("%.2f", distanceSum*0.001)
         }
 
 
@@ -549,11 +596,11 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
         if (requestCode == ACCESS_FINE_LOCATION) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // 권한 요청 후 승인됨 (추적 시작)
-                Toast.makeText(requireContext(), "위치 권한이 승인되었습니다", Toast.LENGTH_SHORT).show()
+//                Toast.makeText(requireContext(), "위치 권한이 승인되었습니다", Toast.LENGTH_SHORT).show()
                 startTracking()
             } else {
                 // 권한 요청 후 거절됨 (다시 요청 or 토스트)
-                Toast.makeText(requireContext(), "위치 권한이 거절되었습니다", Toast.LENGTH_SHORT).show()
+//                Toast.makeText(requireContext(), "위치 권한이 거절되었습니다", Toast.LENGTH_SHORT).show()
                 permissionCheck()
             }
         }
@@ -606,7 +653,7 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
         //현재 좌표를 한글 주소로 변경한 것
         address = getCompleteAddressString(requireActivity(), currentPointGeo.latitude, currentPointGeo.longitude)
 //        map_time.text=currentPointGeo.latitude.toString()
-        map_km.text= String.format("%.2f km", distanceSum*0.001)
+        map_km.text= String.format("%.2f", distanceSum*0.001)
         //시작 버튼을 누른 상태일 때
         if(startState){
             locationA.latitude=currentPointGeo.latitude
