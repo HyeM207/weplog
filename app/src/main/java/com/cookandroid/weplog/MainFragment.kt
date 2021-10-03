@@ -50,11 +50,18 @@ class MainFragment : Fragment() {
     private lateinit var database: DatabaseReference
     private var auth : FirebaseAuth? = null
     val user = Firebase.auth.currentUser
+    var leftcredit = 0
+    var lvname= arrayOf("Yellow", "Green", "Blue", "Red", "Purple")
+
 
 
     fun update(day : String, month : String, year : String){
         var date = year + "/" + month + "/" + day
         database = Firebase.database.reference
+
+
+        checkLv()
+
         database.child("user").child(Firebase.auth.currentUser!!.uid).child("Pedometer").child("date").child(date).addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 var c = 0
@@ -259,25 +266,41 @@ class MainFragment : Fragment() {
     }
 
     fun checkLv(){
-        main_leveltext.text="현재 Yellow 등급입니다."
 
         // nickname & grade 이미지 설정
         val userRef = Firebase.database.getReference("users")
 
         userRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val name = snapshot.child(user?.uid.toString()).child("nickname").value
-                main_nickname.setText(name.toString())
+
 
                 val grade = snapshot.child(user?.uid.toString()).child("grade").value.toString()
+
                 Log.e("grade", grade +" grade")
+                var upcredit=0
+
                 when(grade){
-                    "1"-> main_lv.setImageResource(R.drawable.yellow_circle)
-                    "2"-> main_lv.setImageResource(R.drawable.green2_circle)
-                    "3"-> main_lv.setImageResource(R.drawable.blue2_circle)
-                    "4"-> main_lv.setImageResource(R.drawable.red_circle)
-                    "5"-> main_lv.setImageResource(R.drawable.purple2_circle)
+                    "1"-> upcredit=20
+                    "2"-> upcredit=50
+                    "3"-> upcredit=100
+                    "4"-> upcredit=200
+                    "5"-> upcredit=300
                 }
+                // credit 불러오기
+                val credit = snapshot.child(user?.uid.toString()).child("credit").value.toString().toInt()
+
+                if (upcredit!=0){
+                    if (upcredit==300){
+                        main_lvsectxt.text=String.format("현재 최고 등급입니다.")
+                    }else{
+                        leftcredit=upcredit-credit
+                        main_lvsectxt.text=String.format("다음 등급까지 남은 크레딧 : %d", leftcredit)
+                    }
+                }
+
+
+                main_leveltext.text=String.format("현재 %s 등급입니다.", lvname.get(grade.toInt()-1))
+
 
             }
 
