@@ -77,7 +77,13 @@ class MainFragment : Fragment() {
                     } else {
                         r = r + 1
                     }
-                    if (snap.childrenCount.toInt() == 1){
+                    var bo = false
+                    for ( s in snap.children ){
+                        if ( s.key.toString() == "record" ) {
+                            bo = true
+                        }
+                    }
+                    if (bo == false){
                         dis = dis + 0f
                     } else {
                         dis = dis + snap.child("record").child("distance").value.toString().toFloat()
