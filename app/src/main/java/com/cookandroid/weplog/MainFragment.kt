@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
+import com.dinuscxj.progressbar.CircleProgressBar
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -25,10 +26,12 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.main.*
+import java.util.*
 
 
 class MainFragment : Fragment() {
@@ -39,9 +42,31 @@ class MainFragment : Fragment() {
     lateinit var mainPlogLayout:ConstraintLayout
     lateinit var mainAreaLayout:ConstraintLayout
     lateinit var main_lv : ImageView
-
+    private var mCircleProgressBar : CircleProgressBar?= null // 원형 그래프 (오늘의 스텝 수)
+    private lateinit var database: DatabaseReference
     private var auth : FirebaseAuth? = null
 
+    fun update(day : String, month : String, year : String){
+        var date = year + "/" + month + "/" + day
+        database = Firebase.database.reference
+        database.child("user").child(Firebase.auth.currentUser!!.uid).child("Pedometer").child("date").child(date).addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+
+                // CircleGraph
+                mCircleProgressBar!!.max = 500
+                mCircleProgressBar!!.progress = snapshot.childrenCount.toInt()
+                mCircleProgressBar!!.setProgressFormatter(CircleProgressBar.ProgressFormatter { progress, max ->
+                    val pattern = "%d Steps"
+                    String.format(pattern, progress)
+                })
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+
+            }
+
+        })
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -60,6 +85,7 @@ class MainFragment : Fragment() {
         mainPlogLayout = view.findViewById(R.id.mainPlogLayout)
         mainAreaLayout = view.findViewById(R.id.mainAreaLayout)
         main_lv = view.findViewById(R.id.main_lv)
+        mCircleProgressBar = view.findViewById(R.id.main_step)
 
         // main 페이지 접근 시 로그인 되어 있는지 확인
         val user = Firebase.auth.currentUser
@@ -69,6 +95,14 @@ class MainFragment : Fragment() {
             startActivity(intent)
 
         }
+
+        var mCalendar = Calendar.getInstance()
+        var main_month = (mCalendar.get(Calendar.MONTH) + 1).toString()
+        var main_year = (mCalendar.get(Calendar.YEAR)).toString()
+        var main_day = (mCalendar.get(Calendar.DAY_OF_MONTH)).toString()
+
+        // step 그래프
+        update(main_day.toString(), main_month.toString(), main_year.toString())
 
 
         // nickname & grade 이미지 설정
