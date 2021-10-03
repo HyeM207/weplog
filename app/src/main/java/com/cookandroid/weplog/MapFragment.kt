@@ -493,6 +493,7 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
                     if (! lastAuth.equals(todayDate)){ // 인증 가능함
                         Log.e("auth","equal하지 않음")
                         var intent = Intent(activity, Authentication::class.java)
+                        intent.putExtra("pushRefKey",pushRefKey )
                         startActivity(intent)
                     }
                     else{ // 인증 못 함

@@ -215,10 +215,11 @@ class MainFragment : Fragment() {
                 }
 
                 // 오늘의 인증 확인
-                val lastAuth = snapshot.child("lastAuth").value
+                val lastAuth = snapshot.child(user?.uid.toString()).child("lastAuth").value
 
                 if (lastAuth == null){  // 마지막 플러깅 기록이 null 일 때
                     main_todayAuth.text = "플러깅을 하고 인증하세요."
+                    Log.e("main2", "0")
                 }
                 else{
                     var mCalendar = Calendar.getInstance()
@@ -226,29 +227,31 @@ class MainFragment : Fragment() {
 
                     if (! lastAuth.toString().equals(todayDate)){ // 오늘 인증 한 것이 없을때
                         main_todayAuth.text = "플러깅을 하고 인증하세요."
+                        Log.e("main2", "1")
                     }
                     else{
-                        var lastAuthPost = snapshot.child("lastAuthPost").value
+                        var lastAuthPost = snapshot.child(user?.uid.toString()).child("lastAuthPost").value
                         if (lastAuthPost != null)
                         {
-
+                            Log.e("main2", "2")
                             var postRef = Firebase.database.getReference("community").child(lastAuthPost.toString())
-                            postRef.addValueEventListener(object : ValueEventListener {
-                                override fun onDataChange(snapshot: DataSnapshot) {
-                                    if (snapshot.exists()) {
-                                        var certified = snapshot.child("certified").value.toString()
-                                        var authCount = snapshot.child("authCount").value.toString()
-                                        Log.e("main", certified +", "+authCount)
-                                    }
-                                }
-                                override fun onCancelled(error: DatabaseError) {
-                                            TODO("Not yet implemented")
+                            postRef.get().addOnSuccessListener{
+                                        var certified = it.child("certified").value.toString()
+                                        var authCount = it.child("authCount").value.toString().toInt()
+                                        Log.e("main2", certified +", "+authCount)
+
+                                        if (certified== "true"){
+                                            main_todayAuth.text = "오늘 인증 완료"
+                                        }else{
+                                            var leftAuth : Int = 3 - authCount
+                                            main_todayAuth.text = "인증까지 "+ leftAuth.toString() + " 회"
                                         }
-                                    })
-                                            ///
+                                    }
+
                         }
                     }
                 }
+
 
             }
 
