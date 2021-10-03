@@ -391,8 +391,8 @@ class RecordActivity : AppCompatActivity(), bottomsheetFragment.onDataPassListen
             var w = 0
             var j = 0
             var r = 0
-            month_plog = month_plog + it.childrenCount.toInt()
             for ( data in it.children ){
+                month_plog = month_plog + data.childrenCount.toInt()
                 var step_count = 0
                 var dist_count = 0f
                 for (d in data.children) {
