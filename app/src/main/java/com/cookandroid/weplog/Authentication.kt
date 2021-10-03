@@ -205,10 +205,8 @@ class Authentication : AppCompatActivity() {
 
 
 
-
-
-
-
+                    val intent = Intent(this, NavigationActivity::class.java)
+                    startActivity(intent)
                 }
 
             }

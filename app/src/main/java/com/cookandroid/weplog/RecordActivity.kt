@@ -364,9 +364,7 @@ class RecordActivity : AppCompatActivity(), bottomsheetFragment.onDataPassListen
     fun calculateData( m : String, y : String){
         //barchart
         barchart!!.description.isEnabled = false
-        //val custom: ValueFormatter = MyValueFormatter(Locale.getDefault())
         barchart!!.setDrawBarShadow(false)
-        //barchart!!.setDrawValueAboveBar(true)
         barchart!!.setPinchZoom(true)
         barchart!!.setDrawGridBackground(false)
         val xAxis = barchart!!.xAxis
@@ -410,6 +408,7 @@ class RecordActivity : AppCompatActivity(), bottomsheetFragment.onDataPassListen
                 date.add(data.key.toString()) // 일
                 datecount.add(step_count) // 당일 걸음 수
                 println("step : " + step_count + "/" + data.key.toString() + "일")
+                //month_steps = month_steps + step_count // 그 달의 전체 걸음
             }
             for ( i in 1..day){
                 if ( i.toString() in date){

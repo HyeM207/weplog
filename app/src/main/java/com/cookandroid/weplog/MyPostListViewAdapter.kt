@@ -36,7 +36,7 @@ class MyPostListViewAdapter (private val context: Context): RecyclerView.Adapter
                     if (it.isSuccessful) {
                         Glide.with(holder.itemView?.context)
                                 .load(it.result)
-                                .placeholder(R.drawable.loading3)
+                                .placeholder(R.drawable.loading4)
                                 .into(holder.myPostitem_photo)
                     }
                 }
