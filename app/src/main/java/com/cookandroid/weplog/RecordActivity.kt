@@ -1,16 +1,15 @@
 package com.cookandroid.weplog
 
-import android.app.Activity
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
-import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
-import android.content.Intent.getIntent
-import android.content.Intent.getIntentOld
 import android.content.pm.ActivityInfo
+import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.RectF
+import android.graphics.Shader
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -20,37 +19,39 @@ import android.os.Bundle
 import android.os.IBinder
 import android.os.SystemClock
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.core.app.NotificationCompat
 import androidx.core.view.isInvisible
+import com.github.mikephil.charting.animation.ChartAnimator
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.components.XAxis
-import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.highlight.Highlight
+import com.github.mikephil.charting.interfaces.dataprovider.BarDataProvider
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
-import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
-import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.github.mikephil.charting.renderer.BarChartRenderer
+import com.github.mikephil.charting.utils.Transformer
+import com.github.mikephil.charting.utils.Utils
+import com.github.mikephil.charting.utils.ViewPortHandler
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.annotations.NotNull
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
+import kotlinx.android.synthetic.main.detail.*
+import kotlinx.android.synthetic.main.main_history.*
 import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.google.android.material.internal.ContextUtils.getActivity
 import kotlin.collections.HashMap
 
 
@@ -65,73 +66,54 @@ const val RUNNINGPEAK = 30
 class RecordActivity : AppCompatActivity(), bottomsheetFragment.onDataPassListener {
 
     private var barchart: BarChart ?= null
-    private var kcal : TextView ?= null
-    private var chart_cardview : CardView ?= null
+    private var today : TextView ?= null
+    private var month_step : TextView ?= null
+    private var total_kcal : TextView ?= null
+    private var distance : TextView ?= null
     private var rec_btn : Button ?= null
     private lateinit var database: DatabaseReference
     private var date_list : ListView?= null
     private var listener : ValueEventListener ?= null
     var record_year : String ?= null
     var record_month : String ?= null
-    //val bottomSheetFragment = bottomsheetFragment(applicationContext)
+
 
     override fun onDataPass(data: String, data2 : String) {
         Toast.makeText(this, "$data", Toast.LENGTH_SHORT).show()
         record_month = data
         record_year = data2
-        //var year = data2
-        //var month = data
         rec_btn!!.text = record_year.toString() +"년  " + record_month.toString() + "월"
         database.removeEventListener(listener!!)
         db(record_month.toString(), record_year.toString())
     }
 
     fun db(m : String, y : String){
-//        //barchart
-//        barchart!!.description.text = "Step by Date"
-//        barchart!!.setDrawBarShadow(false)
-//        barchart!!.setDrawValueAboveBar(true)
-//        barchart!!.description.isEnabled = true
-//        barchart!!.setPinchZoom(true)
-//        barchart!!.setDrawGridBackground(false)
-//        val leftAxis = barchart!!.axisLeft
-//        leftAxis.removeAllLimitLines()
-//        //leftAxis.axisMaximum = 100f
-//        leftAxis.axisMinimum = 0f
-//        val datevalues: ArrayList<BarEntry> = ArrayList()
-//        val line2_xlabels = ArrayList<String>()
-
-
         val user = Firebase.auth.currentUser
         database = Firebase.database.reference
         var mCalendar = Calendar.getInstance()
         var currentMonth = (mCalendar.get(Calendar.MONTH) + 1).toString()
         var currentYear = (mCalendar.get(Calendar.YEAR)).toString()
         if ( currentMonth != m || currentYear != y ){
-            Toast.makeText(this, "다", Toast.LENGTH_SHORT).show()
-            database.child("user").child("fdfdff").child("Pedometer").get().addOnSuccessListener {
-                Toast.makeText(this, it.value.toString(), Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "다른 ", Toast.LENGTH_SHORT).show()
+            database.child("user").child(user!!.uid).child("Pedometer").child("date").child(y).child(m).get().addOnSuccessListener {
+
                 if (it.value.toString() == "null"){
                     barchart!!.isInvisible = true
                     Toast.makeText(this, "아직 플러깅 하지도 않", Toast.LENGTH_SHORT).show()
                     println("아직 플러깅 하지도 않음")
+                } else {
+                    barchart!!.isInvisible = false
+                    Toast.makeText(this, "플러깅 ", Toast.LENGTH_SHORT).show()
+                    println("value : " + it.value.toString())
+                    calculateData(m, y)
                 }
-            //                //Log.i("firebase", "Got value ${it.value}")
-//                println("Got value ${it.value}")
-//                database.child("user").child(user!!.uid).child("Pedometer").child("date").child(todayDate).get().addOnSuccessListener {
-//                    //Log.i("firebase", "Got value ${it.value}")
-//                    println("Got value ${it.value}")
-//                }.addOnFailureListener{
-//
-//                    println(":counts초기")
-//                }
             }.addOnFailureListener{
                 barchart!!.isInvisible = true
                 Toast.makeText(this, "아직 플러깅 하지도 않", Toast.LENGTH_SHORT).show()
                 println("아직 플러깅 하지도 않음")
             }
         } else if ( currentMonth == m && currentYear == y){
-            Toast.makeText(this, "현", Toast.LENGTH_SHORT).show()
+            //Toast.makeText(this, "현", Toast.LENGTH_SHORT).show()
             //database.addValueEventListener(listener!!)재
             barchart!!.isInvisible = false
             calculateDataMatrix()
@@ -142,7 +124,9 @@ class RecordActivity : AppCompatActivity(), bottomsheetFragment.onDataPassListen
         super.onCreate(savedInstanceState)
         setContentView(R.layout.record)
         this.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-
+        var actionBar = supportActionBar
+        actionBar!!.setTitle("월별 걸음 수")
+        actionBar!!.setDisplayHomeAsUpEnabled(true)
 
         // record 페이지 접근 시 로그인 되어 있는지 확인
         val user = Firebase.auth.currentUser
@@ -159,40 +143,24 @@ class RecordActivity : AppCompatActivity(), bottomsheetFragment.onDataPassListen
         var currentYear = (mCalendar.get(Calendar.YEAR)).toString()
         record_year = currentYear
         record_month = currentMonth
-//        var todayDate =
-//            (mCalendar.get(Calendar.YEAR)).toString() + "/" + (mCalendar.get(Calendar.MONTH) + 1).toString() + "/" + (mCalendar.get(
-//                Calendar.DAY_OF_MONTH
-//            )).toString()
+        var todayDate = (mCalendar.get(Calendar.YEAR)).toString() + "년 " + (mCalendar.get(Calendar.MONTH) + 1).toString() + "월 " + (mCalendar.get(Calendar.DAY_OF_MONTH)).toString() + "일"
 
         rec_btn = findViewById(R.id.rec_yrmn)
         barchart = findViewById(R.id.rec_graph)
-        kcal = findViewById(R.id.rec_kcal)
-        chart_cardview = findViewById(R.id.rec_graph_cardview)
+        today = findViewById(R.id.today)
+        today!!.text = todayDate
         rec_btn!!.text = currentYear + "년  " + currentMonth + "월"
-
-//        var mStepsAnalysisIntent = Intent(this, StepsTrackerService::class.java)
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//            this.startForegroundService(mStepsAnalysisIntent) //안드로이드 8.0이상부터는 startService사용이 어렵다고 함
-//
-//        } else {
-//            this.startService(mStepsAnalysisIntent)
-//        }
+        month_step = findViewById(R.id.month_step)
+        distance = findViewById(R.id.rec_topDist)
+        total_kcal = findViewById(R.id.rec_topKcal)
 
         calculateDataMatrix()
 
 
         val bottomSheetFragment = bottomsheetFragment(applicationContext)
 
-        chart_cardview!!.setOnClickListener{
-            //var intent = Intent(this, RecordDetailActivity::class.java)
-            //startActivity(intent)
-        }
         rec_btn!!.setOnClickListener {
-            //var intent = Intent(this, RecordChoiceActivity::class.java)
-            //startActivity(intent)
-            //this.overridePendingTransition(R.anim.sliding_up, R.anim.stay)
             bottomSheetFragment.show(supportFragmentManager, bottomSheetFragment.tag)
-
         }
 
         barchart!!.setOnChartValueSelectedListener(object : OnChartValueSelectedListener{
@@ -206,17 +174,17 @@ class RecordActivity : AppCompatActivity(), bottomsheetFragment.onDataPassListen
                 intent.putExtra("month", record_month.toString())
                 intent.putExtra("year", record_year.toString())
                 intent.putExtra("step", y)
+                var plog = 0
                 var date = record_year.toString() + "/" + record_month.toString() + "/" + x.toString()
-                println("click chart : " + x + "/" + record_month + "/" + record_year)
                 database.child("user").child(user!!.uid).child("Pedometer").child("date").child(date).get().addOnSuccessListener {
+                    plog = it.childrenCount.toInt()
+                    intent.putExtra("plog", plog)
                     for(i in it.children){
                         for ( v in i.child("step").children){
-                            //println("ii : " + v.value)
                             var t_hashMap = HashMap<String, String>()
                             for ( h in v.children){
                                 t_hashMap.put(h.key.toString(), h.value.toString())
                             }
-                            //println("hh : " + t_hashMap.toString())
                             step_list.add(t_hashMap)
                         }
                     }
@@ -224,35 +192,16 @@ class RecordActivity : AppCompatActivity(), bottomsheetFragment.onDataPassListen
                 }.addOnFailureListener{
 
                 }
+
                 intent.putExtra("step_list", step_list)
                 database.child("user").child(user!!.uid).child("Pedometer").child("date").get().addOnSuccessListener {
-                    //if (it.)
+                    if (it.child(date).value == null){
+                        println("null")
+                    } else {
+                        println("yes")
+                        startActivity(intent)
+                    }
                 }.addOnFailureListener {  }
-                database.addValueEventListener(object : ValueEventListener {
-                    override fun onDataChange(snapshot: DataSnapshot) {
-                        for (postSnapshot in snapshot.children) {
-                            if (postSnapshot.key == "user"){
-                                for (shot in postSnapshot.children){
-                                    if (shot.key == Firebase.auth.currentUser!!.uid) {
-
-                                        if ( shot.child("Pedometer").child("date").child(date).value == null ){
-                                            println("null")
-                                        } else {
-                                            println("yes")
-                                            startActivity(intent)
-                                        }
-                                    }
-                                }
-
-                            }
-                        }
-                    }
-
-                    override fun onCancelled(error: DatabaseError) {
-                        Log.w(ContentValues.TAG, "loadPost:onCancelled", error.toException())
-                    }
-
-                })
             }
 
             override fun onNothingSelected() {
@@ -261,15 +210,12 @@ class RecordActivity : AppCompatActivity(), bottomsheetFragment.onDataPassListen
         })
     }
 
-
-
     fun calculateDataMatrix(){
-        //barchart
+
         barchart!!.description.isEnabled = false
         //val custom: ValueFormatter = MyValueFormatter(Locale.getDefault())
         barchart!!.setDrawBarShadow(false)
-        barchart!!.setDrawValueAboveBar(true)
-        barchart!!.description.isEnabled = false
+        //barchart!!.setDrawValueAboveBar(true)
         barchart!!.setPinchZoom(true)
         barchart!!.setDrawGridBackground(false)
         val xAxis = barchart!!.xAxis
@@ -278,23 +224,17 @@ class RecordActivity : AppCompatActivity(), bottomsheetFragment.onDataPassListen
         xAxis.setDrawGridLines(false)
         val leftAxis = barchart!!.axisLeft
         val rightAxis = barchart!!.axisRight
+        rightAxis.axisMinimum = 0f
         leftAxis.removeAllLimitLines()
         leftAxis.axisMinimum = 0f
         leftAxis.isEnabled = false
-
-
-        //rightAxis.setDrawGridLines(false)
-        //leftAxis.setDrawGridLines(false)
-        //rightAxis.valueFormatter = custom
+        barchart!!.legend.isEnabled = false
         rightAxis.axisMinimum = 0f
         val datevalues: ArrayList<BarEntry> = ArrayList()
         val line2_xlabels = ArrayList<String>()
+        val bar_ylabels = ArrayList<String>()
         var day : Int ?= null
         var mCalendar = Calendar.getInstance()
-        var todayDate =
-            (mCalendar.get(Calendar.YEAR)).toString() + "/" + (mCalendar.get(Calendar.MONTH) + 1).toString() + "/" + (mCalendar.get(
-                Calendar.DAY_OF_MONTH
-            )).toString()
         var month = (mCalendar.get(Calendar.YEAR)).toString() + "/" + (mCalendar.get(Calendar.MONTH) + 1).toString()
         if (((mCalendar.get(Calendar.MONTH)+1) == 4 || (mCalendar.get(Calendar.MONTH)+1) == 6 || (mCalendar.get(Calendar.MONTH)+1) == 9 || (mCalendar.get(Calendar.MONTH)+1) == 11)){
             day = 30
@@ -303,18 +243,71 @@ class RecordActivity : AppCompatActivity(), bottomsheetFragment.onDataPassListen
         } else {
             day = 31
         }
+        var uid = Firebase.auth.currentUser!!.uid
         database = Firebase.database.reference
+//        var dayList= ArrayList<String>()
+//        var historyList=ArrayList<History>()
+//        var plogSum=0
+//        var distSum=0F
+//        var timeSum=0
+//        database.child("user/$uid/Pedometer/date/$month").get().addOnSuccessListener {
+//            Log.i("firebase", "check snapshot $it")
+//
+//            var post = it.children
+//
+//            for(p in post) {
+//                var pday = p.key
+//                Log.i("firebase", "got date value in setChoicedate $pday")
+//                dayList.add("$pday")
+//            }
+//            dayList.reverse()
+//
+//            for (day in dayList){
+//                var dayData=it.child("$day").children
+//                dayData=dayData.reversed()
+//                for (plog in dayData){
+//                    //플로그 객체 키 값
+//                    var key=plog.key
+//                    var History = History()
+//
+//                    var currentCalendar=Calendar.getInstance()
+//                    var dd = currentCalendar.get(Calendar.DAY_OF_MONTH).toString()
+//
+//                    History.month = (currentCalendar.get(Calendar.MONTH)+1).toString()
+//                    History.day = dd
+//                    History.time = it.child("$dd/$key/record/time").value.toString()
+//                    History.distance = it.child("$dd/$key/record/distance").value.toString()
+//                    History.startTime = it.child("$dd/$key/time/startTime").value.toString()
+//                    History.endTime = it.child("$dd/$key/time/endTime").value.toString()
+//
+//                    plogSum++
+//                    var split_time = History.time!!.split(":")
+//                    timeSum=split_time[0].toInt()*60+split_time[1].toInt()
+//                    distSum+= History.distance!!.toFloat()
+//
+//                    historyList.add(History)
+//                    Log.i("firebase", "day : $day, key : $key")
+//                }
+//
+//            }
+//            text_km.text= String.format("%.2fkm", distSum)
+//            text_time.text="${timeSum}분"
+//            text_plog.text="${plogSum}회"
+//        }
         listener = database.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 for (postSnapshot in snapshot.children) {
                     if (postSnapshot.key == "user") {
                         for (snapshots in postSnapshot.children){
                             if (snapshots.key == Firebase.auth.currentUser!!.uid) {
-                                //var day = snapshots.child("Pedometer").child("date").child(month).childrenCount.toString()
+
                                 var date: ArrayList<String> = ArrayList()
                                 var datecount : ArrayList<Int> = ArrayList()
+                                var month_plog = 0
+                                var month_steps : Int = 0
                                 for (data in snapshots.child("Pedometer").child("date").child(month).children){
                                     println("dd : " + data.value.toString())
+                                    month_plog = month_plog + data.childrenCount.toInt()
                                     var step_count = 0
                                     for (d in data.children) {
                                         println("ddd : " + d.value.toString()) // 각 객체별 항목
@@ -328,28 +321,27 @@ class RecordActivity : AppCompatActivity(), bottomsheetFragment.onDataPassListen
                                     datecount.add(step_count) // 당일 걸음 수
                                     //datecount.add(data.childrenCount.toInt())
                                     println("step : " + step_count + "/" + data.key.toString() + "일")
-                                    //kcal!!.text = data.childrenCount.toString()
+                                    month_steps = month_steps + step_count // 그 달의 전체 걸음
                                 }
-//                                for (i in 0..date.size-1){
-//                                    var t = datecount[i]
-//                                    var t2 = date[i]
-//                                    println("t : " + t + t2 + i.toString())
-//                                    datevalues.add(BarEntry(i.toFloat(), t.toFloat()))
-//                                    line2_xlabels.add(t2)
-//                                }
+                                println("ddc : " + month_plog) // 그 달의 플로깅 횟수
+                                month_step!!.text = month_steps.toString()
                                 for ( i in 1..day){
                                     if ( i.toString() in date){
                                         println("i : " + i.toString())
                                         var t = datecount[date.indexOf(i.toString())]
                                         datevalues.add(BarEntry(i.toFloat(), t.toFloat()))
                                         line2_xlabels.add(i.toString())
+                                        bar_ylabels.add(t.toString())
                                     } else {
                                         datevalues.add(BarEntry(i.toFloat(), 0f))
                                         line2_xlabels.add(i.toString())
+                                        bar_ylabels.add("0")
                                     }
 
                                 }
-                                var set = BarDataSet(datevalues, "Steps Day")
+                                var set = BarDataSet(datevalues, "")
+                                set.setDrawValues(false)
+                                set.setColor(Color.parseColor("#1D4028"))
                                 var datasets = ArrayList<IBarDataSet>()
                                 datasets.add(set)
                                 var data = BarData(datasets)
@@ -358,8 +350,14 @@ class RecordActivity : AppCompatActivity(), bottomsheetFragment.onDataPassListen
                                 barchart!!.data = data
                                 //barchart!!.xAxis.labelCount = day
                                 //barchart!!.xAxis.labelCount = line2_xlabels.size
+                                barchart!!.axisRight.setGranularity(1.0f)
+                                barchart!!.axisRight.setGranularityEnabled(true) // Required to enable granularity
                                 barchart!!.xAxis.valueFormatter = (MyValueFormatter3(line2_xlabels))
+
+                                //barchart!!.axisRight.valueFormatter = (MyValueFormatter3(bar_ylabels))
+                                //barchart!!.axisRight.isEnabled = false
                                 //barchart!!.setVisibleXRange(0f, 10f)
+
                                 barchart!!.notifyDataSetChanged()
                                 barchart!!.invalidate()
 
@@ -377,7 +375,87 @@ class RecordActivity : AppCompatActivity(), bottomsheetFragment.onDataPassListen
         })
 
     }
+
+
+    fun calculateData( m : String, y : String){
+        //barchart
+        barchart!!.description.isEnabled = false
+        //val custom: ValueFormatter = MyValueFormatter(Locale.getDefault())
+        barchart!!.setDrawBarShadow(false)
+        //barchart!!.setDrawValueAboveBar(true)
+        barchart!!.setPinchZoom(true)
+        barchart!!.setDrawGridBackground(false)
+        val xAxis = barchart!!.xAxis
+        xAxis.position = XAxis.XAxisPosition.BOTTOM
+        xAxis.setDrawAxisLine(false)
+        xAxis.setDrawGridLines(false)
+        val leftAxis = barchart!!.axisLeft
+        val rightAxis = barchart!!.axisRight
+        leftAxis.removeAllLimitLines()
+        leftAxis.axisMinimum = 0f
+        leftAxis.isEnabled = false
+        barchart!!.legend.isEnabled = false
+
+        val datevalues: ArrayList<BarEntry> = ArrayList()
+        val line2_xlabels = ArrayList<String>()
+        var day : Int ?= null
+        var mCalendar = Calendar.getInstance()
+        var clickDate = y + "/" + m
+        var month = (mCalendar.get(Calendar.YEAR)).toString() + "/" + (mCalendar.get(Calendar.MONTH) + 1).toString()
+        if (((mCalendar.get(Calendar.MONTH)+1) == 4 || (mCalendar.get(Calendar.MONTH)+1) == 6 || (mCalendar.get(Calendar.MONTH)+1) == 9 || (mCalendar.get(Calendar.MONTH)+1) == 11)){
+            day = 30
+        } else if (((mCalendar.get(Calendar.MONTH)+1) == 2)) {
+            day = 28
+        } else {
+            day = 31
+        }
+        database = Firebase.database.reference
+        database.child("user").child(Firebase.auth.currentUser!!.uid).child("Pedometer").child("date").child(clickDate).get().addOnSuccessListener {
+            var date: ArrayList<String> = ArrayList()
+            var datecount : ArrayList<Int> = ArrayList()
+            for ( data in it.children ){
+                var step_count = 0
+                for (d in data.children) {
+                    println("ddd : " + d.value.toString()) // 각 객체별 항목
+                    for ( s in d.children ){
+                        if(s.key == "step"){
+                            step_count = step_count + s.childrenCount.toInt()
+                        }
+                    }
+                }
+                date.add(data.key.toString()) // 일
+                datecount.add(step_count) // 당일 걸음 수
+                println("step : " + step_count + "/" + data.key.toString() + "일")
+            }
+            for ( i in 1..day){
+                if ( i.toString() in date){
+                    println("i : " + i.toString())
+                    var t = datecount[date.indexOf(i.toString())]
+                    datevalues.add(BarEntry(i.toFloat(), t.toFloat()))
+                    line2_xlabels.add(i.toString())
+                } else {
+                    datevalues.add(BarEntry(i.toFloat(), 0f))
+                    line2_xlabels.add(i.toString())
+                }
+
+            }
+            var set = BarDataSet(datevalues, "Steps Day")
+            set.setDrawValues(false)
+            set.setColor(Color.parseColor("#1D4028"))
+            var datasets = ArrayList<IBarDataSet>()
+            datasets.add(set)
+            var data = BarData(datasets)
+            barchart!!.data = data
+            barchart!!.axisRight.setGranularity(1.0f);
+            barchart!!.axisRight.setGranularityEnabled(true); // Required to enable granularity
+            barchart!!.xAxis.valueFormatter = (MyValueFormatter3(line2_xlabels))
+            barchart!!.notifyDataSetChanged()
+            barchart!!.invalidate()
+        }.addOnFailureListener {  }
+
+    }
 }
+
 
 class AccelerometerData{
     var value : Double ?= null

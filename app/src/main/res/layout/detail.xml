@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="15dp"
+    android:paddingRight="15dp">
+
+<!--    <androidx.cardview.widget.CardView-->
+<!--        android:id="@+id/card"-->
+<!--        xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--        xmlns:card_view="http://schemas.android.com/apk/res-auto"-->
+<!--        android:layout_width="380dp"-->
+<!--        android:layout_height="200dp"-->
+<!--        android:layout_marginTop="15dp"-->
+<!--        card_view:cardCornerRadius="30dp"-->
+<!--        card_view:layout_constraintTop_toTopOf="parent"-->
+<!--        card_view:layout_constraintLeft_toLeftOf="parent">-->
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/detail_card"
+            android:layout_width="380dp"
+            android:layout_height="200dp"
+            android:layout_marginTop="15dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent">
+
+            <TextView
+                android:id="@+id/today"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:text="2021년 10월 3일"
+                android:textSize="15sp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="30dp"
+                app:layout_constraintLeft_toLeftOf="@+id/detail_card"
+                app:layout_constraintTop_toTopOf="@+id/detail_card"/>
+
+            <TextView
+                android:id="@+id/step_data"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:text="6010"
+                android:textColor="@color/black"
+                android:textSize="40dp"
+                android:layout_marginLeft="18dp"
+                android:layout_marginTop="30dp"
+                app:layout_constraintLeft_toLeftOf="@+id/detail_card"
+                app:layout_constraintTop_toBottomOf="@+id/today"/>
+
+            <TextView
+                android:id="@+id/txt_step"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="걸음/일"
+                android:textSize="12sp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="55dp"
+                app:layout_constraintLeft_toRightOf="@+id/step_data"
+                app:layout_constraintTop_toBottomOf="@+id/today"/>
+
+            <TextView
+                android:id="@+id/distance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:text="10 km"
+                android:textColor="@color/black"
+                android:textSize="18dp"
+                android:layout_marginLeft="18dp"
+                android:layout_marginTop="5dp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/step_data" />
+
+            <TextView
+                android:id="@+id/rec_topSlash"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:text="|"
+                android:textSize="18dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="5dp"
+                app:layout_constraintLeft_toRightOf="@+id/distance"
+                app:layout_constraintTop_toBottomOf="@+id/step_data"/>
+
+            <TextView
+                android:id="@+id/totalkcal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="5dp"
+                android:text="1500 kcal"
+                android:textColor="@color/black"
+                android:textSize="18dp"
+                app:layout_constraintLeft_toRightOf="@+id/rec_topSlash"
+                app:layout_constraintTop_toBottomOf="@+id/step_data"/>
+
+            <com.dinuscxj.progressbar.CircleProgressBar
+                android:id="@+id/rec_graph"
+                android:layout_width="160dp"
+                android:layout_height="160dp"
+                app:progress_style="solid_line"
+                app:progress_stroke_width="10dp"
+                app:progress_stroke_cap="round"
+                app:progress_start_color="#FA8072"
+                app:progress_end_color="#FF7F50"
+                android:layout_marginRight="35dp"
+                android:layout_marginTop="15dp"
+                app:layout_constraintTop_toTopOf="@+id/detail_card"
+                app:layout_constraintRight_toRightOf="@+id/detail_card"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+<!--    </androidx.cardview.widget.CardView>-->
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card2"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:layout_width="230dp"
+        android:layout_height="140dp"
+        android:layout_marginTop="20dp"
+        card_view:cardCornerRadius="20dp"
+        card_view:layout_constraintTop_toBottomOf="@id/detail_card"
+        card_view:layout_constraintLeft_toLeftOf="parent">
+
+
+        <com.github.mikephil.charting.charts.HorizontalBarChart
+            android:id="@+id/rec_graph_detail"
+            android:layout_width="230dp"
+            android:layout_height="140dp"
+            android:layout_gravity="center"/>
+
+    </androidx.cardview.widget.CardView>
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card4"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:layout_width="140dp"
+        android:layout_height="140dp"
+        android:layout_marginTop="20dp"
+        card_view:cardCornerRadius="20dp"
+        card_view:cardBackgroundColor="@color/white"
+        card_view:layout_constraintTop_toBottomOf="@id/detail_card"
+        card_view:layout_constraintRight_toRightOf="parent">
+
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/ic_baseline_directions_walk_24"
+            android:layout_marginTop="20dp"
+            android:layout_gravity="center_horizontal"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="플러깅 횟수"
+            android:textColor="@color/black"
+            android:textSize="12dp"
+            android:layout_marginTop="80dp"/>
+
+        <TextView
+            android:id="@+id/detail_plog"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="98dp"
+            android:text="2 "
+            android:textColor="@color/black"
+            android:textSize="20dp"
+            android:textStyle="bold" />
+
+    </androidx.cardview.widget.CardView>
+
+    <com.github.mikephil.charting.charts.LineChart
+        android:id="@+id/rec_graph_detail2"
+        android:layout_width="380dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginBottom="20dp"
+        android:layout_height="330dp"
+        android:layout_gravity="center"
+        app:layout_constraintTop_toBottomOf="@id/card2"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+<!--    <androidx.cardview.widget.CardView-->
+<!--        android:id="@+id/card3"-->
+<!--        xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--        xmlns:card_view="http://schemas.android.com/apk/res-auto"-->
+<!--        android:layout_width="380dp"-->
+<!--        android:layout_height="250dp"-->
+<!--        android:layout_marginTop="20dp"-->
+<!--        card_view:cardCornerRadius="30dp"-->
+<!--        card_view:layout_constraintTop_toBottomOf="@id/card2"-->
+<!--        card_view:layout_constraintLeft_toLeftOf="parent">-->
+
+
+
+
+<!--    </androidx.cardview.widget.CardView>-->
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
