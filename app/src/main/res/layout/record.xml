@@ -1,45 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/rec_constLayout"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:id="@+id/rec_constLayout"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:paddingLeft="20dp"
+android:paddingRight="20dp">
+
+<androidx.cardview.widget.CardView
+    android:id="@+id/rec_card"
+    android:layout_marginTop="20dp"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <Button
-        android:id="@+id/rec_yrmn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"
-        android:text="2021년 5월"
-        android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.85"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-
-    <com.github.mikephil.charting.charts.BarChart
-        android:id="@+id/rec_graph"
-        android:layout_width="390dp"
-        android:layout_height="360dp"
-        android:layout_gravity="center"
-        android:layout_marginTop="20dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/rec_icon"/>
-
-
+    android:layout_height="250dp"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintLeft_toLeftOf="parent"
+    app:layout_constraintRight_toRightOf="parent">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/rec_topRec"
-        android:layout_width="344dp"
-        android:layout_height="150dp"
-        android:layout_marginLeft="30dp"
-        android:layout_marginTop="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent">
+
+        <Button
+            android:id="@+id/rec_yrmn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:text="2021년 5월"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.9"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/today"
@@ -49,7 +44,7 @@
             android:text="2021년 10월 3일"
             android:textSize="15sp"
             android:layout_marginLeft="10dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="15dp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
 
@@ -87,7 +82,7 @@
             android:text="10 km"
             android:textColor="@color/black"
             android:textSize="18dp"
-            android:layout_marginLeft="10dp"
+            android:layout_marginLeft="20dp"
             android:layout_marginTop="5dp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/month_step" />
@@ -99,69 +94,71 @@
             android:layout_marginEnd="10dp"
             android:text="|"
             android:textSize="18dp"
-            android:layout_marginLeft="10dp"
+            android:gravity="center_horizontal"
             android:layout_marginTop="5dp"
             app:layout_constraintLeft_toRightOf="@+id/rec_topDist"
+            app:layout_constraintRight_toLeftOf="@id/rec_topKcal"
             app:layout_constraintTop_toBottomOf="@+id/month_step"/>
 
         <TextView
             android:id="@+id/rec_topKcal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
+            android:gravity="center_horizontal"
             android:layout_marginTop="5dp"
             android:text="1500 kcal"
             android:textColor="@color/black"
             android:textSize="18dp"
-            app:layout_constraintLeft_toRightOf="@+id/rec_topSlash"
+            app:layout_constraintLeft_toRightOf="@+id/rec_topDist"
+            app:layout_constraintRight_toLeftOf="@id/rec_plog"
             app:layout_constraintTop_toBottomOf="@+id/month_step"/>
 
-<!--        <TextView-->
-<!--            android:id="@+id/total"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_marginLeft="10dp"-->
-<!--            android:layout_marginTop="6dp"-->
-<!--            android:text="전체"-->
-<!--            android:textSize="12dp"-->
-<!--            app:layout_constraintLeft_toLeftOf="parent"-->
-<!--            app:layout_constraintTop_toBottomOf="@+id/rec_topDist"/>-->
+        <TextView
+            android:id="@+id/rec_topSlash2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:text="|"
+            android:textSize="18dp"
+            android:gravity="center_horizontal"
+            android:layout_marginTop="5dp"
+            app:layout_constraintLeft_toRightOf="@+id/rec_topKcal"
+            app:layout_constraintRight_toLeftOf="@id/rec_plog"
+            app:layout_constraintTop_toBottomOf="@+id/month_step"/>
 
-<!--        <TextView-->
-<!--            android:id="@+id/month_step"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_marginLeft="16dp"-->
-<!--            android:layout_marginTop="3dp"-->
-<!--            android:text="453 걸음"-->
-<!--            android:textColor="@color/black"-->
-<!--            android:textSize="18dp"-->
-<!--            app:layout_constraintLeft_toRightOf="@+id/total"-->
-<!--            app:layout_constraintTop_toBottomOf="@+id/rec_topDist" />-->
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/rec_icon"
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/rec_topRec">
+        <TextView
+            android:id="@+id/rec_plog"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="35dp"
+            android:text="6 회"
+            android:textColor="@color/black"
+            android:textSize="18dp"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/month_step" />
 
         <androidx.cardview.widget.CardView
             android:id="@+id/icon1"
             xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:card_view="http://schemas.android.com/apk/res-auto"
             android:orientation="vertical"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            card_view:cardCornerRadius="20dp"
-            android:layout_marginLeft="20dp"
-            card_view:layout_constraintLeft_toLeftOf="@+id/rec_icon"
-            card_view:layout_constraintTop_toTopOf="@+id/rec_icon"
-            card_view:cardBackgroundColor="@color/pink">
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            card_view:cardCornerRadius="30dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginLeft="10dp"
+            card_view:layout_constraintLeft_toLeftOf="parent"
+            card_view:layout_constraintTop_toBottomOf="@+id/rec_topDist"
+            card_view:cardBackgroundColor="@color/yellow">
+
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_baseline_local_fire_department_24"
+                app:layout_constraintTop_toBottomOf="@+id/rec_topDist"
+                app:layout_constraintLeft_toLeftOf="parent"/>
 
         </androidx.cardview.widget.CardView>
 
@@ -170,32 +167,69 @@
             xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:card_view="http://schemas.android.com/apk/res-auto"
             android:orientation="vertical"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            card_view:cardCornerRadius="15dp"
-            android:foregroundGravity="center_horizontal"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            card_view:cardCornerRadius="30dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginLeft="10dp"
+            card_view:layout_constraintLeft_toRightOf="@id/icon1"
             card_view:layout_constraintRight_toLeftOf="@+id/icon3"
-            card_view:layout_constraintLeft_toRightOf="@+id/icon1"
-            card_view:layout_constraintTop_toTopOf="@+id/rec_icon"
-            card_view:cardBackgroundColor="@color/yellow">
+            card_view:layout_constraintTop_toBottomOf="@+id/rec_topDist"
+            card_view:cardBackgroundColor="@color/pink">
+
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_baseline_local_fire_department_24"
+                app:layout_constraintTop_toBottomOf="@+id/rec_topDist"
+                app:layout_constraintLeft_toLeftOf="parent"/>
 
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
             android:id="@+id/icon3"
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:card_view="http://schemas.android.com/apk/res-auto"
             android:orientation="vertical"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            card_view:cardCornerRadius="20dp"
-            android:layout_marginRight="20dp"
-            card_view:layout_constraintRight_toRightOf="parent"
-            card_view:layout_constraintTop_toTopOf="@+id/rec_icon"
-            card_view:cardBackgroundColor="@color/darkgreen">
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            app:cardCornerRadius="30dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginRight="10dp"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/rec_topDist"
+            app:cardBackgroundColor="@color/darkgreen">
+
+            <ImageView
+                android:layout_width="51dp"
+                android:layout_height="45dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_baseline_directions_walk_24_white"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/rec_topDist" />
 
         </androidx.cardview.widget.CardView>
 
+
+
+
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+
+
+</androidx.cardview.widget.CardView>
+
+<com.github.mikephil.charting.charts.BarChart
+    android:id="@+id/rec_graph"
+    android:layout_width="390dp"
+    android:layout_height="400dp"
+    android:layout_marginTop="20dp"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="0.5"
+    app:layout_constraintTop_toBottomOf="@+id/rec_card"/>
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
