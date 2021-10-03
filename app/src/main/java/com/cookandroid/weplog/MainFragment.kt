@@ -31,6 +31,7 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.main.*
+import kotlinx.android.synthetic.main.map.*
 import java.util.*
 
 
@@ -39,6 +40,7 @@ class MainFragment : Fragment() {
     lateinit var main_nickname : TextView
     lateinit var main_kcaltxt : TextView
     lateinit var main_steptxt : TextView
+    lateinit var main_timetxt : TextView
     lateinit var main_logoutBtn : Button
     lateinit var mainRecordLayout : ConstraintLayout
     lateinit var mainPlogLayout:ConstraintLayout
@@ -53,22 +55,53 @@ class MainFragment : Fragment() {
         database = Firebase.database.reference
         database.child("user").child(Firebase.auth.currentUser!!.uid).child("Pedometer").child("date").child(date).addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
+                var c = 0
+                var dis = 0f
+                var time : String ?= null
+                var w = 0
+                var j = 0
+                var r = 0
+                var kcal = 0f
+                var hour = 0
+                var min = 0
+                var sec = 0
+                for ( snap in snapshot.children ){
+                    c = c + snap.child("step").childrenCount.toInt()
+                    var v = snap.child("step").child("type").value
+                    if ( v.toString() == "0" ){
+                        w = w + 1
+                    } else if ( v.toString() == "1"){
+                        j = j + 1
+                    } else {
+                        r = r + 1
+                    }
+                    if (snap.childrenCount.toInt() == 1){
+                        dis = dis + 0f
+                    } else {
+                        dis = dis + snap.child("record").child("distance").value.toString().toFloat()
+                        time = snap.child("record").child("time").value.toString()
+                        var split_time = time!!.split(":")
+                        hour = hour + split_time[0].toInt()
+                        min = min + split_time[1].toInt()
+                        sec = sec + split_time[2].toInt()
+                    }
 
+                }
                 // CircleGraph
                 mCircleProgressBar!!.max = 500
-                mCircleProgressBar!!.progress = snapshot.childrenCount.toInt()
+                mCircleProgressBar!!.progress = c
                 mCircleProgressBar!!.setProgressFormatter(CircleProgressBar.ProgressFormatter { progress, max ->
                     val pattern = "%d Steps"
                     String.format(pattern, progress)
                 })
 
-                if ( snapshot.child("type").value.toString() == "0" ){
+                kcal = w*0.05f + j*0.1f + r*0.2f
+                main_kcaltxt!!.text = kcal.toString() + "Kcal"
+                main_steptxt!!.text = dis.toString()
 
-                } else if ( snapshot.child("type").value.toString() == "1"){
+                println(hour.toString() + ":" + min.toString() + ":" + sec.toString())
+                main_timetxt!!.text = String.format("%02d:%02d:%02d", (min + sec / 60) / 60 + hour, (min + sec / 60) % 60, (sec % 60))
 
-                } else {
-
-                }
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -98,6 +131,7 @@ class MainFragment : Fragment() {
         mCircleProgressBar = view.findViewById(R.id.main_step)
         main_steptxt = view.findViewById(R.id.main_steptxt)
         main_kcaltxt = view.findViewById(R.id.main_kcaltxt)
+        main_timetxt = view.findViewById(R.id.main_timetxt)
 
         // main 페이지 접근 시 로그인 되어 있는지 확인
         val user = Firebase.auth.currentUser
