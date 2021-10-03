@@ -114,9 +114,16 @@ class MainFragment : Fragment() {
         main_logoutBtn.setOnClickListener {
 
             var gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                    .requestIdToken(getString(R.string.default_web_client_id))
-                    .requestEmail()
-                    .build()
+                .requestIdToken("804853471593-vruv3i2eeu2t0n3je5i2np56uh5oevgg.apps.googleusercontent.com")
+                .requestEmail()
+                .build()
+
+
+
+//            var gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+//                    .requestIdToken(getString(R.string.default_web_client_id))
+//                    .requestEmail()
+//                    .build()
 
 
             var googleSignInClient : GoogleSignInClient? = null
