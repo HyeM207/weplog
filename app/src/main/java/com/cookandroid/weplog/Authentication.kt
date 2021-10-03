@@ -145,7 +145,7 @@ class Authentication : AppCompatActivity() {
 
     }
 
-    private fun uploadPost(trashPlace : String, plogkey:String) {
+    private fun uploadPost(trashPlace : String, pushRefKey:String) {
 
         val user = Firebase.auth.currentUser
         database = Firebase.database.reference
@@ -179,13 +179,15 @@ class Authentication : AppCompatActivity() {
                     var mCalendar = Calendar.getInstance()
                     var todayDate = (mCalendar.get(Calendar.YEAR)).toString() + "/" + (mCalendar.get(Calendar.MONTH) + 1).toString() + "/" + (mCalendar.get(Calendar.DAY_OF_MONTH)).toString()
                     database.child("users").child(user.uid).child("lastAuth").setValue(todayDate)
+                    database.child("users").child(user.uid).child("lastAuthPost").setValue(post.postId)
                     database.child("users").child(user.uid).child("posts/$key").setValue(false)// 수정 후 : post객체 id만 저장
+
                     database.child("community").child(key).setValue(postValues)
 
 
                     // 위치 정보 추가
-                    Log.i("firebase", "업로드 하기전에 플로그객체 키 값 확인 $plogkey")
-                    pushRef=database.child("user/${user.uid}/Pedometer/date").child(todayDate).child("$plogkey/record")
+                    Log.i("firebase", "업로드 하기전에 플로그객체 키 값 확인 $pushRefKey")
+                    pushRef=database.child("user/${user.uid}/Pedometer/date").child(todayDate).child("$pushRefKey/record")
                     pushRef.child("trashPlace").setValue(trashPlace)
 
                     var trashplace_str =trashPlace

@@ -89,7 +89,7 @@ class RecordActivity : AppCompatActivity(), bottomsheetFragment.onDataPassListen
 
 
     override fun onDataPass(data: String, data2 : String) {
-        Toast.makeText(this, "$data", Toast.LENGTH_SHORT).show()
+//        Toast.makeText(this, "$data", Toast.LENGTH_SHORT).show()
         record_month = data
         record_year = data2
         rec_btn!!.text = record_year.toString() +"년  " + record_month.toString() + "월"
@@ -104,22 +104,22 @@ class RecordActivity : AppCompatActivity(), bottomsheetFragment.onDataPassListen
         var currentMonth = (mCalendar.get(Calendar.MONTH) + 1).toString()
         var currentYear = (mCalendar.get(Calendar.YEAR)).toString()
         if ( currentMonth != m || currentYear != y ){
-            Toast.makeText(this, "다른 ", Toast.LENGTH_SHORT).show()
+//            Toast.makeText(this, "다른 ", Toast.LENGTH_SHORT).show()
             database.child("user").child(user!!.uid).child("Pedometer").child("date").child(y).child(m).get().addOnSuccessListener {
 
                 if (it.value.toString() == "null"){
                     barchart!!.isInvisible = true
-                    Toast.makeText(this, "아직 플러깅 하지도 않", Toast.LENGTH_SHORT).show()
+//                    Toast.makeText(this, "아직 플러깅 하지도 않", Toast.LENGTH_SHORT).show()
                     println("아직 플러깅 하지도 않음")
                 } else {
                     barchart!!.isInvisible = false
-                    Toast.makeText(this, "플러깅 ", Toast.LENGTH_SHORT).show()
+//                    Toast.makeText(this, "플러깅 ", Toast.LENGTH_SHORT).show()
                     println("value : " + it.value.toString())
                     calculateData(m, y)
                 }
             }.addOnFailureListener{
                 barchart!!.isInvisible = true
-                Toast.makeText(this, "아직 플러깅 하지도 않", Toast.LENGTH_SHORT).show()
+//                Toast.makeText(this, "아직 플러깅 하지도 않", Toast.LENGTH_SHORT).show()
                 println("아직 플러깅 하지도 않음")
             }
         } else if ( currentMonth == m && currentYear == y){
@@ -142,7 +142,7 @@ class RecordActivity : AppCompatActivity(), bottomsheetFragment.onDataPassListen
         val user = Firebase.auth.currentUser
         println("user : " + user!!.uid)
         if (user == null) {
-            Toast.makeText(this, "[Record] user가 null", Toast.LENGTH_SHORT).show()
+//            Toast.makeText(this, "[Record] user가 null", Toast.LENGTH_SHORT).show()
             var intent = Intent(this, Login::class.java)
             startActivity(intent)
 

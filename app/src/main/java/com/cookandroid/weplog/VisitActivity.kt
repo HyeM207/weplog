@@ -47,8 +47,9 @@ class VisitActivity:AppCompatActivity() {
 
         visit_mapview.setMapCenterPoint(MapPoint.mapPointWithGeoCoord(36.1648803, 127.4809185), true);
         visit_mapview.setZoomLevel(11, true)
-        visit_mapview.currentLocationTrackingMode = MapView.CurrentLocationTrackingMode.TrackingModeOff
         visit_mapview.setShowCurrentLocationMarker(false)
+//        visit_mapview.currentLocationTrackingMode = MapView.CurrentLocationTrackingMode.TrackingModeOff
+
 
         database = Firebase.database.reference
 
