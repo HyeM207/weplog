@@ -13,6 +13,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
@@ -50,6 +51,7 @@ class MainFragment : Fragment() {
         var view = inflater.inflate(R.layout.main, container, false)
 
         auth = FirebaseAuth.getInstance()
+        (requireActivity() as AppCompatActivity).supportActionBar?.hide()
 
 
         main_nickname = view.findViewById(R.id.main_nickname)
@@ -62,7 +64,7 @@ class MainFragment : Fragment() {
         // main 페이지 접근 시 로그인 되어 있는지 확인
         val user = Firebase.auth.currentUser
         if (user == null) {
-            Toast.makeText(activity, "[Main] user가 null", Toast.LENGTH_SHORT).show()
+//            Toast.makeText(activity, "[Main] user가 null", Toast.LENGTH_SHORT).show()
             var intent = Intent(activity, Login::class.java)
             startActivity(intent)
 
@@ -148,6 +150,17 @@ class MainFragment : Fragment() {
         }
 
         return view
+
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        (requireActivity() as AppCompatActivity).supportActionBar?.hide()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        (requireActivity() as AppCompatActivity).supportActionBar?.show()
 
     }
 

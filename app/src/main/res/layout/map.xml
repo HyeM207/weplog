@@ -9,7 +9,7 @@
     <net.daum.mf.map.api.MapView
         android:id="@+id/map_view"
         android:layout_width="411dp"
-        android:layout_height="464dp"
+        android:layout_height="500dp"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -22,23 +22,23 @@
         android:id="@+id/map_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="50dp"
         android:text="00:00:00"
-        android:textSize="20sp"
+        android:textColor="@color/black"
+        android:textSize="34sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/map_km" />
+        app:layout_constraintTop_toBottomOf="@+id/map_view" />
 
     <TextView
         android:id="@+id/map_km"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="8dp"
-        android:text="0.00km"
-        android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="80dp"
+        android:layout_marginTop="24dp"
+        android:text="0.00"
+        android:textColor="@color/black"
+        android:textSize="34sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/map_view" />
 
@@ -46,14 +46,15 @@
         android:id="@+id/map_btnstart"
         android:layout_width="0dp"
         android:layout_height="48dp"
-        android:layout_marginStart="50dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="50dp"
-        android:text="start"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="@color/darkgreen"
+        android:text="플로깅 시작하기"
+        android:textAlignment="center"
+        android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHeight_percent="0.07"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/map_time"
+        app:layout_constraintTop_toBottomOf="@+id/textView21"
         app:layout_constraintWidth_percent="0.4" />
 
     <Button
@@ -61,25 +62,49 @@
         android:layout_width="110dp"
         android:layout_height="44dp"
         android:layout_marginStart="80dp"
-        android:layout_marginTop="8dp"
-        android:text="STOP"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="@color/darkgreen"
+        android:text="일시정지"
+        android:textAlignment="center"
+        android:textColor="@color/white"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/map_time"
+        app:layout_constraintTop_toBottomOf="@+id/textView21"
         app:layout_constraintVertical_bias="0.012" />
 
     <Button
         android:id="@+id/map_btnend"
         android:layout_width="110dp"
         android:layout_height="44dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="80dp"
-        android:text="END"
+        android:backgroundTint="@color/darkgreen"
+        android:text="종료"
+        android:textAlignment="center"
+        android:textColor="@color/white"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/map_time"
+        app:layout_constraintTop_toBottomOf="@+id/textView21"
         app:layout_constraintVertical_bias="0.012" />
+
+    <TextView
+        android:id="@+id/textView21"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="100dp"
+        android:text="km"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/map_km" />
+
+    <TextView
+        android:id="@+id/textView22"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="83dp"
+        android:text="달린 시간"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/map_time" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
