@@ -37,6 +37,8 @@ import java.util.*
 class MainFragment : Fragment() {
 
     lateinit var main_nickname : TextView
+    lateinit var main_kcaltxt : TextView
+    lateinit var main_steptxt : TextView
     lateinit var main_logoutBtn : Button
     lateinit var mainRecordLayout : ConstraintLayout
     lateinit var mainPlogLayout:ConstraintLayout
@@ -59,6 +61,14 @@ class MainFragment : Fragment() {
                     val pattern = "%d Steps"
                     String.format(pattern, progress)
                 })
+
+                if ( snapshot.child("type").value.toString() == "0" ){
+
+                } else if ( snapshot.child("type").value.toString() == "1"){
+
+                } else {
+
+                }
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -86,6 +96,8 @@ class MainFragment : Fragment() {
         mainAreaLayout = view.findViewById(R.id.mainAreaLayout)
         main_lv = view.findViewById(R.id.main_lv)
         mCircleProgressBar = view.findViewById(R.id.main_step)
+        main_steptxt = view.findViewById(R.id.main_steptxt)
+        main_kcaltxt = view.findViewById(R.id.main_kcaltxt)
 
         // main 페이지 접근 시 로그인 되어 있는지 확인
         val user = Firebase.auth.currentUser
