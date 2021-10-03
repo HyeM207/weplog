@@ -85,7 +85,6 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
     //시간 측정용 변수
     private var timerTask:Timer?=null
     private var time = 0
-    private val realTimerTask: TimerTask? = null
     private var timerIsRunning = false
     var hour = 0
     var min = 0
@@ -116,6 +115,7 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
         permissionCheck()
         map_view.setMapViewEventListener(this)
         map_view.setCurrentLocationEventListener(this)
+        map_view.setZoomLevel(2, true)
 
         database = Firebase.database.reference
 
@@ -166,45 +166,62 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
         }
 
         map_btnstart.setOnClickListener {
-            Toast.makeText(activity, "start click listener", Toast.LENGTH_SHORT).show()
-            editor.putString("isStarted", "Yes")
-            editor.commit()
-
-            map_btnstart.visibility = View.INVISIBLE
-            map_btnstop.visibility = View.VISIBLE
-            map_btnend.visibility = View.VISIBLE
-
-            var now=System.currentTimeMillis()
-            var date=Date(now)
-            var startdateFormat=SimpleDateFormat("k:mm")
-            var startTimeString=startdateFormat.format(date)
+//            Toast.makeText(activity, "start click listener", Toast.LENGTH_SHORT).show()
 
 
+            if (this::currentPointGeo.isInitialized){
+                //start => stop, end 바꾸기 위한 코드
+                editor.putString("isStarted", "Yes")
+                editor.commit()
 
-            timerIsRunning = !timerIsRunning
-            if (timerIsRunning) startTimer()
+                map_btnstart.visibility = View.INVISIBLE
+                map_btnstop.visibility = View.VISIBLE
+                map_btnend.visibility = View.VISIBLE
 
-            startPoint= MapPoint.mapPointWithGeoCoord(currentPointGeo.latitude, currentPointGeo.longitude)
-            makeStartMarker()
+                var now=System.currentTimeMillis()
+                var date=Date(now)
+                var startdateFormat=SimpleDateFormat("k:mm")
+                var startTimeString=startdateFormat.format(date)
 
-            Toast.makeText(activity, prefs.getString("isStarted","").toString(), Toast.LENGTH_SHORT).show()
-            startState=true
-            Log.i(LOG_TAG, String.format("startbtn click current location (%f,%f)", currentPointGeo.latitude, currentPointGeo.longitude))
 
-            pushRef=database.child("user/$uid/Pedometer/date").child(todayDate).push()
-            //pushRef.child("step/type").setValue("0")
-            pushRef.child("time/startTime").setValue("$startTimeString")
-            println("pp : " + pushRef.key)
+                timerIsRunning = !timerIsRunning
+                if (timerIsRunning) startTimer()
 
-            //pedometer service start
-            mStepsAnalysisIntent.putExtra("start", pushRef.key.toString())
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                requireActivity().startForegroundService(mStepsAnalysisIntent) //안드로이드 8.0이상부터는 startService사용이 어렵다고 함
-            } else {
-                requireActivity().startService(mStepsAnalysisIntent)
+                startPoint= MapPoint.mapPointWithGeoCoord(currentPointGeo.latitude, currentPointGeo.longitude)
+                makeStartMarker()
+
+                Toast.makeText(activity, prefs.getString("isStarted","").toString(), Toast.LENGTH_SHORT).show()
+                startState=true
+                Log.i(LOG_TAG, String.format("startbtn click current location (%f,%f)", currentPointGeo.latitude, currentPointGeo.longitude))
+
+                pushRef=database.child("user/$uid/Pedometer/date").child(todayDate).push()
+                //pushRef.child("step/type").setValue("0")
+                pushRef.child("time/startTime").setValue("$startTimeString")
+                println("pp : " + pushRef.key)
+
+                //pedometer service start
+                mStepsAnalysisIntent.putExtra("start", pushRef.key.toString())
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    requireActivity().startForegroundService(mStepsAnalysisIntent) //안드로이드 8.0이상부터는 startService사용이 어렵다고 함
+                } else {
+                    requireActivity().startService(mStepsAnalysisIntent)
+                }
+            }else{
+                AlertDialog.Builder(requireContext()).setTitle("알림")
+                    .setMessage("아직 현재 위치가 반영되지 않았습니다. \n위치 정보를 키고 현재 위치가 반영되어야 플러깅을 시작할 수 있습니다.")
+                    .setPositiveButton("ok", object : DialogInterface.OnClickListener {
+                        override fun onClick(dialog: DialogInterface, which: Int) {
+                            Log.d("MyTag", "positive")
+//                            activity!!.finish()
+//                            activity!!.overridePendingTransition(0,0)
+                        }
+                    }).create().show()
+
             }
 
-//            startAlertDialog()
+
+
+
         }
 
 
@@ -236,7 +253,7 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
             //var intent = Intent(activity, Authentication::class.java)
             //startActivity(intent)
 
-            endAlertDialog()
+
 
 
             var now=System.currentTimeMillis()
@@ -259,7 +276,7 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
             database.child("user/$uid/visit/서울특별시/도봉구/쌍문1동 삼양로144길/count").setValue("0")
             database.child("user/$uid/visit/서울특별시/도봉구/방학3 501-9/count").setValue("0")
             database.child("user/$uid/visit/경기도/고양시/덕양구 흥도동/count").setValue("0")
-
+            pushRefKey = pushRef.key.toString()
 
 
             map_km.text="0.00km"
@@ -269,7 +286,7 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
             sec=0
             map_time.text=String.format("%02d:%02d:%02d", hour, min, sec)
 
-
+            endAlertDialog()
 
         }
 
@@ -382,31 +399,9 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
             builder.setCancelable(false) //외부 레이아웃 클릭시도 팝업창이 사라지지않게 설정
 
             builder.setPositiveButton("네", DialogInterface.OnClickListener { dialog, which ->
-                database = Firebase.database.reference
-                val user = Firebase.auth.currentUser
-
-                // 하루에 한 번 인증 제한
-                database.child("users").child(user?.uid.toString()).get().addOnSuccessListener {
-
-                    var mCalendar = Calendar.getInstance()
-                    val todayDate = (mCalendar.get(Calendar.YEAR)).toString() + "/" + (mCalendar.get(Calendar.MONTH) + 1).toString() + "/" + (mCalendar.get(Calendar.DAY_OF_MONTH)).toString()
-                    val lastAuth = it.child("lastAuth").value.toString()
-
-                    Log.e ("auth",todayDate +", "+lastAuth+".")
-                    if (! lastAuth.equals(todayDate)){ // 인증 가능함
-                        Log.e("auth","equal하지 않음")
-                        var intent = Intent(activity, Authentication::class.java)
-                        startActivity(intent)
-                    }
-                    else{ // 인증 못 함
-                        Log.e("auth","equal함")
-                        Toast.makeText(requireContext(),"오늘 이미 인증하셨습니다. (인증 일일 1회 제한)",Toast.LENGTH_SHORT).show()
-                        var intent = Intent(activity, NavigationActivity::class.java)
-                        startActivity(intent)
-                    }
-                }
-
-
+                val intent = Intent(activity, QRcodeScanner::class.java)
+                intent.putExtra("page", "MapFragment")
+                startActivity(intent)
             })
             builder.setNegativeButton("아니오", DialogInterface.OnClickListener { dialog, which ->
             })
@@ -437,11 +432,31 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
             builder.setCancelable(false) //외부 레이아웃 클릭시도 팝업창이 사라지지않게 설정
 
             builder.setPositiveButton("네", DialogInterface.OnClickListener { dialog, which ->
+                database = Firebase.database.reference
+                val user = Firebase.auth.currentUser
 
-                var intent = Intent(activity, Authentication::class.java)
-                intent.putExtra("pushRefKey",pushRefKey)
-                Log.i("firebase", "check pushrefkey in mapfragment : $pushRefKey")
-                startActivity(intent)
+                // 하루에 한 번 인증 제한
+                database.child("users").child(user?.uid.toString()).get().addOnSuccessListener {
+
+                    var mCalendar = Calendar.getInstance()
+                    val todayDate = (mCalendar.get(Calendar.YEAR)).toString() + "/" + (mCalendar.get(Calendar.MONTH) + 1).toString() + "/" + (mCalendar.get(Calendar.DAY_OF_MONTH)).toString()
+                    val lastAuth = it.child("lastAuth").value.toString()
+
+                    Log.e ("auth",todayDate +", "+lastAuth+".")
+                    if (! lastAuth.equals(todayDate)){ // 인증 가능함
+                        Log.e("auth","equal하지 않음")
+                        var intent = Intent(activity, Authentication::class.java)
+                        startActivity(intent)
+                    }
+                    else{ // 인증 못 함
+                        Log.e("auth","equal함")
+                        Toast.makeText(requireContext(),"오늘 이미 인증하셨습니다. (인증 일일 1회 제한)",Toast.LENGTH_SHORT).show()
+                        var intent = Intent(activity, NavigationActivity::class.java)
+                        startActivity(intent)
+                    }
+                }
+
+
             })
             builder.setNegativeButton("아니오", DialogInterface.OnClickListener { dialog, which ->
             })
@@ -605,7 +620,9 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
 //
 //            var mapcenter=MapPointBounds(polyline.mapPoints)
 //            var padding=100
-//
+//            map_view.setMapCenterPointAndZoomLevel(MapPoint.mapPointWithGeoCoord(33.41, 126.52), 9, true)
+            map_view.setMapCenterPointAndZoomLevel(currentLocation, 2, true)
+
 //            map_view.moveCamera(CameraUpdateFactory.newMapPointBounds(mapcenter, padding))
         }
 

@@ -3,6 +3,7 @@ package com.cookandroid.weplog
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import com.google.zxing.integration.android.IntentIntegrator
 import com.google.zxing.integration.android.IntentResult
@@ -12,6 +13,7 @@ class QRcodeScanner : AppCompatActivity() {
     // private val MapFragment by lazy { MapFragment() }
 
     lateinit var pageName : String
+    lateinit var pushRefKey : String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,8 +23,14 @@ class QRcodeScanner : AppCompatActivity() {
         if (intent.hasExtra("page")){
             pageName = intent.getStringExtra("page").toString()
             Toast.makeText(this, pageName +  "페이지 이름", Toast.LENGTH_SHORT).show()
+
+            if (intent.hasExtra("pushRefKey")){
+                pushRefKey = intent.getStringExtra("pushRefKey").toString()
+            }
+
             initQRcodeScanner(pageName)
         }
+
 
 
     }
@@ -43,12 +51,13 @@ class QRcodeScanner : AppCompatActivity() {
                 Toast.makeText(this, "QR코드 인증이 취소되었습니다.", Toast.LENGTH_SHORT).show()
                 finish()
             } else {
-
                 // 페이지 이동
                 if (pageName.equals("Authentication")) {
                     var intent = Intent(this, Authentication::class.java)
                     intent.putExtra("trashplace", result.contents.toString())
-                    Toast.makeText(this, result.contents.toString() + "내용", Toast.LENGTH_SHORT).show()
+                    intent.putExtra("pushRefKey", pushRefKey)
+                    Log.e("1002", pushRefKey+"QR 페이지에서 보내려고 함")
+                    //Toast.makeText(this, result.contents.toString() + "내용", Toast.LENGTH_SHORT).show()
                     startActivity(intent)
                 }
 

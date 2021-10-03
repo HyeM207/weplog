@@ -1,9 +1,11 @@
 package com.cookandroid.weplog
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.location.Location
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,18 +14,18 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import androidx.core.app.ActivityCompat
+import androidx.fragment.app.Fragment
+import com.google.android.gms.location.LocationServices
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
-import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.main.*
+import retrofit2.http.GET
 
 
 class MainFragment : Fragment() {
@@ -90,6 +92,12 @@ class MainFragment : Fragment() {
             }
         })
 
+
+
+
+
+
+
         // 내가 쓴글 보기
         main_nickname.setOnClickListener {
             var intent = Intent(activity, MyPost::class.java)
@@ -97,7 +105,6 @@ class MainFragment : Fragment() {
         }
 
 
-        // 로그아웃
 
         // 로그아웃
         main_logoutBtn.setOnClickListener {
@@ -143,4 +150,9 @@ class MainFragment : Fragment() {
     }
 
 
+
+
 }
+
+
+

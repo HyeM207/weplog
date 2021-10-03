@@ -65,7 +65,8 @@ class Login : AppCompatActivity() {
 
         val user = FirebaseAuth.getInstance().currentUser
         if (user != null) {
-            Toast.makeText(this, "[Login] currentUser가 null이 아님", Toast.LENGTH_SHORT).show()
+            Log.e("user", "user: ${user.toString()}")
+            Toast.makeText(this, "[Login] currentUser가 null이 아님" + user, Toast.LENGTH_SHORT).show()
             var intent = Intent(this, NavigationActivity::class.java)
             startActivity(intent)
             finish()
@@ -77,7 +78,6 @@ class Login : AppCompatActivity() {
 
 
         // /* 구글 로그인 */
-
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
@@ -108,7 +108,6 @@ class Login : AppCompatActivity() {
     override fun onStart() {
         // 활동은 초기화 할 때 사용자가 현재 로그인되어 있는지 확인함
         super.onStart()
-
         val currentUser = auth?.currentUser
         updateUI(currentUser)
     }

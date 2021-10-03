@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
@@ -35,6 +36,7 @@ import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 
 class Authentication : AppCompatActivity() {
 
@@ -82,6 +84,9 @@ class Authentication : AppCompatActivity() {
             auth_step1TPlace.visibility = View.VISIBLE
 
             trashPlace = intent.getStringExtra("trashplace").toString()
+            auth_step1TPlace.setSingleLine(false)
+            auth_step1TPlace.setTextSize(16F)
+            auth_step1TPlace.setTextColor(Color.parseColor("#000000"));
             auth_step1TPlace.text = trashPlace
             authStep1 = true
             auth_layoutStep1.isClickable = false
@@ -90,7 +95,7 @@ class Authentication : AppCompatActivity() {
 
         if (intent.hasExtra("pushRefKey")){
             pushRefKey = intent.getStringExtra("pushRefKey").toString()
-            Log.i("firebase", "$pushRefKey")
+            Log.e("1002", "$pushRefKey exists" )
         }
 
         // 인증 버튼 visible로 바꾸기
@@ -101,6 +106,8 @@ class Authentication : AppCompatActivity() {
         auth_layoutStep1.setOnClickListener {
             val intent = Intent(this, QRcodeScanner::class.java)
             intent.putExtra("page","Authentication")
+            intent.putExtra("pushRefKey", pushRefKey)
+            Log.e("1002", pushRefKey+"QR 페이지 이동 전 ")
             startActivity(intent)
         }
 
@@ -133,8 +140,7 @@ class Authentication : AppCompatActivity() {
 
         // skip 버튼
         auth_btnskip.setOnClickListener {
-            val intent = Intent(this, NavigationActivity::class.java)
-            startActivity(intent)
+                this.finish() // 뒤로 가기 버튼
         }
 
     }
@@ -181,6 +187,28 @@ class Authentication : AppCompatActivity() {
                     Log.i("firebase", "업로드 하기전에 플로그객체 키 값 확인 $plogkey")
                     pushRef=database.child("user/${user.uid}/Pedometer/date").child(todayDate).child("$plogkey/record")
                     pushRef.child("trashPlace").setValue(trashPlace)
+
+                    var trashplace_str =trashPlace
+                    var trashsplit=trashplace_str!!.split(" ")
+                    Log.i("firebase", "check in trashsplit : $trashsplit")
+                    var bigarea = trashsplit[0]
+                    var midarea = trashsplit[1]
+                    var tmplist=ArrayList<String>()
+                    var trasharea=""
+                    for (i in 2..trashsplit.size-1){
+                        tmplist.add(trashsplit[i])
+                    }
+                    trasharea = tmplist.joinToString(" ")
+
+                    Log.i("firebase", "check in auth big : $bigarea, mid : $midarea, trasharea : $trasharea")
+                    database.child("user/${user.uid}/visit/$bigarea/$midarea/$trasharea/count").setValue("0")
+
+
+
+
+
+
+
                 }
 
             }
@@ -191,8 +219,7 @@ class Authentication : AppCompatActivity() {
 
         Toast.makeText(this,"업로드 완료!", Toast.LENGTH_SHORT).show()
 
-        val intent = Intent(this, NavigationActivity::class.java)
-        startActivity(intent)
+        this.finish() // 뒤로 가기 버튼
 
 
     }
@@ -244,18 +271,6 @@ class Authentication : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-//        auth_step2Preview = findViewById(R.id.auth_step2Preview)
-//        auth_step2Preview.visibility = View.VISIBLE
-//
-//        val REQUEST_IMAGE_CAPTURE = 1
-//
-//        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-//            //Toast.makeText(this, "사진 Preview 함수 작동", Toast.LENGTH_SHORT).show()
-//            val imageBitmap = data?.extras?.get("data") as Bitmap
-//            auth_step2Preview.setImageBitmap(imageBitmap)
-//            authStep2 = true
-//            checkAuth()
-//        }
         val REQUEST_IMAGE_CAPTURE = 1
 
         auth_step2Preview = findViewById(R.id.auth_step2Preview)
