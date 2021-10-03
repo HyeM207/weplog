@@ -337,6 +337,7 @@ class MainFragment : Fragment() {
 
     fun checkLv(){
 
+
         // nickname & grade 이미지 설정
         val userRef = Firebase.database.getReference("users")
 
@@ -383,7 +384,6 @@ class MainFragment : Fragment() {
 
 
     fun loadvisit() {
-
 
         database.child("user/$uid/visit").get().addOnSuccessListener {
             var post = it.children
@@ -466,7 +466,7 @@ class MainFragment : Fragment() {
             }
 
             titleList = ArrayList(listData.keys)
-            countList.clear()
+            countList=ArrayList<Int>()
 
             for (title in titleList as ArrayList<String>){
                 countList.add(listData[title]!!.size)
