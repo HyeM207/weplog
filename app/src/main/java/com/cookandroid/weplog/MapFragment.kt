@@ -33,6 +33,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import com.google.zxing.integration.android.IntentIntegrator
 import kotlinx.android.synthetic.main.map.*
 import net.daum.mf.map.api.*
 import java.text.SimpleDateFormat
@@ -107,7 +108,15 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
             inflater: LayoutInflater, container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
+        if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACTIVITY_RECOGNITION) != PackageManager.PERMISSION_GRANTED) {
+            println("Permission is not granted")
+            ActivityCompat.requestPermissions(
+                requireActivity(),
+                arrayOf(Manifest.permission.ACTIVITY_RECOGNITION),
+                IntentIntegrator.REQUEST_CODE
+            )
 
+        }
         //pedometer Service
         var mStepsAnalysisIntent = Intent(activity, StepsTrackerService::class.java)
         var view = inflater.inflate(R.layout.map, container, false)

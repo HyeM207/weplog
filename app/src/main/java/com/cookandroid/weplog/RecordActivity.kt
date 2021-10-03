@@ -1,11 +1,15 @@
 package com.cookandroid.weplog
 
+import android.Manifest
+import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
+import android.content.pm.PackageManager
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.RectF
@@ -22,7 +26,10 @@ import android.util.Log
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
+import androidx.core.app.ActivityCompat
+import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.isInvisible
 import com.github.mikephil.charting.animation.ChartAnimator
 import com.github.mikephil.charting.charts.BarChart
@@ -44,6 +51,7 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.annotations.NotNull
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import com.google.zxing.integration.android.IntentIntegrator.REQUEST_CODE
 import kotlinx.android.synthetic.main.detail.*
 import kotlinx.android.synthetic.main.main_history.*
 import kotlinx.android.synthetic.main.record.*
@@ -487,7 +495,13 @@ class StepsTrackerService : Service() {
 
         //Toast.makeText(this, step_id, Toast.LENGTH_SHORT).show()
 
-
+//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACTIVITY_RECOGNITION) != PackageManager.PERMISSION_GRANTED) {
+//            println("Permission is not granted")
+//            requestPermissions(, arrayOf(Manifest.permission.ACTIVITY_RECOGNITION), REQUEST_CODE)
+////            requestPermissions(CONTEXT,
+////                arrayOf(Manifest.permission.REQUESTED_PERMISSION),
+////                REQUEST_CODE)
+//        }
         database = Firebase.database.reference
 
         //db 연결 코드 넣기
