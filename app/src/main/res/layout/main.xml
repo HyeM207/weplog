@@ -386,6 +386,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="24dp"
+                    android:text="내 등급"
                     android:textColor="#545454"
                     android:textSize="18sp"
                     app:layout_constraintStart_toStartOf="parent"

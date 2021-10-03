@@ -27,8 +27,11 @@ class MyProfileActivity:AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.mypage_profile)
+        supportActionBar!!.hide()
 
         database = Firebase.database.reference
+        supportActionBar!!.hide()
+
         database.child("users/$uid").get().addOnSuccessListener {
             var post = it.getValue<User>()
 
@@ -74,10 +77,17 @@ class MyProfileActivity:AppCompatActivity() {
         }
 
 
+    }
 
 
+    override fun onResume() {
+        super.onResume()
+        supportActionBar!!.hide()
+    }
 
-
+    override fun onDestroy() {
+        super.onDestroy()
+        supportActionBar!!.show()
     }
 
 }
