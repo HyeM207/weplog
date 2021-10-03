@@ -100,7 +100,7 @@ class MainFragment : Fragment() {
 
         // 로그아웃
         main_logoutBtn.setOnClickListener {
-/*
+
             var gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                     .requestIdToken(getString(R.string.default_web_client_id))
                     .requestEmail()
@@ -115,8 +115,8 @@ class MainFragment : Fragment() {
             Firebase.auth.signOut()
             FirebaseAuth.getInstance().signOut()
             googleSignInClient?.signOut()  // 구글 로그인 세션까지 로그아웃 처리
-*/
-            var intent = Intent(activity, Authentication::class.java)
+
+            var intent = Intent(activity, Login::class.java)
             startActivity(intent)
 
         }

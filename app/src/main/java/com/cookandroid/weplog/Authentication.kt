@@ -139,8 +139,7 @@ class Authentication : AppCompatActivity() {
 
         // skip 버튼
         auth_btnskip.setOnClickListener {
-            val intent = Intent(this, NavigationActivity::class.java)
-            startActivity(intent)
+                this.finish() // 뒤로 가기 버튼
         }
 
     }
@@ -187,6 +186,7 @@ class Authentication : AppCompatActivity() {
                     Log.i("firebase", "업로드 하기전에 플로그객체 키 값 확인 $plogkey")
                     pushRef=database.child("user/${user.uid}/Pedometer/date").child(todayDate).child("$plogkey/record")
                     pushRef.child("trashPlace").setValue(trashPlace)
+
                 }
 
             }
@@ -197,8 +197,7 @@ class Authentication : AppCompatActivity() {
 
         Toast.makeText(this,"업로드 완료!", Toast.LENGTH_SHORT).show()
 
-        val intent = Intent(this, NavigationActivity::class.java)
-        startActivity(intent)
+        this.finish() // 뒤로 가기 버튼
 
 
     }

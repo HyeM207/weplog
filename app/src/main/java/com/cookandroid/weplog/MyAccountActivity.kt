@@ -23,9 +23,11 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import kotlinx.android.synthetic.main.mypage_account.*
+import java.lang.Exception
 
 class MyAccountActivity:AppCompatActivity() {
     lateinit var builder : AlertDialog.Builder
+    lateinit var mAuth :FirebaseAuth
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,8 +47,11 @@ class MyAccountActivity:AppCompatActivity() {
             Toast.makeText(this, "[Main] user가 null", Toast.LENGTH_SHORT).show()
             var intent = Intent(this, Login::class.java)
             startActivity(intent)
-
         }
+
+        mAuth = FirebaseAuth.getInstance();
+
+
         val adapter=ListViewAdapter(items)
         my_accountlist.adapter=adapter
 
@@ -84,64 +89,119 @@ class MyAccountActivity:AppCompatActivity() {
                 val withdrawal_edittext: EditText = view.findViewById(R.id.withdrawal_edittext)
                 var check_str = withdrawal_edittext.text.toString().trim()
                 if(check_str.equals("탈퇴")) {
-                    Toast.makeText(this, "탈퇴 성공", Toast.LENGTH_SHORT).show()
-
-                    var postRef = Firebase.database.getReference("community")
 
                     val user = Firebase.auth.currentUser
                     var database = Firebase.database.reference
 
+                    Log.e("delete", "here")
 
-                    database.child("users").child(user?.uid.toString()).get().addOnSuccessListener {
-                        val postList: Map<String, Object> =
-                            it.child("posts").value as Map<String, Object>
 
                         try {
-                            for (post in postList) {
-                                // 1. 연결된 사진 삭제
-                                database.child("community").child(post.key).get()
-                                    .addOnSuccessListener {
-                                        var photoUrl = it.child("photoUrl").value.toString()
-                                        Log.e("delete", "it :$photoUrl")
+                            database.child("users").child(user?.uid.toString()).get().addOnSuccessListener {
 
-                                        Firebase.storage.reference.child("community/${photoUrl}")
-                                            .delete().addOnSuccessListener {
-                                                Log.e("delete", "삭제 성공!")
-                                            }.addOnFailureListener {
-                                                Log.e("delete", "삭제 실패!" + it)
-                                            }
+                                Log.e("delete", "pos")
+
+                                if(it.child("posts").exists()) {
+
+                                val postList: Map<String, Object> ?= it.child("posts").value as Map<String, Object>
+
+                                if (postList != null) {
+                                    Log.e("delete", "postList : " + postList.toString())
+
+                                    for (post in postList) {
+                                        Log.e("delete", "post${post.key}")
+
+                                        // 1. 연결된 사진 삭제
+                                        database.child("community").child(post.key).get()
+                                                .addOnSuccessListener {
+                                                    var photoUrl = it.child("photoUrl").value.toString()
+                                                    Log.e("delete", "it :$photoUrl")
+
+                                                    Firebase.storage.reference.child("community/${photoUrl}")
+                                                            .delete().addOnSuccessListener {
+                                                                Log.e("delete", "삭제 성공!")
+                                                            }.addOnFailureListener {
+                                                                Log.e("delete", "삭제 실패!" + it)
+                                                            }
+                                                }
+
+                                        // 2. community의 post 객체 삭제
+                                        var postRef = Firebase.database.getReference("community").child(post.key)
+                                        //                            Log.e("post",postRef.toString())
+                                        postRef.setValue(null)
+                                        Log.e("post", post.key)
                                     }
-
-                                // 2. community의 post 객체 삭제
-                                var postRef = Firebase.database.getReference("community").child(post.key)
-//                            Log.e("post",postRef.toString())
-                                postRef.setValue(null)
-                                Log.e("post", post.key)
+                                }
+                            }
                             }
 
-//                            // 3.로그아웃
-//                            logout()
-
-
-                            // 4. user 객체 삭제
-                            var userRef = Firebase.database.getReference("users").child(user?.uid.toString())
+/*
+                            var userRef = Firebase.database.getReference("users").child(Firebase.auth.currentUser?.uid.toString())
                             userRef.setValue(null)
 
 
-                            // 5. auth에서 삭제
-                            val user = Firebase.auth.currentUser!!
 
+                            // (일반) 5. auth에서 삭제
+                            val user = Firebase.auth.currentUser!!
                             user.delete().addOnCompleteListener { task ->
                                     if (task.isSuccessful) {
-                                        Log.d("delete", "User account deleted.")
+                                        Log.e("delete", "User account deleted.")
                                     }
+                            }.addOnFailureListener {
+                                Log.e("delete", "실패!@!@!.")
                             }
 
 
-                        } finally {
 
+                            // (일반)로그아웃 및 auth에서 getCurrentUser 삭제
+                            Firebase.auth.signOut()
+                            mAuth.getCurrentUser()?.delete();    // (구글) 회원 탈퇴 - auth 삭제
+*/
+
+                            // (일반) 4. user 객체 삭제
+                            var userRef = Firebase.database.getReference("users").child(Firebase.auth.currentUser?.uid.toString())
+                            //userRef.setValue(null)
+                            userRef.removeValue().addOnSuccessListener { // user 객체 삭제
+/*
+                                // 구글 로그인 로그아웃
+                                var gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                                        .requestIdToken(getString(R.string.default_web_client_id))
+                                        .requestEmail()
+                                        .build()
+
+                                var googleSignInClient : GoogleSignInClient? = null
+                                googleSignInClient = GoogleSignIn.getClient(this, gso)
+
+                                googleSignInClient?.signOut()  // 구글 로그인 세션까지 로그아웃 처리
+                                Firebase.auth.signOut()
+*/
+                                /*
+                                FirebaseAuth.getInstance().currentUser!!.delete().addOnSuccessListener { // user 객체 삭제 성공하면 auth이 객체 삭제
+                                    Toast.makeText(this, "탈퇴 성공", Toast.LENGTH_SHORT).show()
+                                    var intent = Intent(this, Login::class.java) //로그인 페이지 이동
+                                    startActivity(intent)
+                                }
+
+                                 */
+
+                                Firebase.auth.currentUser!!.delete().addOnCompleteListener { task ->
+                                    if (task.isSuccessful) {
+                                        Log.e("delete", "User account deleted.")
+                                        var intent = Intent(this, Login::class.java) //로그인 페이지 이동
+                                        startActivity(intent)
+                                    }
+                                }.addOnFailureListener {
+                                    Log.e("delete", "실패!@!@!.")
+                                }
+
+
+                            }
+
+
+                        } catch (e : Exception) {
+                            Log.e("delete", "$e + error")
                         }
-                    }
+
 
                     }else{
                         Toast.makeText(this, "입력이 올바르지 않습니다. 정확한 문자열을 입력해주세요.", Toast.LENGTH_SHORT)
@@ -174,10 +234,6 @@ class MyAccountActivity:AppCompatActivity() {
         Firebase.auth.signOut()
         FirebaseAuth.getInstance().signOut()
         googleSignInClient?.signOut()  // 구글 로그인 세션까지 로그아웃 처리
-
-        var intent = Intent(this, Login::class.java)
-        startActivity(intent)
-
     }
 
 }

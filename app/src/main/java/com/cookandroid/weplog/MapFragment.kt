@@ -382,31 +382,9 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
             builder.setCancelable(false) //외부 레이아웃 클릭시도 팝업창이 사라지지않게 설정
 
             builder.setPositiveButton("네", DialogInterface.OnClickListener { dialog, which ->
-                database = Firebase.database.reference
-                val user = Firebase.auth.currentUser
-
-                // 하루에 한 번 인증 제한
-                database.child("users").child(user?.uid.toString()).get().addOnSuccessListener {
-
-                    var mCalendar = Calendar.getInstance()
-                    val todayDate = (mCalendar.get(Calendar.YEAR)).toString() + "/" + (mCalendar.get(Calendar.MONTH) + 1).toString() + "/" + (mCalendar.get(Calendar.DAY_OF_MONTH)).toString()
-                    val lastAuth = it.child("lastAuth").value.toString()
-
-                    Log.e ("auth",todayDate +", "+lastAuth+".")
-                    if (! lastAuth.equals(todayDate)){ // 인증 가능함
-                        Log.e("auth","equal하지 않음")
-                        var intent = Intent(activity, Authentication::class.java)
-                        startActivity(intent)
-                    }
-                    else{ // 인증 못 함
-                        Log.e("auth","equal함")
-                        Toast.makeText(requireContext(),"오늘 이미 인증하셨습니다. (인증 일일 1회 제한)",Toast.LENGTH_SHORT).show()
-                        var intent = Intent(activity, NavigationActivity::class.java)
-                        startActivity(intent)
-                    }
-                }
-
-
+                val intent = Intent(activity, QRcodeScanner::class.java)
+                intent.putExtra("page", "MapFragment")
+                startActivity(intent)
             })
             builder.setNegativeButton("아니오", DialogInterface.OnClickListener { dialog, which ->
             })
@@ -437,11 +415,31 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
             builder.setCancelable(false) //외부 레이아웃 클릭시도 팝업창이 사라지지않게 설정
 
             builder.setPositiveButton("네", DialogInterface.OnClickListener { dialog, which ->
+                database = Firebase.database.reference
+                val user = Firebase.auth.currentUser
 
-                var intent = Intent(activity, Authentication::class.java)
-                intent.putExtra("pushRefKey",pushRefKey)
-                Log.i("1002", "check pushrefkey in mapfragment : $pushRefKey")
-                startActivity(intent)
+                // 하루에 한 번 인증 제한
+                database.child("users").child(user?.uid.toString()).get().addOnSuccessListener {
+
+                    var mCalendar = Calendar.getInstance()
+                    val todayDate = (mCalendar.get(Calendar.YEAR)).toString() + "/" + (mCalendar.get(Calendar.MONTH) + 1).toString() + "/" + (mCalendar.get(Calendar.DAY_OF_MONTH)).toString()
+                    val lastAuth = it.child("lastAuth").value.toString()
+
+                    Log.e ("auth",todayDate +", "+lastAuth+".")
+                    if (! lastAuth.equals(todayDate)){ // 인증 가능함
+                        Log.e("auth","equal하지 않음")
+                        var intent = Intent(activity, Authentication::class.java)
+                        startActivity(intent)
+                    }
+                    else{ // 인증 못 함
+                        Log.e("auth","equal함")
+                        Toast.makeText(requireContext(),"오늘 이미 인증하셨습니다. (인증 일일 1회 제한)",Toast.LENGTH_SHORT).show()
+                        var intent = Intent(activity, NavigationActivity::class.java)
+                        startActivity(intent)
+                    }
+                }
+
+
             })
             builder.setNegativeButton("아니오", DialogInterface.OnClickListener { dialog, which ->
             })
