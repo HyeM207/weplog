@@ -47,9 +47,11 @@ class PostListViewAdapter(private val context: Context): RecyclerView.Adapter <P
         Firebase.storage.reference.child("community").child(postList[position].photoUrl.toString()).downloadUrl.addOnCompleteListener {
             if(it.isSuccessful){
                 Glide.with(holder.itemView?.context)
+                        .asGif()
                         .load(it.result)
-                        .placeholder(R.drawable.loading2)
+                        .placeholder(R.drawable.loading3)
                         .into(holder.comitem_photo)
+
             }
         }
 
