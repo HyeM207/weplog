@@ -85,7 +85,6 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
     //시간 측정용 변수
     private var timerTask:Timer?=null
     private var time = 0
-    private val realTimerTask: TimerTask? = null
     private var timerIsRunning = false
     var hour = 0
     var min = 0
@@ -116,6 +115,7 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
         permissionCheck()
         map_view.setMapViewEventListener(this)
         map_view.setCurrentLocationEventListener(this)
+        map_view.setZoomLevel(2, true)
 
         database = Firebase.database.reference
 
@@ -166,45 +166,62 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
         }
 
         map_btnstart.setOnClickListener {
-            Toast.makeText(activity, "start click listener", Toast.LENGTH_SHORT).show()
-            editor.putString("isStarted", "Yes")
-            editor.commit()
-
-            map_btnstart.visibility = View.INVISIBLE
-            map_btnstop.visibility = View.VISIBLE
-            map_btnend.visibility = View.VISIBLE
-
-            var now=System.currentTimeMillis()
-            var date=Date(now)
-            var startdateFormat=SimpleDateFormat("k:mm")
-            var startTimeString=startdateFormat.format(date)
+//            Toast.makeText(activity, "start click listener", Toast.LENGTH_SHORT).show()
 
 
+            if (this::currentPointGeo.isInitialized){
+                //start => stop, end 바꾸기 위한 코드
+                editor.putString("isStarted", "Yes")
+                editor.commit()
 
-            timerIsRunning = !timerIsRunning
-            if (timerIsRunning) startTimer()
+                map_btnstart.visibility = View.INVISIBLE
+                map_btnstop.visibility = View.VISIBLE
+                map_btnend.visibility = View.VISIBLE
 
-            startPoint= MapPoint.mapPointWithGeoCoord(currentPointGeo.latitude, currentPointGeo.longitude)
-            makeStartMarker()
+                var now=System.currentTimeMillis()
+                var date=Date(now)
+                var startdateFormat=SimpleDateFormat("k:mm")
+                var startTimeString=startdateFormat.format(date)
 
-            Toast.makeText(activity, prefs.getString("isStarted","").toString(), Toast.LENGTH_SHORT).show()
-            startState=true
-            Log.i(LOG_TAG, String.format("startbtn click current location (%f,%f)", currentPointGeo.latitude, currentPointGeo.longitude))
 
-            pushRef=database.child("user/$uid/Pedometer/date").child(todayDate).push()
-            //pushRef.child("step/type").setValue("0")
-            pushRef.child("time/startTime").setValue("$startTimeString")
-            println("pp : " + pushRef.key)
+                timerIsRunning = !timerIsRunning
+                if (timerIsRunning) startTimer()
 
-            //pedometer service start
-            mStepsAnalysisIntent.putExtra("start", pushRef.key.toString())
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                requireActivity().startForegroundService(mStepsAnalysisIntent) //안드로이드 8.0이상부터는 startService사용이 어렵다고 함
-            } else {
-                requireActivity().startService(mStepsAnalysisIntent)
+                startPoint= MapPoint.mapPointWithGeoCoord(currentPointGeo.latitude, currentPointGeo.longitude)
+                makeStartMarker()
+
+                Toast.makeText(activity, prefs.getString("isStarted","").toString(), Toast.LENGTH_SHORT).show()
+                startState=true
+                Log.i(LOG_TAG, String.format("startbtn click current location (%f,%f)", currentPointGeo.latitude, currentPointGeo.longitude))
+
+                pushRef=database.child("user/$uid/Pedometer/date").child(todayDate).push()
+                //pushRef.child("step/type").setValue("0")
+                pushRef.child("time/startTime").setValue("$startTimeString")
+                println("pp : " + pushRef.key)
+
+                //pedometer service start
+                mStepsAnalysisIntent.putExtra("start", pushRef.key.toString())
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    requireActivity().startForegroundService(mStepsAnalysisIntent) //안드로이드 8.0이상부터는 startService사용이 어렵다고 함
+                } else {
+                    requireActivity().startService(mStepsAnalysisIntent)
+                }
+            }else{
+                AlertDialog.Builder(requireContext()).setTitle("알림")
+                    .setMessage("아직 현재 위치가 반영되지 않았습니다. \n위치 정보를 키고 현재 위치가 반영되어야 플러깅을 시작할 수 있습니다.")
+                    .setPositiveButton("ok", object : DialogInterface.OnClickListener {
+                        override fun onClick(dialog: DialogInterface, which: Int) {
+                            Log.d("MyTag", "positive")
+//                            activity!!.finish()
+//                            activity!!.overridePendingTransition(0,0)
+                        }
+                    }).create().show()
+
             }
 
-//            startAlertDialog()
+
+
+
         }
 
 
@@ -605,7 +622,9 @@ class MapFragment : Fragment() , MapView.CurrentLocationEventListener, MapView.M
 //
 //            var mapcenter=MapPointBounds(polyline.mapPoints)
 //            var padding=100
-//
+//            map_view.setMapCenterPointAndZoomLevel(MapPoint.mapPointWithGeoCoord(33.41, 126.52), 9, true)
+            map_view.setMapCenterPointAndZoomLevel(currentLocation, 2, true)
+
 //            map_view.moveCamera(CameraUpdateFactory.newMapPointBounds(mapcenter, padding))
         }
 

@@ -36,6 +36,7 @@ import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 
 class Authentication : AppCompatActivity() {
 
@@ -61,6 +62,7 @@ class Authentication : AppCompatActivity() {
 
 
     private lateinit var database: DatabaseReference
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -187,6 +189,28 @@ class Authentication : AppCompatActivity() {
                     Log.i("firebase", "업로드 하기전에 플로그객체 키 값 확인 $plogkey")
                     pushRef=database.child("user/${user.uid}/Pedometer/date").child(todayDate).child("$plogkey/record")
                     pushRef.child("trashPlace").setValue(trashPlace)
+
+                    var trashplace_str =trashPlace
+                    var trashsplit=trashplace_str!!.split(" ")
+                    Log.i("firebase", "check in trashsplit : $trashsplit")
+                    var bigarea = trashsplit[0]
+                    var midarea = trashsplit[1]
+                    var tmplist=ArrayList<String>()
+                    var trasharea=""
+                    for (i in 2..trashsplit.size-1){
+                        tmplist.add(trashsplit[i])
+                    }
+                    trasharea = tmplist.joinToString(" ")
+
+                    Log.i("firebase", "check in auth big : $bigarea, mid : $midarea, trasharea : $trasharea")
+                    database.child("user/${user.uid}/visit/$bigarea/$midarea/$trasharea/count").setValue("0")
+
+
+
+
+
+
+
                 }
 
             }

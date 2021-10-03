@@ -64,7 +64,6 @@ class VisitlistActivity:AppCompatActivity() {
                 Log.i("firebase", "bigarea $pbig")
                 bigareaList.add("$pbig")
             }
-//            bigareaList.reverse()
 
             //년도
             for (y in bigareaList){
@@ -77,8 +76,6 @@ class VisitlistActivity:AppCompatActivity() {
                     middleareaList.add("$pmid")
                     Log.i("firebase", "middle area $pmid")
                 }
-//                monthList.reverse()
-
 
                 for (mid in middleareaList){
 
@@ -103,7 +100,6 @@ class VisitlistActivity:AppCompatActivity() {
                         visitarea.middlearea=mid
                         visitarea.trasharea=day
                         visitarea.count=it.child("$y/$mid/$day/count").value.toString().toInt()
-//                        visitarea.count=0
 
                         visitlist.add(visitarea)
                     }
@@ -131,7 +127,6 @@ class VisitlistActivity:AppCompatActivity() {
 
                     if(check_header == h){
                         childList.add(v.trasharea)
-//                        listData.put(h, childList)
                     }
                 }
 
