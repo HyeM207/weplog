@@ -179,7 +179,9 @@ class Authentication : AppCompatActivity() {
                     var mCalendar = Calendar.getInstance()
                     var todayDate = (mCalendar.get(Calendar.YEAR)).toString() + "/" + (mCalendar.get(Calendar.MONTH) + 1).toString() + "/" + (mCalendar.get(Calendar.DAY_OF_MONTH)).toString()
                     database.child("users").child(user.uid).child("lastAuth").setValue(todayDate)
+                    database.child("users").child(user.uid).child("lastAuthPost").setValue(post.postId)
                     database.child("users").child(user.uid).child("posts/$key").setValue(false)// 수정 후 : post객체 id만 저장
+
                     database.child("community").child(key).setValue(postValues)
 
 

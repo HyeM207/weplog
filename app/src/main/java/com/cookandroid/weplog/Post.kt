@@ -22,7 +22,6 @@ class Post (
         var reportCnt : Int ?= 0, // 신고 횟수
         var reports :  MutableMap<String, String> = HashMap()  // 신고 항목 (신고자 uid, 신고 항목)
 
-
 )
 {
     @Exclude
