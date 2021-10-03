@@ -22,6 +22,7 @@ android:paddingRight="20dp">
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_constraintTop_toTopOf="parent"
+        android:layout_gravity="center_horizontal"
         app:layout_constraintLeft_toLeftOf="parent">
 
         <Button
@@ -43,8 +44,8 @@ android:paddingRight="20dp">
             android:layout_marginEnd="10dp"
             android:text="2021년 10월 3일"
             android:textSize="15sp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="15dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="20dp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
 
@@ -56,8 +57,8 @@ android:paddingRight="20dp">
             android:text="6010"
             android:textColor="@color/black"
             android:textSize="40dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="30dp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/today"/>
 
@@ -69,7 +70,7 @@ android:paddingRight="20dp">
             android:text="걸음/월"
             android:textSize="12sp"
             android:layout_marginLeft="5dp"
-            android:layout_marginTop="47dp"
+            android:layout_marginTop="55dp"
             app:layout_constraintLeft_toRightOf="@+id/month_step"
             app:layout_constraintTop_toBottomOf="@+id/today"/>
 
@@ -79,11 +80,11 @@ android:paddingRight="20dp">
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="10dp"
-            android:text="10 km"
+            android:text="총 거리(월)"
             android:textColor="@color/black"
-            android:textSize="18dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="5dp"
+            android:textSize="15dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="7dp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/month_step" />
 
@@ -91,13 +92,12 @@ android:paddingRight="20dp">
             android:id="@+id/rec_topSlash"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
             android:text="|"
             android:textSize="18dp"
             android:gravity="center_horizontal"
             android:layout_marginTop="5dp"
-            app:layout_constraintLeft_toRightOf="@+id/rec_topDist"
-            app:layout_constraintRight_toLeftOf="@id/rec_topKcal"
+            app:layout_constraintLeft_toRightOf="@+id/icon1"
+            app:layout_constraintRight_toLeftOf="@id/icon2"
             app:layout_constraintTop_toBottomOf="@+id/month_step"/>
 
         <TextView
@@ -105,36 +105,36 @@ android:paddingRight="20dp">
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
-            android:layout_marginTop="5dp"
-            android:text="1500 kcal"
+            android:layout_marginTop="7dp"
+            android:text="칼로리"
             android:textColor="@color/black"
-            android:textSize="18dp"
-            app:layout_constraintLeft_toRightOf="@+id/rec_topDist"
-            app:layout_constraintRight_toLeftOf="@id/rec_plog"
+            android:textSize="15dp"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/month_step"/>
 
         <TextView
             android:id="@+id/rec_topSlash2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
+
             android:text="|"
             android:textSize="18dp"
             android:gravity="center_horizontal"
             android:layout_marginTop="5dp"
-            app:layout_constraintLeft_toRightOf="@+id/rec_topKcal"
-            app:layout_constraintRight_toLeftOf="@id/rec_plog"
+            app:layout_constraintLeft_toRightOf="@+id/icon2"
+            app:layout_constraintRight_toLeftOf="@id/icon3"
             app:layout_constraintTop_toBottomOf="@+id/month_step"/>
 
         <TextView
             android:id="@+id/rec_plog"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:layout_marginRight="35dp"
-            android:text="6 회"
+            android:layout_marginTop="7dp"
+            android:layout_marginRight="45dp"
+            android:text="플로깅"
             android:textColor="@color/black"
-            android:textSize="18dp"
+            android:textSize="15dp"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/month_step" />
 
@@ -147,15 +147,26 @@ android:paddingRight="20dp">
             android:layout_height="80dp"
             card_view:cardCornerRadius="30dp"
             android:layout_marginTop="15dp"
-            android:layout_marginLeft="10dp"
-            card_view:layout_constraintLeft_toLeftOf="parent"
+            android:layout_marginRight="40dp"
+            card_view:layout_constraintRight_toLeftOf="@+id/icon2"
             card_view:layout_constraintTop_toBottomOf="@+id/rec_topDist"
             card_view:cardBackgroundColor="@color/yellow">
 
+            <TextView
+                android:id="@+id/distance_data"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="10KM"
+                android:textStyle="bold"
+                android:layout_marginTop="50dp"
+                android:textColor="@color/white"
+                android:layout_gravity="center_horizontal"/>
+
             <ImageView
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_gravity="center"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="10dp"
+                android:layout_gravity="center_horizontal"
                 android:src="@drawable/ic_baseline_directions_walk_24_white"
                 app:layout_constraintTop_toBottomOf="@+id/rec_topDist"
                 app:layout_constraintLeft_toLeftOf="parent"/>
@@ -171,16 +182,27 @@ android:paddingRight="20dp">
             android:layout_height="80dp"
             card_view:cardCornerRadius="30dp"
             android:layout_marginTop="15dp"
-            android:layout_marginLeft="10dp"
-            card_view:layout_constraintLeft_toRightOf="@id/icon1"
-            card_view:layout_constraintRight_toLeftOf="@+id/icon3"
+            android:foregroundGravity="center_horizontal"
+            card_view:layout_constraintRight_toRightOf="parent"
+            card_view:layout_constraintLeft_toLeftOf="parent"
             card_view:layout_constraintTop_toBottomOf="@+id/rec_topDist"
             card_view:cardBackgroundColor="@color/pink">
 
+            <TextView
+                android:id="@+id/calory_data"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="150Kcal"
+                android:textStyle="bold"
+                android:layout_marginTop="50dp"
+                android:textColor="@color/white"
+                android:layout_gravity="center_horizontal"/>
+
             <ImageView
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_gravity="center"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="10dp"
+                android:layout_gravity="center_horizontal"
                 android:src="@drawable/ic_baseline_local_fire_department_24"
                 app:layout_constraintTop_toBottomOf="@+id/rec_topDist"
                 app:layout_constraintLeft_toLeftOf="parent"/>
@@ -194,18 +216,28 @@ android:paddingRight="20dp">
             android:layout_height="80dp"
             app:cardCornerRadius="30dp"
             android:layout_marginTop="15dp"
-            android:layout_marginRight="10dp"
-            app:layout_constraintRight_toRightOf="parent"
+            android:layout_marginLeft="40dp"
+            app:layout_constraintLeft_toRightOf="@id/icon2"
             app:layout_constraintTop_toBottomOf="@+id/rec_topDist"
             app:cardBackgroundColor="@color/darkgreen">
 
             <ImageView
-                android:layout_width="51dp"
-                android:layout_height="45dp"
-                android:layout_gravity="center"
-                android:src="@drawable/worldwide"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="10dp"
+                android:src="@drawable/earth_white"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/rec_topDist" />
+            <TextView
+                android:id="@+id/plog_data"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2회"
+                android:textStyle="bold"
+                android:layout_marginTop="52dp"
+                android:textColor="@color/white"
+                android:layout_gravity="center_horizontal"/>
 
         </androidx.cardview.widget.CardView>
 
@@ -222,12 +254,12 @@ android:paddingRight="20dp">
 
 <com.github.mikephil.charting.charts.BarChart
     android:id="@+id/rec_graph"
-    android:layout_width="390dp"
+    android:layout_width="380dp"
     android:layout_height="400dp"
     android:layout_marginTop="20dp"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintHorizontal_bias="0.5"
+    app:layout_constraintHorizontal_bias="0.8"
     app:layout_constraintTop_toBottomOf="@+id/rec_card"/>
 
 

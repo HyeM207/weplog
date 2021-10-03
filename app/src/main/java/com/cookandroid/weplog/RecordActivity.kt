@@ -46,6 +46,7 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.detail.*
 import kotlinx.android.synthetic.main.main_history.*
+import kotlinx.android.synthetic.main.record.*
 import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
@@ -70,6 +71,7 @@ class RecordActivity : AppCompatActivity(), bottomsheetFragment.onDataPassListen
     private var month_step : TextView ?= null
     private var total_kcal : TextView ?= null
     private var distance : TextView ?= null
+    private var rec_plog_data : TextView ?= null
     private var rec_btn : Button ?= null
     private lateinit var database: DatabaseReference
     private var date_list : ListView?= null
@@ -151,8 +153,9 @@ class RecordActivity : AppCompatActivity(), bottomsheetFragment.onDataPassListen
         today!!.text = todayDate
         rec_btn!!.text = currentYear + "년  " + currentMonth + "월"
         month_step = findViewById(R.id.month_step)
-        distance = findViewById(R.id.rec_topDist)
-        total_kcal = findViewById(R.id.rec_topKcal)
+        distance = findViewById(R.id.distance_data)
+        total_kcal = findViewById(R.id.calory_data)
+        rec_plog_data = findViewById(R.id.plog_data)
 
         calculateDataMatrix()
 
@@ -182,7 +185,7 @@ class RecordActivity : AppCompatActivity(), bottomsheetFragment.onDataPassListen
                     for(i in it.children){
                         for ( v in i.child("step").children){
                             var t_hashMap = HashMap<String, String>()
-                            for ( h in v.children){
+                            for ( h in v.children ){
                                 t_hashMap.put(h.key.toString(), h.value.toString())
                             }
                             step_list.add(t_hashMap)
@@ -213,9 +216,7 @@ class RecordActivity : AppCompatActivity(), bottomsheetFragment.onDataPassListen
     fun calculateDataMatrix(){
 
         barchart!!.description.isEnabled = false
-        //val custom: ValueFormatter = MyValueFormatter(Locale.getDefault())
         barchart!!.setDrawBarShadow(false)
-        //barchart!!.setDrawValueAboveBar(true)
         barchart!!.setPinchZoom(true)
         barchart!!.setDrawGridBackground(false)
         val xAxis = barchart!!.xAxis
@@ -245,55 +246,6 @@ class RecordActivity : AppCompatActivity(), bottomsheetFragment.onDataPassListen
         }
         var uid = Firebase.auth.currentUser!!.uid
         database = Firebase.database.reference
-//        var dayList= ArrayList<String>()
-//        var historyList=ArrayList<History>()
-//        var plogSum=0
-//        var distSum=0F
-//        var timeSum=0
-//        database.child("user/$uid/Pedometer/date/$month").get().addOnSuccessListener {
-//            Log.i("firebase", "check snapshot $it")
-//
-//            var post = it.children
-//
-//            for(p in post) {
-//                var pday = p.key
-//                Log.i("firebase", "got date value in setChoicedate $pday")
-//                dayList.add("$pday")
-//            }
-//            dayList.reverse()
-//
-//            for (day in dayList){
-//                var dayData=it.child("$day").children
-//                dayData=dayData.reversed()
-//                for (plog in dayData){
-//                    //플로그 객체 키 값
-//                    var key=plog.key
-//                    var History = History()
-//
-//                    var currentCalendar=Calendar.getInstance()
-//                    var dd = currentCalendar.get(Calendar.DAY_OF_MONTH).toString()
-//
-//                    History.month = (currentCalendar.get(Calendar.MONTH)+1).toString()
-//                    History.day = dd
-//                    History.time = it.child("$dd/$key/record/time").value.toString()
-//                    History.distance = it.child("$dd/$key/record/distance").value.toString()
-//                    History.startTime = it.child("$dd/$key/time/startTime").value.toString()
-//                    History.endTime = it.child("$dd/$key/time/endTime").value.toString()
-//
-//                    plogSum++
-//                    var split_time = History.time!!.split(":")
-//                    timeSum=split_time[0].toInt()*60+split_time[1].toInt()
-//                    distSum+= History.distance!!.toFloat()
-//
-//                    historyList.add(History)
-//                    Log.i("firebase", "day : $day, key : $key")
-//                }
-//
-//            }
-//            text_km.text= String.format("%.2fkm", distSum)
-//            text_time.text="${timeSum}분"
-//            text_plog.text="${plogSum}회"
-//        }
         listener = database.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 for (postSnapshot in snapshot.children) {
@@ -304,16 +256,36 @@ class RecordActivity : AppCompatActivity(), bottomsheetFragment.onDataPassListen
                                 var date: ArrayList<String> = ArrayList()
                                 var datecount : ArrayList<Int> = ArrayList()
                                 var month_plog = 0
+                                var month_kcal = 0f
                                 var month_steps : Int = 0
+                                var month_dist = 0f
+                                var w = 0
+                                var j = 0
+                                var r = 0
                                 for (data in snapshots.child("Pedometer").child("date").child(month).children){
                                     println("dd : " + data.value.toString())
                                     month_plog = month_plog + data.childrenCount.toInt()
                                     var step_count = 0
+                                    var dist_count = 0f
                                     for (d in data.children) {
                                         println("ddd : " + d.value.toString()) // 각 객체별 항목
                                         for ( s in d.children ){
                                             if(s.key == "step"){
                                                 step_count = step_count + s.childrenCount.toInt()
+                                                for ( k in s.children ){
+                                                    println("kk : " + k.child("type").value)
+                                                    if (k.child("type").value.toString() == "0"){
+                                                        w = w + 1
+
+                                                    } else if ( k.child("type").value.toString() == "1") {
+                                                        j = j + 1
+                                                    } else {
+                                                        r = r + 1
+                                                    }
+                                                }
+                                            }
+                                            if(s.key == "record"){
+                                                dist_count = dist_count + s.child("distance").value.toString().toFloat()
                                             }
                                         }
                                     }
@@ -322,9 +294,13 @@ class RecordActivity : AppCompatActivity(), bottomsheetFragment.onDataPassListen
                                     //datecount.add(data.childrenCount.toInt())
                                     println("step : " + step_count + "/" + data.key.toString() + "일")
                                     month_steps = month_steps + step_count // 그 달의 전체 걸음
+                                    month_dist = month_dist + dist_count // 그 달의 총 거리
+                                    month_kcal = w*0.05f + j*0.1f + r*0.2f
                                 }
-                                println("ddc : " + month_plog) // 그 달의 플로깅 횟수
+                                rec_plog_data!!.text = month_plog.toString() + " 회"
                                 month_step!!.text = month_steps.toString()
+                                distance!!.text = month_dist.toString() + "KM"
+                                total_kcal!!.text = String.format("%.2f", month_kcal) + " kcal"
                                 for ( i in 1..day){
                                     if ( i.toString() in date){
                                         println("i : " + i.toString())
