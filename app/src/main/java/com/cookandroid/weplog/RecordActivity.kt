@@ -299,8 +299,6 @@ class RecordActivity : AppCompatActivity(), bottomsheetFragment.onDataPassListen
                                     }
                                     date.add(data.key.toString()) // 일
                                     datecount.add(step_count) // 당일 걸음 수
-                                    //datecount.add(data.childrenCount.toInt())
-                                    println("step : " + step_count + "/" + data.key.toString() + "일")
                                     month_steps = month_steps + step_count // 그 달의 전체 걸음
                                     month_dist = month_dist + dist_count // 그 달의 총 거리
                                     month_kcal = w*0.05f + j*0.1f + r*0.2f
@@ -329,19 +327,10 @@ class RecordActivity : AppCompatActivity(), bottomsheetFragment.onDataPassListen
                                 var datasets = ArrayList<IBarDataSet>()
                                 datasets.add(set)
                                 var data = BarData(datasets)
-                                //data.setValueTextSize(6f)
-                                //data.barWidth = .6f
                                 barchart!!.data = data
-                                //barchart!!.xAxis.labelCount = day
-                                //barchart!!.xAxis.labelCount = line2_xlabels.size
                                 barchart!!.axisRight.setGranularity(1.0f)
                                 barchart!!.axisRight.setGranularityEnabled(true) // Required to enable granularity
                                 barchart!!.xAxis.valueFormatter = (MyValueFormatter3(line2_xlabels))
-
-                                //barchart!!.axisRight.valueFormatter = (MyValueFormatter3(bar_ylabels))
-                                //barchart!!.axisRight.isEnabled = false
-                                //barchart!!.setVisibleXRange(0f, 10f)
-
                                 barchart!!.notifyDataSetChanged()
                                 barchart!!.invalidate()
 
@@ -395,21 +384,50 @@ class RecordActivity : AppCompatActivity(), bottomsheetFragment.onDataPassListen
         database.child("user").child(Firebase.auth.currentUser!!.uid).child("Pedometer").child("date").child(clickDate).get().addOnSuccessListener {
             var date: ArrayList<String> = ArrayList()
             var datecount : ArrayList<Int> = ArrayList()
+            var month_plog = 0
+            var month_kcal = 0f
+            var month_steps : Int = 0
+            var month_dist = 0f
+            var w = 0
+            var j = 0
+            var r = 0
+            month_plog = month_plog + it.childrenCount.toInt()
             for ( data in it.children ){
                 var step_count = 0
+                var dist_count = 0f
                 for (d in data.children) {
                     println("ddd : " + d.value.toString()) // 각 객체별 항목
                     for ( s in d.children ){
                         if(s.key == "step"){
                             step_count = step_count + s.childrenCount.toInt()
+                            for ( k in s.children ){
+                                println("kk : " + k.child("type").value)
+                                if (k.child("type").value.toString() == "0"){
+                                    w = w + 1
+
+                                } else if ( k.child("type").value.toString() == "1") {
+                                    j = j + 1
+                                } else {
+                                    r = r + 1
+                                }
+                            }
+                        }
+                        if(s.key == "record"){
+                            dist_count = dist_count + s.child("distance").value.toString().toFloat()
                         }
                     }
                 }
                 date.add(data.key.toString()) // 일
                 datecount.add(step_count) // 당일 걸음 수
                 println("step : " + step_count + "/" + data.key.toString() + "일")
-                //month_steps = month_steps + step_count // 그 달의 전체 걸음
+                month_steps = month_steps + step_count // 그 달의 전체 걸음
+                month_dist = month_dist + dist_count // 그 달의 총 거리
+                month_kcal = w*0.05f + j*0.1f + r*0.2f
             }
+            rec_plog_data!!.text = month_plog.toString() + " 회"
+            month_step!!.text = month_steps.toString()
+            distance!!.text = month_dist.toString() + "KM"
+            total_kcal!!.text = String.format("%.2f", month_kcal) + " kcal"
             for ( i in 1..day){
                 if ( i.toString() in date){
                     println("i : " + i.toString())
