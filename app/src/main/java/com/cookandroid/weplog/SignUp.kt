@@ -29,7 +29,6 @@ class SignUp : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.signup)
-        setTitle("회원가입")
 
         database = Firebase.database.reference
         auth = FirebaseAuth.getInstance()
@@ -41,6 +40,7 @@ class SignUp : AppCompatActivity() {
         signup_phone = findViewById(R.id.signup_phone)
         signup_signBtn = findViewById(R.id.signup_signBtn)
 
+        supportActionBar!!.hide()
 
         // 회원가입 절차
         signup_signBtn.setOnClickListener {
@@ -112,6 +112,17 @@ class SignUp : AppCompatActivity() {
         //val myRef : DatabaseReference = database.getReference("message")
         //myRef.setValue("안녕 반가워!")
 
+    }
+
+
+    override fun onResume() {
+        super.onResume()
+        supportActionBar!!.hide()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        supportActionBar!!.show()
     }
 
 
