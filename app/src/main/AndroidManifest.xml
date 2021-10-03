@@ -62,8 +62,8 @@
             android:value="97057967321758666cd3716054500f3b" />
 
         <service android:name=".StepsTrackerService" />
-        <activity android:name=".RecordActivity" />
-        <activity android:name=".RecordDetailActivity" />
+        <activity android:name=".RecordActivity" android:parentActivityName=".MainActivity"/>
+        <activity android:name=".RecordDetailActivity" android:parentActivityName=".RecordActivity"/>
         <activity android:name=".RecordChoiceActivity" />
         <service android:name=".StepsTrackerService" />
         <activity android:name=".MyProfileActivity" />
