@@ -13,6 +13,10 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.content.res.ResourcesCompat
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -75,18 +79,13 @@ class MypageFragment : Fragment() {
         })
 
 
-
         val items = mutableListOf<ListViewItem>()
         items.add(ListViewItem(ResourcesCompat.getDrawable(requireActivity().resources, R.drawable.ic_baseline_account_circle_24, null), "내가 쓴 글"))
-//        items.add(ListViewItem(ResourcesCompat.getDrawable(requireActivity().resources, R.drawable.ic_baseline_vpn_key_24, null)!!, "계정관리"))
         items.add(ListViewItem(ResourcesCompat.getDrawable(requireActivity().resources, R.drawable.ic_baseline_article_24, null), "개인정보 수정"))
         items.add(ListViewItem(ResourcesCompat.getDrawable(requireActivity().resources, R.drawable.ic_baseline_lock_24, null), "비밀번호 변경"))
         items.add(ListViewItem(ResourcesCompat.getDrawable(requireActivity().resources, R.drawable.ic_baseline_power_settings_new_24, null), "로그아웃"))
         items.add(ListViewItem(ResourcesCompat.getDrawable(requireActivity().resources, R.drawable.ic_baseline_block_24, null), "회원탈퇴"))
         items.add(ListViewItem(ResourcesCompat.getDrawable(requireActivity().resources, R.drawable.ic_baseline_article_24, null)!!, "about"))
-//        items.add(ListViewItem(ResourcesCompat.getDrawable(requireActivity().resources, R.drawable.ic_baseline_power_settings_new_24, null)!!, "로그아웃"))
-//        items.add(ListViewItem(ResourcesCompat.getDrawable(requireActivity().resources, R.drawable.ic_baseline_block_24, null)!!, "회원탈퇴"))
-
 
         val adapter = ListViewAdapter(items)
 
@@ -96,11 +95,6 @@ class MypageFragment : Fragment() {
         view.my_list.setOnItemClickListener { parent: AdapterView<*>, view: View, position: Int, id: Long ->
             val item = parent.getItemAtPosition(position) as ListViewItem
             Toast.makeText(activity, item.title, Toast.LENGTH_SHORT).show()
-
-//            if (item.title=="계정관리"){
-//                val accountIntent=Intent(activity, MyAccountActivity::class.java)
-//                startActivity(accountIntent)
-//            }
 
             if (item.title=="내가 쓴 글"){
                 var intent = Intent(activity, MyPost::class.java)
@@ -116,7 +110,18 @@ class MypageFragment : Fragment() {
                 startActivity(pwIntent)
             }
             if (item.title=="로그아웃"){
+                var gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                    .requestIdToken(getString(R.string.default_web_client_id))
+                    .requestEmail()
+                    .build()
+
+                var googleSignInClient : GoogleSignInClient? = null
+                googleSignInClient = GoogleSignIn.getClient(requireContext(), gso)
+
                 Firebase.auth.signOut()
+                FirebaseAuth.getInstance().signOut()
+                googleSignInClient?.signOut()  // 구글 로그인 세션까지 로그아웃 처리
+
                 var intent = Intent(activity, Login::class.java)
                 startActivity(intent)
             }

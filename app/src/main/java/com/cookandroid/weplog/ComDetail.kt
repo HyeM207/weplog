@@ -88,9 +88,8 @@ class ComDetail : AppCompatActivity() {
                                             if (!this@ComDetail.isDestroyed) {  // 오류 해결
                                                 Glide.with(this@ComDetail)
                                                         .load(it.result)
-                                                        .placeholder(R.drawable.loading2)
+                                                        .placeholder(R.drawable.loading3)
                                                         .into(comdetail_photo)
-
                                             }
                                         }
                                     }
