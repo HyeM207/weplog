@@ -44,7 +44,7 @@ class VisitlistActivity:AppCompatActivity() {
         setContentView(R.layout.expandable_list)
 
         var actionBar = supportActionBar
-        actionBar!!.setTitle("방문 지역 목")
+        actionBar!!.setTitle("방문 지역 목록")
         actionBar!!.setDisplayHomeAsUpEnabled(true)
 
         expandableListView = findViewById(R.id.expendableList)
