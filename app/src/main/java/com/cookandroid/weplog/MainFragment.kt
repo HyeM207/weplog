@@ -31,6 +31,7 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.main.*
+import kotlinx.android.synthetic.main.main_history.*
 import kotlinx.android.synthetic.main.map.*
 import java.util.*
 
@@ -52,8 +53,30 @@ class MainFragment : Fragment() {
     lateinit var main_todayAuth : TextView
 
     val user = Firebase.auth.currentUser
+    private val CurrentUser = FirebaseAuth.getInstance().currentUser
+    val uid = CurrentUser?.uid
     var leftcredit = 0
     var lvname= arrayOf("Yellow", "Green", "Blue", "Red", "Purple")
+
+    var visitlist = ArrayList<VisitArea>()
+    var bigareaList= ArrayList<String>()
+    var trashareaList= ArrayList<String>()
+    var middleareaList= ArrayList<String>()
+    private var titleList: List<String>? = null
+    private var countList= ArrayList<Int>()
+
+
+    var listData = HashMap<String, List<String>>()
+    var childList = ArrayList<String>()
+    var headerList = ArrayList<String>()
+
+    var visitcountsum=0
+
+    //기록 계산 변수
+    var distSum=0F
+    var timeSum=0
+    var plogSum=0
+    var historyList=ArrayList<History>()
 
 
 
@@ -63,6 +86,8 @@ class MainFragment : Fragment() {
 
 
         checkLv()
+        loadvisit()
+        setPlog()
 
         database.child("user").child(Firebase.auth.currentUser!!.uid).child("Pedometer").child("date").child(date).addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -353,6 +378,154 @@ class MainFragment : Fragment() {
 
     }
 
+
+    fun loadvisit() {
+
+
+        database.child("user/$uid/visit").get().addOnSuccessListener {
+            var post = it.children
+
+            for (p in post) {
+                var pbig = p.key
+                Log.i("firebase", "bigarea $pbig")
+                bigareaList.add("$pbig")
+            }
+
+            //년도
+            for (y in bigareaList) {
+                post = it.child("$y").children
+                middleareaList.clear()
+
+                //큰 지역 아래 구역 가져오기 (시/군/구)
+                for (p in post) {
+                    var pmid = p.key
+                    middleareaList.add("$pmid")
+                    Log.i("firebase", "middle area $pmid")
+                }
+
+                for (mid in middleareaList) {
+
+                    trashareaList.clear()
+                    //해당 월에서 일 가져오기
+                    var dayPost = it.child("$y/$mid").children
+                    Log.i("firebase", "check mid $mid")
+
+                    for (d in dayPost) {
+                        var pday = d.key
+                        Log.i("firebase", "trasharea $pday")
+                        trashareaList.add("$pday")
+                    }
+
+
+                    for (day in trashareaList) {
+                        var dayCount = it.child("$y/$mid/$day/count").value
+                        Log.i("firebase", "daydata check $dayCount, day : $day")
+
+                        var visitarea = VisitArea()
+                        visitarea.bigarea = y
+                        visitarea.middlearea = mid
+                        visitarea.trasharea = day
+                        visitarea.count = it.child("$y/$mid/$day/count").value.toString().toInt()
+
+                        visitlist.add(visitarea)
+                    }
+
+
+                }
+
+            }
+
+
+            for (v in visitlist){
+//                childList.add(String.format("%s %s %s", v.bigarea, v.middlearea, v.trasharea))
+//                childList.add(v.trasharea)
+                headerList.add(String.format("%s %s", v.bigarea, v.middlearea))
+
+            }
+
+            //headerlist 중복데이터 제거
+            var header_distinct=headerList.distinct()
+            for (h in header_distinct){
+                childList= ArrayList<String>()
+                for (v in visitlist){
+                    var check_header=String.format("%s %s", v.bigarea, v.middlearea)
+                    Log.i("firebase", "check header list $check_header, header distinct : $h")
+
+                    if(check_header == h){
+                        childList.add(v.trasharea)
+                    }
+                }
+
+                if(childList.isNotEmpty()){
+                    listData.put(h, childList)
+                }
+
+            }
+
+            titleList = ArrayList(listData.keys)
+            countList.clear()
+
+            for (title in titleList as ArrayList<String>){
+                countList.add(listData[title]!!.size)
+            }
+
+            for (c in countList){
+                visitcountsum+=c
+            }
+
+            mainAreaText.text=String.format("%d개", visitcountsum)
+
+
+
+
+
+
+        }
+    }
+
+
+
+    fun setPlog(){
+        historyList.clear()
+        distSum=0f
+        timeSum=0
+        plogSum=0
+
+        var currentCalendar=Calendar.getInstance()
+        var y = currentCalendar.get(Calendar.YEAR)
+        var month = currentCalendar.get(Calendar.MONTH)+1
+        var day = currentCalendar.get(Calendar.DAY_OF_MONTH)
+
+        database.child("user/$uid/Pedometer/date/$y/$month").get().addOnSuccessListener {
+            if (it.child("$day").hasChildren()){
+                var dayData=it.child("$day").children
+                dayData=dayData.reversed()
+                for (plog in dayData){
+                    //플로그 객체 키 값
+                    var key=plog.key
+                    var History = History()
+                    History.year = "$y"
+                    History.month = "$month"
+                    History.day = "$day"
+                    History.time = it.child("$day/$key/record/time").value.toString()
+                    History.distance = it.child("$day/$key/record/distance").value.toString()
+                    History.startTime = it.child("$day/$key/time/startTime").value.toString()
+                    History.endTime = it.child("$day/$key/time/endTime").value.toString()
+
+                    plogSum++
+                    historyList.add(History)
+                }
+
+                mainNumText.text="${plogSum}회"
+
+
+            }
+
+
+
+        }
+
+    }
 
 
 
