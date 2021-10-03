@@ -12,7 +12,7 @@ android:paddingRight="20dp">
     android:id="@+id/rec_card"
     android:layout_marginTop="20dp"
     android:layout_width="match_parent"
-    android:layout_height="250dp"
+    android:layout_height="270dp"
     app:layout_constraintTop_toTopOf="parent"
     app:layout_constraintLeft_toLeftOf="parent"
     app:layout_constraintRight_toRightOf="parent">
@@ -156,7 +156,7 @@ android:paddingRight="20dp">
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_gravity="center"
-                android:src="@drawable/ic_baseline_local_fire_department_24"
+                android:src="@drawable/ic_baseline_directions_walk_24_white"
                 app:layout_constraintTop_toBottomOf="@+id/rec_topDist"
                 app:layout_constraintLeft_toLeftOf="parent"/>
 
@@ -203,7 +203,7 @@ android:paddingRight="20dp">
                 android:layout_width="51dp"
                 android:layout_height="45dp"
                 android:layout_gravity="center"
-                android:src="@drawable/ic_baseline_directions_walk_24_white"
+                android:src="@drawable/worldwide"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/rec_topDist" />
 
