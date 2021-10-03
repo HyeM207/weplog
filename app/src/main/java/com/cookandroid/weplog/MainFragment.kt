@@ -47,6 +47,8 @@ class MainFragment : Fragment() {
     private var mCircleProgressBar : CircleProgressBar?= null // 원형 그래프 (오늘의 스텝 수)
     private lateinit var database: DatabaseReference
     private var auth : FirebaseAuth? = null
+    lateinit var main_todayAuth : TextView
+
 
     fun update(day : String, month : String, year : String){
         var date = year + "/" + month + "/" + day
@@ -98,6 +100,7 @@ class MainFragment : Fragment() {
         mCircleProgressBar = view.findViewById(R.id.main_step)
         main_steptxt = view.findViewById(R.id.main_steptxt)
         main_kcaltxt = view.findViewById(R.id.main_kcaltxt)
+        main_todayAuth = view.findViewById(R.id.main_todayAuth)
 
         // main 페이지 접근 시 로그인 되어 있는지 확인
         val user = Firebase.auth.currentUser
@@ -117,14 +120,17 @@ class MainFragment : Fragment() {
         update(main_day.toString(), main_month.toString(), main_year.toString())
 
 
-        // nickname & grade 이미지 설정
+        // nickname & grade 이미지 설정 & 오늘의 인증 설정
         val userRef = Firebase.database.getReference("users")
 
         userRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
+                // 닉네임 설정
                 val name = snapshot.child(user?.uid.toString()).child("nickname").value
                 main_nickname.setText(name.toString())
 
+
+                // grade 설정
                 val grade = snapshot.child(user?.uid.toString()).child("grade").value.toString()
                 Log.e("grade", grade +" grade")
                 when(grade){
@@ -135,6 +141,42 @@ class MainFragment : Fragment() {
                     "5"-> main_lv.setImageResource(R.drawable.purple2_circle)
                 }
 
+                // 오늘의 인증 확인
+                val lastAuth = snapshot.child("lastAuth").value
+
+                if (lastAuth == null){  // 마지막 플러깅 기록이 null 일 때
+                    main_todayAuth.text = "플러깅을 하고 인증하세요."
+                }
+                else{
+                    var mCalendar = Calendar.getInstance()
+                    var todayDate = (mCalendar.get(Calendar.YEAR)).toString() + "/" + (mCalendar.get(Calendar.MONTH) + 1).toString() + "/" + (mCalendar.get(Calendar.DAY_OF_MONTH)).toString()
+
+                    if (! lastAuth.toString().equals(todayDate)){ // 오늘 인증 한 것이 없을때
+                        main_todayAuth.text = "플러깅을 하고 인증하세요."
+                    }
+                    else{
+                        var lastAuthPost = snapshot.child("lastAuthPost").value
+                        if (lastAuthPost != null)
+                        {
+
+                            var postRef = Firebase.database.getReference("community").child(lastAuthPost.toString())
+                            postRef.addValueEventListener(object : ValueEventListener {
+                                override fun onDataChange(snapshot: DataSnapshot) {
+                                    if (snapshot.exists()) {
+                                        var certified = snapshot.child("certified").value.toString()
+                                        var authCount = snapshot.child("authCount").value.toString()
+                                        Log.e("main", certified +", "+authCount)
+                                    }
+                                }
+                                override fun onCancelled(error: DatabaseError) {
+                                            TODO("Not yet implemented")
+                                        }
+                                    })
+                                            ///
+                        }
+                    }
+                }
+
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
@@ -143,7 +185,9 @@ class MainFragment : Fragment() {
         })
 
 
+        // 오늘 인증 관련해서 보여주기
 
+        //Firebase.database.getReference("users").child(user?.uid.toString())
 
 
 
