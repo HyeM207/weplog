@@ -25,6 +25,7 @@ class PasswordActivity:AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.mypage_password)
 
+
         auth = FirebaseAuth.getInstance()
         database = Firebase.database.reference
         supportActionBar!!.hide()
@@ -75,6 +76,8 @@ class PasswordActivity:AppCompatActivity() {
 
 
     }
+
+
 
 
     override fun onResume() {
