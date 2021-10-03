@@ -13,4 +13,6 @@
     <color name="darkgreen">#1D4028</color>
     <color name="pb">#393BBE</color>
     <color name="gray">#DCDCDF</color>
+    <color name="darkgray">#545454</color>
+
 </resources>
